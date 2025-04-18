@@ -14,3 +14,4 @@ class Predice(Base):
     pagado = Column(Boolean, default=False)
 
     socio = relationship("Socio", back_populates="predicciones")
+    partido = db.relationship('Partido', back_populates='predicciones')

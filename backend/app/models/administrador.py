@@ -12,3 +12,5 @@ class Administrador(Base):
     estado = Column(String(15), default='activo')
 
     usuario = relationship("Usuario", back_populates="administrador")
+    noticias = relationship("Noticia", back_populates="administrador")
+    patrocinadores = relationship("Patrocinador", back_populates="administrador")

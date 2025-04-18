@@ -16,3 +16,4 @@ class CesionAbono(Base):
     cedente = relationship("Socio", foreign_keys=[dni_cedente], back_populates="cesiones_cedidas")
     beneficiario = relationship("Socio", foreign_keys=[dni_beneficiario], back_populates="cesiones_recibidas")
     abono = relationship("Abono", back_populates="cesiones")
+    socio = db.relationship('Socio', back_populates='cesiones')

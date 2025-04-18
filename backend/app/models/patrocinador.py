@@ -12,3 +12,5 @@ class Patrocinador(Base):
     logo = Column(String(255), nullable=False)
     fecha_inicio = Column(Date, nullable=False)
     fecha_fin = Column(Date)
+    
+    administrador = relationship("Administrador", back_populates="patrocinadores")

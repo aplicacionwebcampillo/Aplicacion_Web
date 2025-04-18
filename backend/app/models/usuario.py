@@ -16,3 +16,5 @@ class Usuario(Base):
     socio = relationship("Socio", back_populates="usuario", uselist=False)
     administrador = relationship("Administrador", back_populates="usuario", uselist=False)
     compras = relationship("Compra", back_populates="usuario")
+    posts_foro = relationship("PostForo", back_populates="usuario")
+

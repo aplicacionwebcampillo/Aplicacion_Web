@@ -2,3 +2,4 @@ Implementar abonos digitales (compra, renovación, cesión)
 Implementar compra mediante un carrito
 Implementar clasificación/cuadro de copa
 Implementar sistema de predecir resultados
+

@@ -15,3 +15,5 @@ class Partido(Base):
     estadio = Column(String(100))
 
     competicion = relationship("Competicion", back_populates="partidos")
+    predicciones = db.relationship('Predice', back_populates='partido')
+

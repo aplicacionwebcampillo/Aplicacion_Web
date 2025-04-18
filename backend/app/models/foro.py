@@ -9,4 +9,6 @@ class PostForo(Base):
     moderado = Column(Boolean, default=False)
     tipo = Column(String(20), nullable=False)
     fecha = Column(DateTime)
+    
+    socio = relationship("Usuario", back_populates="posts_foro")
 

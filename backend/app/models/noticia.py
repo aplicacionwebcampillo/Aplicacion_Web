@@ -9,3 +9,5 @@ class Noticia(Base):
     imagen = Column(String(255))
     contenido = Column(Text, nullable=False)
     categoria = Column(String(50), nullable=False)
+    
+    administrador = relationship("Administrador", back_populates="noticias")
