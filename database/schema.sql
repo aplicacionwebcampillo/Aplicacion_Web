@@ -6,7 +6,7 @@ CREATE TABLE Usuario (
     telefono VARCHAR(15),
     fecha_nacimiento DATE NOT NULL,
     email VARCHAR(100) UNIQUE NOT NULL,
-    contraseña VARCHAR(255) NOT NULL
+    contrasena VARCHAR(255) NOT NULL
 );
 
 -- Tabla de socios (extiende Usuario)

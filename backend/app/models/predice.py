@@ -1,4 +1,4 @@
-from sqlalchemy import Column, String, Boolean, ForeignKey
+from sqlalchemy import Column, String, Boolean, ForeignKey, ForeignKeyConstraint
 from sqlalchemy.orm import relationship
 from app.database import Base
 
@@ -13,5 +13,13 @@ class Predice(Base):
     resultado = Column(String(20), nullable=False)
     pagado = Column(Boolean, default=False)
 
+    __table_args__ = (
+        ForeignKeyConstraint(
+            ['nombre_competicion', 'temporada_competicion', 'local', 'visitante'],
+            ['partido.nombre_competicion', 'partido.temporada_competicion', 'partido.local', 'partido.visitante']
+        ),
+    )
+
     socio = relationship("Socio", back_populates="predicciones")
-    partido = db.relationship('Partido', back_populates='predicciones')
+    partido = relationship("Partido", back_populates="predicciones")
+

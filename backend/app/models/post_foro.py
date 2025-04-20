@@ -1,5 +1,7 @@
-from sqlalchemy import Column, Integer, String, Text, Boolean, DateTime
+from sqlalchemy import Column, Integer, String, Boolean, Text, DateTime, ForeignKey
+
 from app.database import Base
+from sqlalchemy.orm import relationship
 
 class PostForo(Base):
     __tablename__ = "post_foro"
@@ -9,6 +11,6 @@ class PostForo(Base):
     moderado = Column(Boolean, default=False)
     tipo = Column(String(20), nullable=False)
     fecha = Column(DateTime)
+    dni_usuario = Column(String(9), ForeignKey("usuario.dni"), nullable=False)
     
-    socio = relationship("Usuario", back_populates="posts_foro")
-
+    usuario = relationship("Usuario", back_populates="posts_foro")

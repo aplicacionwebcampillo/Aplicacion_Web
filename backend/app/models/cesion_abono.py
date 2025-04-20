@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, Date, ForeignKey
+from sqlalchemy import Column, Integer, String, Date, ForeignKey, CheckConstraint, func
 from sqlalchemy.orm import relationship
 from app.database import Base
 
@@ -11,9 +11,24 @@ class CesionAbono(Base):
     id_abono = Column(Integer, ForeignKey("abono.id_abono"), nullable=False)
     fecha_inicio = Column(Date, nullable=False)
     fecha_fin = Column(Date, nullable=False)
-    fecha_cesion = Column(Date)
+    fecha_cesion = Column(Date, server_default=func.current_timestamp())
 
-    cedente = relationship("Socio", foreign_keys=[dni_cedente], back_populates="cesiones_cedidas")
-    beneficiario = relationship("Socio", foreign_keys=[dni_beneficiario], back_populates="cesiones_recibidas")
+    __table_args__ = (
+        CheckConstraint("dni_cedente <> dni_beneficiario", name="cedente_beneficiario_diferentes"),
+        CheckConstraint("fecha_fin > fecha_inicio", name="fechas_cesion_validas"),
+    )
+
     abono = relationship("Abono", back_populates="cesiones")
-    socio = db.relationship('Socio', back_populates='cesiones')
+
+    cedente = relationship(
+        "Socio",
+        foreign_keys=[dni_cedente],
+        back_populates="cesiones_realizadas"
+    )
+
+    beneficiario = relationship(
+        "Socio",
+        foreign_keys=[dni_beneficiario],
+        back_populates="cesiones_recibidas"
+    )
+

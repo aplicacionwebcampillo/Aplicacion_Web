@@ -1,31 +1,3 @@
-CREATE OR REPLACE FUNCTION validar_email_administrador()
-RETURNS TRIGGER AS $$
-BEGIN
-    IF NEW.email !~ '^[A-Za-z0-9._%-]+@[A-Za-z0-9.-]+[.][A-Za-z]+$' THEN
-        RAISE EXCEPTION 'El email no tiene un formato válido';
-    END IF;
-    RETURN NEW;
-END;
-$$ LANGUAGE plpgsql;
-
-CREATE TRIGGER trigger_validar_email_admin
-BEFORE INSERT OR UPDATE ON Administrador
-FOR EACH ROW EXECUTE FUNCTION validar_email_administrador();
-
-CREATE OR REPLACE FUNCTION validar_contrasena_administrador()
-RETURNS TRIGGER AS $$
-BEGIN
-    IF NEW.contraseña !~ '^(?=.*[A-Za-z])(?=.*\d).{8,}$' THEN
-        RAISE EXCEPTION 'La contraseña debe ser alfanumérica y tener más de 8 caracteres';
-    END IF;
-    RETURN NEW;
-END;
-$$ LANGUAGE plpgsql;
-
-CREATE TRIGGER trigger_validar_contrasena_admin
-BEFORE INSERT OR UPDATE ON Administrador
-FOR EACH ROW EXECUTE FUNCTION validar_contrasena_administrador();
-
 CREATE OR REPLACE FUNCTION validar_rol_administrador()
 RETURNS TRIGGER AS $$
 BEGIN
@@ -61,7 +33,7 @@ FOR EACH ROW EXECUTE FUNCTION validar_email_usuario();
 CREATE OR REPLACE FUNCTION validar_contrasena_usuario()
 RETURNS TRIGGER AS $$
 BEGIN
-    IF NEW.contraseña !~ '^(?=.*[A-Za-z])(?=.*\d).{8,}$' THEN
+    IF NEW.contrasena !~ '^(?=.*[A-Za-z])(?=.*\d).{8,}$' THEN
         RAISE EXCEPTION 'La contraseña debe ser alfanumérica y tener más de 8 caracteres';
     END IF;
     RETURN NEW;

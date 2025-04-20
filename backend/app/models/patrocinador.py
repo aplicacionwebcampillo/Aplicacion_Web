@@ -1,5 +1,7 @@
-from sqlalchemy import Column, Integer, String, Date
+from sqlalchemy import Column, Integer, String, Date, ForeignKey
 from app.database import Base
+from sqlalchemy.orm import relationship
+
 
 class Patrocinador(Base):
     __tablename__ = "patrocinador"
@@ -12,5 +14,6 @@ class Patrocinador(Base):
     logo = Column(String(255), nullable=False)
     fecha_inicio = Column(Date, nullable=False)
     fecha_fin = Column(Date)
+    dni_administrador = Column(String(9), ForeignKey("administrador.dni"), nullable=True)
     
     administrador = relationship("Administrador", back_populates="patrocinadores")

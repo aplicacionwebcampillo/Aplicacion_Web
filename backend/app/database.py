@@ -1,12 +1,23 @@
 from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker, declarative_base
-import os
-from dotenv import load_dotenv
+from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import sessionmaker, Session
 
-load_dotenv()
+DATABASE_URL = "postgresql://admin_bd:admin123@localhost/aplicacion_web"
 
-DATABASE_URL = os.getenv("DATABASE_URL")
-
+# Motor de conexión
 engine = create_engine(DATABASE_URL)
-SessionLocal = sessionmaker(bind=engine, autocommit=False, autoflush=False)
+
+# Creador de sesiones
+SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+
+# Base declarativa para los modelos
 Base = declarative_base()
+
+# Dependencia que se usa en los endpoints
+def get_db():
+    db: Session = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
+

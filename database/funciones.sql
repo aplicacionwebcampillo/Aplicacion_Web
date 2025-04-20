@@ -10,7 +10,7 @@ CREATE OR REPLACE FUNCTION registrar_usuario(
 RETURNS VOID AS $$
 BEGIN
     -- Insertar en tabla Usuario
-    INSERT INTO Usuario (dni, nombre, apellidos, telefono, fecha_nacimiento, email, contraseña)
+    INSERT INTO Usuario (dni, nombre, apellidos, telefono, fecha_nacimiento, email, contrasena)
     VALUES (p_dni, p_nombre, p_apellidos, p_telefono, p_fecha_nacimiento, p_email, p_contrasena);
     
 END;
@@ -31,7 +31,7 @@ CREATE OR REPLACE FUNCTION registrar_administrador(
 RETURNS VOID AS $$
 BEGIN
     -- Insertar en tabla Usuario
-    INSERT INTO Usuario (dni, nombre, apellidos, telefono, fecha_nacimiento, email, contraseña)
+    INSERT INTO Usuario (dni, nombre, apellidos, telefono, fecha_nacimiento, email, contrasena)
     VALUES (p_dni, p_nombre, p_apellidos, p_telefono, p_fecha_nacimiento, p_email, p_contrasena);
     
     -- Insertar en tabla Administrador
@@ -65,9 +65,9 @@ BEGIN
         apellidos = COALESCE(p_apellidos, apellidos),
         telefono = COALESCE(p_telefono, telefono),
         email = COALESCE(p_email, email),
-        contraseña = CASE 
+        contrasena = CASE 
                         WHEN p_contrasena IS NOT NULL THEN crypt(p_contrasena, gen_salt('bf'))
-                        ELSE contraseña 
+                        ELSE contrasena 
                      END
     WHERE dni = p_dni;
     
@@ -111,9 +111,9 @@ BEGIN
         apellidos = COALESCE(p_apellidos, apellidos),
         telefono = COALESCE(p_telefono, telefono),
         email = COALESCE(p_email, email),
-        contraseña = CASE 
+        contrasena = CASE 
                         WHEN p_contrasena IS NOT NULL THEN crypt(p_contrasena, gen_salt('bf'))
-                        ELSE contraseña 
+                        ELSE contrasena 
                      END
     WHERE dni = p_dni;
     
@@ -193,7 +193,7 @@ DECLARE
     v_num_socio VARCHAR(20);
 BEGIN
     -- Insertar en tabla Usuario primero
-    INSERT INTO Usuario(dni, nombre, apellidos, telefono, fecha_nacimiento, email, contraseña)
+    INSERT INTO Usuario(dni, nombre, apellidos, telefono, fecha_nacimiento, email, contrasena)
     VALUES (p_dni, p_nombre, p_apellidos, p_telefono, p_fecha_nacimiento, p_email, p_contrasena);
     
     -- Generar número de socio único (SOC-YYYYMMDD-XXXX)
