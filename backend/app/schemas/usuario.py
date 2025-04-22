@@ -7,7 +7,7 @@ class UsuarioBase(BaseModel):
     dni: str
     nombre: str
     apellidos: str
-    telefono: Optional[str]
+    telefono: Optional[str] = None
     fecha_nacimiento: date
     email: EmailStr
 

@@ -204,7 +204,6 @@ BEGIN
     INSERT INTO Socio(dni, num_socio, tipo_membresia)
     VALUES (p_dni, v_num_socio, p_tipo_membresia);
         
-    COMMIT;
 END;
 $$;
 
@@ -476,8 +475,7 @@ CREATE OR REPLACE PROCEDURE agregar_producto(
     p_descripcion TEXT,
     p_precio DECIMAL(10,2),
     p_stock INTEGER,
-    p_imagen VARCHAR(255),
-    p_categoria VARCHAR(50) DEFAULT NULL
+    p_imagen VARCHAR(255)
 )
 LANGUAGE plpgsql
 AS $$
@@ -487,15 +485,13 @@ BEGIN
         descripcion, 
         precio, 
         stock, 
-        imagen,
-        categoria
+        imagen
     ) VALUES (
         p_nombre,
         p_descripcion,
         p_precio,
         p_stock,
-        p_imagen,
-        p_categoria
+        p_imagen
     );
 END;
 $$;

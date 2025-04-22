@@ -12,7 +12,7 @@ class AdministradorBase(BaseModel):
 class AdministradorCreate(AdministradorBase):
     nombre: str
     apellidos: str
-    telefono: Optional[str]
+    telefono: Optional[str] = None
     fecha_nacimiento: date
     email: str
     contrasena: str

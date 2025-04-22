@@ -5,6 +5,9 @@ from app.schemas.usuario import UsuarioCreate, UsuarioUpdate
 def get_usuario(db: Session, dni: str):
     return db.query(Usuario).filter(Usuario.dni == dni).first()
 
+def get_usuarios(db: Session):
+    return db.query(Usuario).all()
+
 def create_usuario(db: Session, usuario: UsuarioCreate):
     db_usuario = Usuario(**usuario.dict())
     db.add(db_usuario)

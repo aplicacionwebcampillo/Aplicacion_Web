@@ -3,6 +3,7 @@ from sqlalchemy.orm import Session
 from app.schemas.usuario import UsuarioCreate, UsuarioUpdate, UsuarioResponse
 from app.crud import usuario as crud_usuario
 from app.database import get_db
+from typing import List
 
 router = APIRouter(prefix="/usuarios", tags=["usuarios"])
 
@@ -19,6 +20,10 @@ def obtener_usuario(dni: str, db: Session = Depends(get_db)):
     if not usuario:
         raise HTTPException(status_code=404, detail="Usuario no encontrado")
     return usuario
+
+@router.get("/usuarios/", response_model=List[UsuarioResponse])
+def listar_usuarios(db: Session = Depends(get_db)):
+    return crud_usuario.get_usuarios(db)
 
 @router.put("/{dni}", response_model=UsuarioResponse)
 def actualizar_usuario(dni: str, usuario: UsuarioUpdate, db: Session = Depends(get_db)):

@@ -11,6 +11,14 @@ class ProductoBase(BaseModel):
 class ProductoCreate(ProductoBase):
     pass
 
-class ProductoRead(ProductoBase):
-    id_producto: int
+class ProductoUpdate(BaseModel):
+    nombre: Optional[str] = None
+    descripcion: Optional[str] = None
+    precio: Optional[float] = None
+    stock: Optional[int] = None
+    imagen: Optional[str] = None
+
+class ProductoResponse(ProductoBase):
+    class Config:
+        orm_mode = True
 
