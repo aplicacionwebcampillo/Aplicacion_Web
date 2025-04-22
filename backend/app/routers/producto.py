@@ -39,10 +39,3 @@ def eliminar_producto(nombre: str, db: Session = Depends(get_db)):
         raise HTTPException(status_code=404, detail="Producto no encontrado")
     return {"ok": True, "mensaje": "Producto eliminado correctamente"}
 
-
-
-
-
-
-
-

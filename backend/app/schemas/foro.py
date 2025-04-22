@@ -7,11 +7,18 @@ class PostForoBase(BaseModel):
     tipo: str
     moderado: Optional[bool] = False
     fecha: Optional[datetime] = None
-    dni_socio: str
+    dni_usuario: str
 
 class PostForoCreate(PostForoBase):
     pass
 
-class PostForoRead(PostForoBase):
-    id_post: int
+class PostForoUpdate(BaseModel):
+    contenido: Optional[str] = None
+    tipo: Optional[str] = None
+    moderado: Optional[bool] = False
+    fecha: Optional[datetime] = None
+
+class PostForoResponse(PostForoBase):
+    class Config:
+        orm_mode = True
 

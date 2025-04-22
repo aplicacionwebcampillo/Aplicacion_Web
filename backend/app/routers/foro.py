@@ -1,12 +1,43 @@
-from fastapi import APIRouter, Depends
+
+from fastapi import APIRouter, Depends, HTTPException
+from typing import List
 from sqlalchemy.orm import Session
-from app.schemas.foro import PostForoCreate
-from app.crud import foro as crud
+from app.schemas.foro import PostForoCreate, PostForoUpdate, PostForoResponse
 from app.database import get_db
+from app.crud import foro as crud
 
-router = APIRouter(prefix="/foro", tags=["foro"])
+router = APIRouter(prefix="/posts_foro", tags=["Posts_foro"])
 
-@router.post("/")
-def crear_post_foro(post: PostForoCreate, db: Session = Depends(get_db)):
-    return crud.create_post_foro(db, post)
+@router.post("/", response_model=PostForoResponse)
+def crear_post_foro(post_foro: PostForoCreate, db: Session = Depends(get_db)):
+    try:
+        return crud.create_post_foro(db, post_foro)
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+@router.get("/", response_model=List[PostForoResponse])
+def listar_posts_foro(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
+    return crud.get_posts_foro(db, skip, limit)
+
+@router.get("/{contenido}", response_model=PostForoResponse)
+def obtener_post_foro(contenido: str, db: Session = Depends(get_db)):
+    post_foro = crud.get_post_foro(db, contenido)
+    if not post_foro:
+        raise HTTPException(status_code=404, detail="Post no encontrado")
+    return post_foro
+
+@router.put("/{contenido}", response_model=PostForoResponse)
+def actualizar_post_foro(contenido: str, post_foro_update: PostForoUpdate, db: Session = Depends(get_db)):
+    post_foro = crud.update_post_foro(db, contenido, post_foro_update)
+    if not post_foro:
+        raise HTTPException(status_code=404, detail="Post no encontrado")
+    return post_foro
+
+@router.delete("/{contenido}")
+def eliminar_post_foro(contenido: str, db: Session = Depends(get_db)):
+    ok = crud.delete_post_foro(db, contenido)
+    if not ok:
+        raise HTTPException(status_code=404, detail="Post no encontrado")
+    return {"ok": True, "mensaje": "Post eliminado correctamente"}
+
 

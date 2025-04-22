@@ -14,6 +14,18 @@ class PatrocinadorBase(BaseModel):
 class PatrocinadorCreate(PatrocinadorBase):
     dni_administrador: str
 
-class PatrocinadorRead(PatrocinadorBase):
-    id_patrocinador: int
+
+class PatrocinadorUpdate(BaseModel):
+    nombre: Optional[str] = None
+    tipo: Optional[str] = None
+    email: Optional[str] = None
+    telefono: Optional[str] = None
+    logo: Optional[str] = None
+    fecha_inicio: Optional[date] = None
+    fecha_fin: Optional[date] = None
+    dni_administrador: Optional[str] = None
+
+class PatrocinadorResponse(PatrocinadorBase):
+    class Config:
+        orm_mode = True
 
