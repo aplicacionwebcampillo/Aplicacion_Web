@@ -426,7 +426,7 @@ BEGIN
     SELECT COUNT(*) 
     INTO publicaciones_pendientes
     FROM Post_Foro
-    WHERE dni_autor = NEW.dni_autor
+    WHERE dni_usuario = NEW.dni_usuario
     AND moderado = FALSE;
     
     IF publicaciones_pendientes > 0 THEN
@@ -450,7 +450,7 @@ BEGIN
     END IF;
     
     -- No se puede editar si ha sido reportada
-    IF OLD.reportado = TRUE THEN
+    IF OLD.moderado = TRUE THEN
         RAISE EXCEPTION 'No se puede editar una publicación reportada';
     END IF;
     
@@ -465,11 +465,11 @@ FOR EACH ROW EXECUTE FUNCTION validar_edicion_publicacion();
 CREATE OR REPLACE FUNCTION validar_eliminacion_publicacion_simple()
 RETURNS TRIGGER AS $$
 DECLARE
-    es_autor BOOLEAN;
+    es_usuario BOOLEAN;
     es_administrador BOOLEAN;
 BEGIN
     -- Verificar si el operador es el autor (asumiendo que pasas el DNI como parámetro)
-    es_autor := (OLD.dni_autor = TG_ARGV[0]);
+    es_usuario := (OLD.dni_usuario = TG_ARGV[0]);
     
     -- Verificar si el operador es administrador
     SELECT EXISTS (
@@ -478,8 +478,8 @@ BEGIN
     ) INTO es_administrador;
     
     -- Solo permitir eliminación por autor (si no está reportada) o administrador
-    IF NOT ((es_autor AND NOT OLD.reportado) OR es_administrador) THEN
-        RAISE EXCEPTION 'Solo el autor (si no está reportada) o un administrador pueden eliminar publicaciones';
+    IF NOT ((es_usuario AND NOT OLD.moderado) OR es_administrador) THEN
+        RAISE EXCEPTION 'Solo el usuario (si no está moderado) o un administrador pueden eliminar publicaciones';
     END IF;
     
     RETURN OLD;

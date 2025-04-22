@@ -946,7 +946,7 @@ $$ LANGUAGE plpgsql;
 CREATE OR REPLACE FUNCTION crear_post_foro(
     p_contenido TEXT,
     p_tipo VARCHAR(20),
-    p_dni_autor VARCHAR(9)
+    p_dni_usuario VARCHAR(9)
 )
 RETURNS INTEGER AS $$
 DECLARE
@@ -958,10 +958,11 @@ BEGIN
     END IF;
     
     -- Insertar la nueva publicación
-    INSERT INTO Post_Foro (contenido, tipo)
-    VALUES (p_contenido, p_tipo)
+    INSERT INTO Post_Foro (contenido, tipo, dni_usuario)
+    VALUES (p_contenido, p_tipo, p_dni_usuario)
     RETURNING id_post INTO nuevo_id;
     
+    RETURN nuevo_id; 
 END;
 $$ LANGUAGE plpgsql;
 
@@ -1292,8 +1293,8 @@ BEGIN
     END IF;
     
     -- Insertar la noticia
-    INSERT INTO Noticia (titular, imagen, contenido, categoria)
-    VALUES (p_titular, p_imagen, p_contenido, p_categoria)
+    INSERT INTO Noticia (titular, imagen, contenido, categoria, dni_administrador)
+    VALUES (p_titular, p_imagen, p_contenido, p_categoria, p_dni_admin)
     RETURNING id_noticia INTO v_id_noticia;
     
     RETURN v_id_noticia;
@@ -1528,12 +1529,14 @@ CREATE OR REPLACE FUNCTION agregar_patrocinador(
   p_email VARCHAR(100),
   p_telefono VARCHAR(15),
   p_logo VARCHAR(255),
-  p_fecha_inicio DATE
+  p_fecha_inicio DATE,
+  p_fecha_fin DATE, 
+  p_dni_admin VARCHAR(9)
 ) 
 RETURNS VOID AS $$
 BEGIN
-  INSERT INTO Patrocinador (nombre, tipo, email, telefono, logo, fecha_inicio)
-  VALUES (p_nombre, p_tipo, p_email, p_telefono, p_logo, p_fecha_inicio);
+  INSERT INTO Patrocinador (nombre, tipo, email, telefono, logo, fecha_inicio, fecha_fin, dni_administrador)
+  VALUES (p_nombre, p_tipo, p_email, p_telefono, p_logo, p_fecha_inicio, p_fecha_inicio, p_dni_admin);
 END;
 $$ LANGUAGE plpgsql;
 
@@ -1556,7 +1559,10 @@ CREATE OR REPLACE FUNCTION modificar_patrocinador(
   p_tipo VARCHAR(50),
   p_email VARCHAR(100),
   p_telefono VARCHAR(15),
-  p_logo VARCHAR(255)
+  p_logo VARCHAR(255),
+  p_fecha_inicio DATE,
+  p_fecha_fin DATE, 
+  p_dni_admin VARCHAR(9)
 ) 
 RETURNS VOID AS $$
 BEGIN
@@ -1566,7 +1572,10 @@ BEGIN
     tipo = p_tipo,
     email = p_email,
     telefono = p_telefono,
-    logo = p_logo
+    logo = p_logo,
+    fecha_inicio = p_fecha_inicio,
+    fecha_fin = p_fecha_fin, 
+    dni_administrador = p_dni_admin
   WHERE id_patrocinador = p_id_patrocinador;
 END;
 $$ LANGUAGE plpgsql;
