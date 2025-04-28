@@ -841,15 +841,16 @@ CREATE OR REPLACE PROCEDURE agregar_jugador(
     p_posicion VARCHAR(50),
     p_fecha_nacimiento DATE,
     p_foto VARCHAR(255) DEFAULT NULL,
-    p_biografia TEXT DEFAULT NULL
+    p_biografia TEXT DEFAULT NULL,
+    p_dorsal INTEGER
 )
 AS $$
 DECLARE
     nuevo_id INTEGER;
 BEGIN
     -- Insertar el nuevo jugador
-    INSERT INTO Jugador (id_equipo, nombre, posicion, fecha_nacimiento, foto, biografia)
-    VALUES (p_id_equipo, p_nombre, p_posicion, p_fecha_nacimiento, p_foto, p_biografia)
+    INSERT INTO Jugador (id_equipo, nombre, posicion, fecha_nacimiento, foto, biografia, dorsal)
+    VALUES (p_id_equipo, p_nombre, p_posicion, p_fecha_nacimiento, p_foto, p_biografia, p_dorsal)
     RETURNING id_jugador INTO nuevo_id;
     
     -- Actualizar el contador de jugadores en el equipo
@@ -906,7 +907,8 @@ CREATE OR REPLACE PROCEDURE modificar_jugador(
     p_posicion VARCHAR(50) DEFAULT NULL,
     p_fecha_nacimiento DATE DEFAULT NULL,
     p_foto VARCHAR(255) DEFAULT NULL,
-    p_biografia TEXT DEFAULT NULL
+    p_biografia TEXT DEFAULT NULL,
+    p_dorsal INTEGER
 )
 AS $$
 DECLARE
@@ -928,6 +930,7 @@ BEGIN
         fecha_nacimiento = COALESCE(p_fecha_nacimiento, fecha_nacimiento),
         foto = COALESCE(p_foto, foto),
         biografia = COALESCE(p_biografia, biografia)
+        dorsal = COALESCE(p_dorsal, dorsal)
     WHERE id_jugador = p_id_jugador;
     
     -- Si cambió de equipo, actualizar los contadores
@@ -979,7 +982,7 @@ BEGIN
     -- Verificar si el editor es el autor original
     SELECT EXISTS (
         SELECT 1 FROM Autoria_Post
-        WHERE id_post = p_id_post AND dni_autor = p_dni_editor
+        WHERE id_post = p_id_post AND dni_usuario = p_dni_editor
     ) INTO es_autor;
     
     -- Verificar si la publicación está reportada
@@ -1010,8 +1013,8 @@ DECLARE
 BEGIN
     -- Verificar roles
     SELECT EXISTS (
-        SELECT 1 FROM Autoria_Post
-        WHERE id_post = p_id_post AND dni_autor = p_dni_solicitante
+        SELECT 1 FROM post_foro
+        WHERE id_post = p_id_post AND dni_usuario = p_dni_solicitante
     ) INTO es_autor;
     
     SELECT EXISTS (
@@ -1072,14 +1075,14 @@ $$ LANGUAGE plpgsql;
 CREATE OR REPLACE FUNCTION crear_encuesta(
     p_contenido TEXT,
     p_opciones TEXT,  -- Opciones como texto separado por comas
-    p_dni_autor VARCHAR(9)
+    p_dni_usuario VARCHAR(9)
 )
 RETURNS INTEGER AS $$
 DECLARE
     post_id INTEGER;
 BEGIN
     -- Validar que el autor es socio
-    IF NOT EXISTS (SELECT 1 FROM Socio WHERE dni = p_dni_autor) THEN
+    IF NOT EXISTS (SELECT 1 FROM Socio WHERE dni = p_dni_usuario) THEN
         RAISE EXCEPTION 'Solo los socios pueden crear encuestas';
     END IF;
     
@@ -1096,14 +1099,14 @@ $$ LANGUAGE plpgsql;
 
 CREATE OR REPLACE FUNCTION crear_votacion(
     p_contenido TEXT,
-    p_dni_autor VARCHAR(9)
+    p_dni_usuario VARCHAR(9)
 )
 RETURNS INTEGER AS $$
 DECLARE
     post_id INTEGER;
 BEGIN
     -- Validar que el autor es socio
-    IF NOT EXISTS (SELECT 1 FROM Socio WHERE dni = p_dni_autor) THEN
+    IF NOT EXISTS (SELECT 1 FROM Socio WHERE dni = p_dni_usuario) THEN
         RAISE EXCEPTION 'Solo los socios pueden crear votaciones';
     END IF;
     

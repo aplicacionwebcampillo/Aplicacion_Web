@@ -12,5 +12,6 @@ class Jugador(Base):
     fecha_nacimiento = Column(Date, nullable=False)
     foto = Column(String(255))
     biografia = Column(Text)
+    dorsal = Column(Integer, nullable=False)
 
     equipo = relationship("Equipo", back_populates="jugadores")

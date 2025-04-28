@@ -9,10 +9,21 @@ class JugadorBase(BaseModel):
     fecha_nacimiento: date
     foto: Optional[str] = None
     biografia: Optional[str] = None
+    dorsal: int
 
 class JugadorCreate(JugadorBase):
     pass
 
-class JugadorRead(JugadorBase):
-    id_jugador: int
+class JugadorUpdate(BaseModel):
+    id_equipo: Optional[int] = None
+    nombre: Optional[str] = None
+    posicion: Optional[str] = None
+    fecha_nacimiento: Optional[date] = None
+    foto: Optional[str] = None
+    biografia: Optional[date] = None
+    dorsal: Optional[int] = None
+
+class JugadorResponse(JugadorBase):
+    class Config:
+        orm_mode = True
 

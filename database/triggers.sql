@@ -445,7 +445,7 @@ CREATE OR REPLACE FUNCTION validar_edicion_publicacion()
 RETURNS TRIGGER AS $$
 BEGIN
     -- Solo el autor puede editar
-    IF OLD.dni_autor != NEW.dni_autor THEN
+    IF OLD.dni_usuario != NEW.dni_usuario THEN
         RAISE EXCEPTION 'Solo el autor puede editar la publicación';
     END IF;
     
@@ -462,27 +462,34 @@ CREATE TRIGGER trigger_validar_edicion_publicacion
 BEFORE UPDATE ON Post_Foro
 FOR EACH ROW EXECUTE FUNCTION validar_edicion_publicacion();
 
-CREATE OR REPLACE FUNCTION validar_eliminacion_publicacion_simple()
-RETURNS TRIGGER AS $$
+CREATE OR REPLACE FUNCTION eliminar_post_foro(p_id_post INTEGER, p_dni VARCHAR)
+RETURNS VOID AS $$
 DECLARE
-    es_usuario BOOLEAN;
-    es_administrador BOOLEAN;
+    autor_dni VARCHAR;
+    moderado BOOLEAN;
+    es_admin BOOLEAN;
 BEGIN
-    -- Verificar si el operador es el autor (asumiendo que pasas el DNI como parámetro)
-    es_usuario := (OLD.dni_usuario = TG_ARGV[0]);
-    
-    -- Verificar si el operador es administrador
+    -- Obtener el autor del post y si está moderado
+    SELECT dni_usuario, moderado INTO autor_dni, moderado
+    FROM post_foro
+    WHERE id_post = p_id_post;
+
+    -- Verificar si es administrador
     SELECT EXISTS (
-        SELECT 1 FROM Administrador 
-        WHERE dni = TG_ARGV[0]
-    ) INTO es_administrador;
-    
-    -- Solo permitir eliminación por autor (si no está reportada) o administrador
-    IF NOT ((es_usuario AND NOT OLD.moderado) OR es_administrador) THEN
+        SELECT 1 FROM administrador WHERE dni = p_dni
+    ) INTO es_admin;
+
+    -- Validaciones
+    IF autor_dni IS NULL THEN
+        RAISE EXCEPTION 'El post no existe';
+    END IF;
+
+    IF NOT ((autor_dni = p_dni AND NOT moderado) OR es_admin) THEN
         RAISE EXCEPTION 'Solo el usuario (si no está moderado) o un administrador pueden eliminar publicaciones';
     END IF;
-    
-    RETURN OLD;
+
+    -- Eliminar el post
+    DELETE FROM post_foro WHERE id_post = p_id_post;
 END;
 $$ LANGUAGE plpgsql;
 
