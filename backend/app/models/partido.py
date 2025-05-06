@@ -1,8 +1,7 @@
-from sqlalchemy import Column, String, Date, Time
+from sqlalchemy import Column, String, Date, Time, ForeignKeyConstraint
 from sqlalchemy.orm import relationship
 from app.database import Base
 
-# Definición del modelo Partido
 class Partido(Base):
     __tablename__ = 'partido'
     
@@ -14,12 +13,18 @@ class Partido(Base):
     hora = Column(Time, nullable=False)
     resultado = Column(String(20), nullable=True)
     estadio = Column(String(100), nullable=True)
-    
-    competicion = relationship("Competicion", 
-                               back_populates="partidos", 
-                               foreign_keys=[nombre_competicion, temporada_competicion])
-    
+
+    __table_args__ = (
+        ForeignKeyConstraint(
+            ['nombre_competicion', 'temporada_competicion'],
+            ['competicion.nombre', 'competicion.temporada']
+        ),
+    )
+
+    competicion = relationship("Competicion", back_populates="partidos")
+    predicciones = relationship("Predice", back_populates="partido", cascade="all, delete")
+
+
     def __repr__(self):
         return f"<Partido {self.local} vs {self.visitante} ({self.dia} {self.hora})>"
-
 

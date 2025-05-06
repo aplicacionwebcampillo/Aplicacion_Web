@@ -4,6 +4,8 @@ from app.schemas.socio_abono import SocioAbonoCreate, SocioAbonoUpdate
 from app.models.abono import Abono
 import datetime
 from fastapi import HTTPException
+from app.crud.abono import get_abono
+from datetime import date
 
 
 def create_socio_abono(db: Session, socio_abono: SocioAbonoCreate):
@@ -43,4 +45,33 @@ def delete_socio_abono(db: Session, dni: str, id_abono: int):
     db.delete(socio_abono)
     db.commit()
     return True
+
+def renovar_socio_abono(db: Session, dni: str, id_abono_actual: int, id_abono_nuevo: int):
+    socio_abono_actual = db.query(SocioAbono).filter(
+        SocioAbono.dni == dni, SocioAbono.id_abono == id_abono_actual
+    ).first()
+
+    if not socio_abono_actual:
+        raise HTTPException(status_code=404, detail="Abono actual no encontrado")
+    
+    abono_actual = db.query(Abono).filter(Abono.id_abono == id_abono_actual).first()
+    if not abono_actual:
+        raise HTTPException(status_code=404, detail="Abono actual no encontrado")
+    
+    nuevo_socio_abono = SocioAbono(
+        dni=dni,
+        id_abono=id_abono_nuevo,
+        fecha_compra=date.today(),
+        pagado=False
+    )
+
+    db.add(nuevo_socio_abono)
+    db.commit()
+    db.refresh(nuevo_socio_abono)
+
+    return nuevo_socio_abono
+
+
+
+
 
