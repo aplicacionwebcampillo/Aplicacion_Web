@@ -17,4 +17,7 @@ class Usuario(Base):
     administrador = relationship("Administrador", back_populates="usuario", uselist=False)
     compras = relationship("Compra", back_populates="usuario")
     posts_foro = relationship("PostForo", back_populates="usuario")
+    cesiones_recibidas = relationship("CesionAbono", back_populates="usuario_beneficiario")
+
+
 

@@ -4,8 +4,7 @@ from app.database import Base
 
 class Jugador(Base):
     __tablename__ = "jugador"
-
-    id_jugador = Column(Integer, primary_key=True)
+    id_jugador = Column(Integer, primary_key=True, autoincrement=True)
     id_equipo = Column(Integer, ForeignKey("equipo.id_equipo", ondelete="SET NULL"), nullable=False)
     nombre = Column(String(100), nullable=False)
     posicion = Column(String(50), nullable=False)
@@ -15,3 +14,4 @@ class Jugador(Base):
     dorsal = Column(Integer, nullable=False)
 
     equipo = relationship("Equipo", back_populates="jugadores")
+

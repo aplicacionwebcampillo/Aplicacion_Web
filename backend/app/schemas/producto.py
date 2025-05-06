@@ -18,7 +18,10 @@ class ProductoUpdate(BaseModel):
     stock: Optional[int] = None
     imagen: Optional[str] = None
 
-class ProductoResponse(ProductoBase):
-    class Config:
-        orm_mode = True
+class ProductoResponse(BaseModel):
+    id_producto: int
+    nombre: str
+    precio: float
+    stock: int
+    imagen: str
 

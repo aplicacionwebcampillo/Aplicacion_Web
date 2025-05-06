@@ -1,42 +1,61 @@
-from fastapi import APIRouter, Depends, HTTPException
-from typing import List
+from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
-from app.schemas.jugador import JugadorCreate, JugadorUpdate, JugadorResponse
+from typing import List
+from app import crud, schemas, models
 from app.database import get_db
-from app.crud import jugador as crud
+from app.schemas.jugador import JugadorCreate, JugadorUpdate, JugadorResponse
+from app.crud import jugador as jugador_crud
 
-router = APIRouter(prefix="/jugadores", tags=["Jugadores"])
+router = APIRouter()
 
 @router.post("/", response_model=JugadorResponse)
 def crear_jugador(jugador: JugadorCreate, db: Session = Depends(get_db)):
-    try:
-        return crud.create_jugador(db, jugador)
-    except Exception as e:
-        raise HTTPException(status_code=400, detail=str(e))
+    db_jugador = crud.jugador.create_jugador(db=db, jugador=jugador)
+    
+    if db_jugador:
+        equipo = crud.equipo.get_equipo(db, db_jugador.id_equipo)
+        if equipo:
+            equipo.num_jugadores += 1
+            db.commit()
+            db.refresh(equipo)
+    
+    return db_jugador
+
+
+@router.get("/{jugador_id}", response_model=JugadorResponse)
+def obtener_jugador(jugador_id: int, db: Session = Depends(get_db)):
+    db_jugador = crud.jugador.get_jugador(db=db, jugador_id=jugador_id)
+    if db_jugador is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Jugador no encontrado")
+    return db_jugador
+
 
 @router.get("/", response_model=List[JugadorResponse])
-def listar_jugador(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
-    return crud.get_jugadores(db, skip, limit)
-
-@router.get("/{nombre}", response_model=JugadorResponse)
-def obtener_jugador(nombre: str, db: Session = Depends(get_db)):
-    jugador = crud.get_jugador(db, nombre)
-    if not jugador:
-        raise HTTPException(status_code=404, detail="Jugador no encontrado")
-    return jugador
-
-@router.put("/{nombre}", response_model=JugadorResponse)
-def actualizar_jugadorr(nombre: str, jugador_update: JugadorUpdate, db: Session = Depends(get_db)):
-    jugador = crud.update_jugador(db, nombre, jugador_update)
-    if not jugador:
-        raise HTTPException(status_code=404, detail="Jugador no encontrado")
-    return jugador
-
-@router.delete("/{nombre}")
-def eliminar_jugador(nombre: str, db: Session = Depends(get_db)):
-    ok = crud.delete_jugador(db, nombre)
-    if not ok:
-        raise HTTPException(status_code=404, detail="Jugador no encontrado")
-    return {"ok": True, "mensaje": "Jugador eliminado correctamente"}
+def obtener_jugadores(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
+    db_jugadores = crud.jugador.get_jugadores(db=db, skip=skip, limit=limit)
+    return db_jugadores
 
 
+@router.put("/{jugador_id}", response_model=JugadorResponse)
+def actualizar_jugador(jugador_id: int, jugador_update: JugadorUpdate, db: Session = Depends(get_db)):
+    db_jugador = crud.jugador.update_jugador(db=db, jugador_id=jugador_id, jugador_update=jugador_update)
+    if db_jugador is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Jugador no encontrado")
+    return db_jugador
+
+
+@router.delete("/{jugador_id}", response_model=JugadorResponse)
+def eliminar_jugador(jugador_id: int, db: Session = Depends(get_db)):
+    db_jugador = crud.jugador.delete_jugador(db=db, jugador_id=jugador_id)
+    if db_jugador is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Jugador no encontrado")
+    
+    # Actualizar el campo num_jugadores del equipo correspondiente
+    equipo = crud.equipo.get_equipo(db, db_jugador.id_equipo)
+    if equipo:
+        equipo.num_jugadores -= 1
+        db.commit()
+        db.refresh(equipo)
+    
+    return db_jugador
+    

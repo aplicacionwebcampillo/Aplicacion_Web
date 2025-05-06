@@ -18,19 +18,7 @@ class Socio(Base):
 
     usuario = relationship("Usuario", back_populates="socio")
     predicciones = relationship("Predice", back_populates="socio")
+    cesiones_realizadas = relationship("CesionAbono", back_populates="socio_cedente")
     socio_abonos = relationship("SocioAbono", back_populates="socio")
-    
-    cesiones_realizadas = relationship(
-        "CesionAbono",
-        foreign_keys=[CesionAbono.dni_cedente],
-        back_populates="cedente"
-    )
-
-    cesiones_recibidas = relationship(
-        "CesionAbono",
-        foreign_keys=[CesionAbono.dni_beneficiario],
-        back_populates="beneficiario"
-    )
-
 
 

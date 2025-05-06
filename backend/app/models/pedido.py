@@ -1,13 +1,14 @@
-from sqlalchemy import Column, Integer, Numeric
+from sqlalchemy import Column, Integer, Float, Table, ForeignKey
 from sqlalchemy.orm import relationship
 from app.database import Base
+from app.models.pedido_producto import pedido_producto
 
 class Pedido(Base):
     __tablename__ = "pedido"
 
-    id_pedido = Column(Integer, primary_key=True)
-    descuento = Column(Numeric(10, 2), default=0.00)
-    precio_total = Column(Numeric(10, 2), nullable=False)
-    cantidad = Column(Integer)
+    id_pedido = Column(Integer, primary_key=True, index=True)
+    descuento = Column(Float)
+    precio_total = Column(Float)
 
+    productos = relationship('Producto', secondary='pedido_producto', back_populates='pedidos')
     compras = relationship("Compra", back_populates="pedido")

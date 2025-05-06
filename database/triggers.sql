@@ -145,19 +145,22 @@ RETURNS TRIGGER AS $$
 DECLARE
     dias_restantes INTEGER;
 BEGIN
-    -- Solo permitir renovación si el abono está próximo a expirar (últimos 30 días)
-    SELECT (a.fecha_fin - CURRENT_DATE) 
-    INTO dias_restantes
-    FROM Abono a
-    WHERE a.id_abono = NEW.id_abono;
-    
-    IF dias_restantes > 30 THEN
-        RAISE EXCEPTION 'Solo se puede renovar el abono en los últimos 30 días antes de su expiración';
+    -- Solo validar si el socio está intentando cambiar de abono (renovación)
+    IF NEW.id_abono <> OLD.id_abono THEN
+        SELECT (a.fecha_fin - CURRENT_DATE)
+        INTO dias_restantes
+        FROM Abono a
+        WHERE a.id_abono = NEW.id_abono;
+        
+        IF dias_restantes > 30 THEN
+            RAISE EXCEPTION 'Solo se puede renovar el abono en los últimos 30 días antes de su expiración';
+        END IF;
     END IF;
-    
+
     RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
+
 
 CREATE TRIGGER trigger_validar_renovacion_abono
 BEFORE UPDATE ON Socio_Abono

@@ -1,52 +1,65 @@
 from sqlalchemy.orm import Session
-from sqlalchemy import text
+from app import models, schemas
+from sqlalchemy.exc import IntegrityError
 from app.models.jugador import Jugador
 from app.schemas.jugador import JugadorCreate, JugadorUpdate
 
 def create_jugador(db: Session, jugador: JugadorCreate):
-    db.execute(text("""
-        SELECT agregar_jugador(
-            :p_id_equipo,
-            :p_nombre,
-            :p_posicion,
-            :p_fecha_nacimiento,
-            :p_foto,
-            :p_biografia,
-            :p_dorsal
-        )
-    """), {
-        "p_id_equipo": jugador.id_equipo,
-        "p_nombre": jugador.nombre,
-        "p_posicion": jugador.posicion,
-        "p_fecha_nacimiento": jugador.fecha_nacimiento,
-        "p_foto": jugador.foto,
-	"p_biografia": jugador.biografia,
-        "p_dorsal": jugador.dorsal
-    })
-    db.commit()
-    return db.query(Jugador).filter(Jugador.nombre == jugador.nombre).first()
+    db_jugador = Jugador(
+        id_equipo=jugador.id_equipo,
+        nombre=jugador.nombre,
+        posicion=jugador.posicion,
+        fecha_nacimiento=jugador.fecha_nacimiento,
+        foto=jugador.foto,
+        biografia=jugador.biografia,
+        dorsal=jugador.dorsal,
+    )
+    try:
+        db.add(db_jugador)
+        db.commit()
+        db.refresh(db_jugador) 
+        return db_jugador
+    except IntegrityError:
+        db.rollback()  
+        raise Exception("Error al crear el jugador, es posible que el equipo no exista.")
 
-def get_jugador(db: Session, nombre: str):
-    return db.query(Jugador).filter(Jugador.nombre == nombre).first()
+def get_jugador(db: Session, jugador_id: int):
+    # Buscar el jugador por su id
+    return db.query(Jugador).filter(Jugador.id_jugador == jugador_id).first()
 
 def get_jugadores(db: Session, skip: int = 0, limit: int = 100):
+    # Obtener los jugadores con paginación (skip, limit)
     return db.query(Jugador).offset(skip).limit(limit).all()
 
-def update_jugador(db: Session, nombre: str, jugador_update: JugadorUpdate):
-    jugador = db.query(Jugador).filter(Jugador.nombre == nombre).first()
-    if not jugador:
+def update_jugador(db: Session, jugador_id: int, jugador_update: JugadorUpdate):
+    db_jugador = db.query(Jugador).filter(Jugador.id_jugador == jugador_id).first()
+    if db_jugador is None:
         return None
-    for key, value in jugador_update.dict(exclude_unset=True).items():
-        setattr(jugador, key, value)
-    db.commit()
-    db.refresh(jugador)
-    return jugador
 
-def delete_jugador(db: Session, nombre: str):
-    jugador = db.query(Jugador).filter(Jugador.nombre == nombre).first()
-    if jugador:
-        db.delete(jugador)
-    db.commit()
-    return True
+    if jugador_update.nombre:
+        db_jugador.nombre = jugador_update.nombre
+    if jugador_update.posicion:
+        db_jugador.posicion = jugador_update.posicion
+    if jugador_update.fecha_nacimiento:
+        db_jugador.fecha_nacimiento = jugador_update.fecha_nacimiento
+    if jugador_update.foto:
+        db_jugador.foto = jugador_update.foto
+    if jugador_update.biografia:
+        db_jugador.biografia = jugador_update.biografia
+    if jugador_update.dorsal:
+        db_jugador.dorsal = jugador_update.dorsal
 
+    db.commit()
+    db.refresh(db_jugador)
+    return db_jugador
+
+
+def delete_jugador(db: Session, jugador_id: int):
+    db_jugador = db.query(Jugador).filter(Jugador.id_jugador == jugador_id).first()
+    if db_jugador is None:
+        return None 
+
+    db.delete(db_jugador)
+    db.commit()
+    return db_jugador
 
