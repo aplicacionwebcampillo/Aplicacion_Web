@@ -20,6 +20,4 @@ class Predice(Base):
         ),
     )
 
-    socio = relationship("Socio", back_populates="predicciones")
-    partido = relationship("Partido", back_populates="predicciones")
 

@@ -6,7 +6,7 @@ from app.database import get_db
 from app.schemas.jugador import JugadorCreate, JugadorUpdate, JugadorResponse
 from app.crud import jugador as jugador_crud
 
-router = APIRouter()
+router = APIRouter(prefix="/jugadores", tags=["Jugadores"])
 
 @router.post("/", response_model=JugadorResponse)
 def crear_jugador(jugador: JugadorCreate, db: Session = Depends(get_db)):
@@ -58,4 +58,5 @@ def eliminar_jugador(jugador_id: int, db: Session = Depends(get_db)):
         db.refresh(equipo)
     
     return db_jugador
-    
+
+

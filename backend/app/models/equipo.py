@@ -10,4 +10,5 @@ class Equipo(Base):
     num_jugadores = Column(Integer, nullable=False, default=0)
 
     jugadores = relationship("Jugador", back_populates="equipo", cascade="all, delete-orphan")
+    competiciones = relationship("Competicion", back_populates="equipo")
 

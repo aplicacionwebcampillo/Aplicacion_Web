@@ -374,21 +374,21 @@ RETURNS TRIGGER AS $$
 DECLARE
     en_partido BOOLEAN;
 BEGIN
-    -- Verificar si está en un partido activo
     SELECT EXISTS (
         SELECT 1 FROM Partido p
-        JOIN Jugador j ON (p.local = j.id_equipo OR p.visitante = j.id_equipo)
+        JOIN Jugador j ON (p.local = j.id_equipo::text OR p.visitante = j.id_equipo::text)
         WHERE j.id_jugador = NEW.id_jugador
         AND p.dia = CURRENT_DATE
     ) INTO en_partido;
-    
+
     IF en_partido THEN
         RAISE EXCEPTION 'No se puede modificar un jugador que está participando en un partido activo';
     END IF;
-    
+
     RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
+
 
 CREATE TRIGGER trigger_validar_modificacion_jugador
 BEFORE UPDATE ON Jugador
@@ -397,26 +397,54 @@ FOR EACH ROW EXECUTE FUNCTION validar_modificacion_jugador();
 CREATE OR REPLACE FUNCTION validar_eliminacion_jugador()
 RETURNS TRIGGER AS $$
 DECLARE
-    en_competicion BOOLEAN;
+    en_partido BOOLEAN;
 BEGIN
-    -- Verificar si está asociado a partidos o competiciones
+    -- Verificar si el jugador está asociado a un partido actual
     SELECT EXISTS (
-        SELECT 1 FROM Partido p
-        JOIN Jugador j ON (p.local = j.id_equipo OR p.visitante = j.id_equipo)
+        SELECT 1
+        FROM Partido p
+        JOIN Jugador j ON (p.local = j.id_equipo::varchar OR p.visitante = j.id_equipo::varchar)
         WHERE j.id_jugador = OLD.id_jugador
-    ) INTO en_competicion;
-    
-    IF en_competicion THEN
-        RAISE EXCEPTION 'No se puede eliminar un jugador asociado a partidos o competiciones';
+    ) INTO en_partido;
+
+    IF en_partido THEN
+        RAISE EXCEPTION 'No se puede eliminar un jugador que participa en un partido';
     END IF;
-    
+
     RETURN OLD;
 END;
 $$ LANGUAGE plpgsql;
 
+
 CREATE TRIGGER trigger_validar_eliminacion_jugador
 BEFORE DELETE ON Jugador
 FOR EACH ROW EXECUTE FUNCTION validar_eliminacion_jugador();
+
+
+CREATE OR REPLACE FUNCTION validar_dorsal_unico()
+RETURNS TRIGGER AS $$
+DECLARE
+    existe BOOLEAN;
+BEGIN
+    SELECT EXISTS (
+        SELECT 1
+        FROM jugador
+        WHERE id_equipo = NEW.id_equipo
+          AND dorsal = NEW.dorsal
+          AND id_jugador <> NEW.id_jugador
+    ) INTO existe;
+
+    IF existe THEN
+        RAISE EXCEPTION 'Ya existe un jugador con el dorsal % en el equipo %', NEW.dorsal, NEW.id_equipo;
+    END IF;
+
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER trigger_validar_dorsal_unico
+BEFORE INSERT OR UPDATE ON jugador
+FOR EACH ROW EXECUTE FUNCTION validar_dorsal_unico();
 
 ----------------------------------------------------------------------------------------------
 
