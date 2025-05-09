@@ -34,10 +34,6 @@ def get_pedido(db: Session, id_pedido: int):
 def get_pedidos(db: Session):
     return db.query(Pedido).all()
 
-from sqlalchemy import delete, insert
-from collections import Counter
-from app.models.pedido_producto import pedido_producto
-
 def update_pedido(db: Session, id_pedido: int, pedido_update: PedidoUpdate):
     pedido = db.query(Pedido).filter(Pedido.id_pedido == id_pedido).first()
     if not pedido:

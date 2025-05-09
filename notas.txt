@@ -1,12 +1,9 @@
 Funcionalidades restantes:
 
-* Socio_Abono Digital mostrar
-
 * Aplicar descuentos
 * Comprar mediante un carrito
 
 * Validar todas los pagados (abono, predice, pedido, etc) mediante el administrador
 
-* Inicio de Sesión: Usuario, Socio y Administrador
 * Obtener datos automáticamente (rellenar tablas) (API RFAF)
 * Mostrar clasificación/cuadro de copa

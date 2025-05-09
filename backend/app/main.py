@@ -18,6 +18,8 @@ from app.routers.equipo import router as equipo_router
 from app.routers.predice import router as predice_router
 from app.routers.socio_abono import router as socio_abono_router
 from app.routers.abono import router as abono_router
+from app.routers.carrito import router as carrito_router
+from app.routers.auth import router as auth_router
 
 
 app = FastAPI(
@@ -44,3 +46,5 @@ app.include_router(equipo_router)
 app.include_router(predice_router)
 app.include_router(socio_abono_router)
 app.include_router(abono_router)
+app.include_router(carrito_router)
+app.include_router(auth_router)
