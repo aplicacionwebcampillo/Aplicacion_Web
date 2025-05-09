@@ -1,9 +1,12 @@
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, aliased
 from sqlalchemy.exc import IntegrityError
 from typing import List, Optional
 from app.models.partido import Partido
 from app.schemas.partido import PartidoCreate, PartidoUpdate
 from fastapi import HTTPException, status
+from sqlalchemy import or_, and_
+from datetime import datetime
+from app.models.equipo import Equipo
 
 
 def create_partido(db: Session, partido: PartidoCreate) -> Partido:
@@ -83,4 +86,60 @@ def delete_partido(db: Session, nombre_competicion: str, temporada_competicion: 
     
     db.delete(db_partido)
     db.commit()
+
+
+
+def get_calendario_partidos(
+    db: Session,
+    nombre_competicion: str = None,
+    temporada_competicion: str = None,
+    categoria: str = None,
+    jugado: bool = None,
+):
+    query = db.query(Partido)
+
+    # Filtrado por competición
+    if nombre_competicion and temporada_competicion:
+        query = query.filter(
+            Partido.nombre_competicion == nombre_competicion,
+            Partido.temporada_competicion == temporada_competicion,
+        )
+
+    # Filtrado por categoría (equipo)
+    if categoria:
+        subquery = db.query(Equipo.categoria).filter(Equipo.categoria == categoria).subquery()
+        query = query.filter(
+            (Partido.local.in_(subquery)) | (Partido.visitante.in_(subquery))
+        )
+
+    # Filtrado por jugado
+    if jugado is not None:
+        now = datetime.now()
+        if jugado:
+            query = query.filter(
+                (Partido.dia < now.date()) |
+                ((Partido.dia == now.date()) & (Partido.hora <= now.time()))
+            )
+        else:
+            query = query.filter(
+                (Partido.dia > now.date()) |
+                ((Partido.dia == now.date()) & (Partido.hora > now.time()))
+            )
+
+    # Orden final
+    query = query.order_by(Partido.dia, Partido.hora)
+
+    # Devolver resultados
+    return query.all()
+
+
+
+
+
+
+
+
+
+
+
 

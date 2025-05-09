@@ -1,12 +1,12 @@
 Funcionalidades restantes:
 
-* Inicio de Sesión: Usuario, Socio y Administrador
-* Renovación de abono (se crea un socio_abono para la siguiente temporada, con los mismos datos)
 * Socio_Abono Digital mostrar
-* Mostar calendario de partidos
-* Mostrar clasificació/cuadro de copa
-* Moderación de contenido
+
 * Aplicar descuentos
 * Comprar mediante un carrito
 
 * Validar todas los pagados (abono, predice, pedido, etc) mediante el administrador
+
+* Inicio de Sesión: Usuario, Socio y Administrador
+* Obtener datos automáticamente (rellenar tablas) (API RFAF)
+* Mostrar clasificación/cuadro de copa

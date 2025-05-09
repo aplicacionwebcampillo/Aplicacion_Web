@@ -1,6 +1,8 @@
 from sqlalchemy.orm import Session
 from app.models.cesion_abono import CesionAbono
 from app.schemas.cesion_abono import CesionAbonoCreate, CesionAbonoUpdate
+from datetime import date
+from app.models.abono import Abono
 
 def create_cesion_abono(db: Session, cesion: CesionAbonoCreate):
     nueva_cesion = CesionAbono(**cesion.dict())
@@ -33,3 +35,35 @@ def delete_cesion_abono(db: Session, id_cesion: int):
     db.commit()
     return cesion
 
+
+def get_cesion_activa(db: Session, dni_beneficiario: str):
+    today = date.today()
+
+    cesion = (
+        db.query(CesionAbono, Abono)
+        .join(Abono, CesionAbono.id_abono == Abono.id_abono)
+        .filter(
+            CesionAbono.dni_beneficiario == dni_beneficiario,
+            CesionAbono.fecha_inicio <= today,
+            CesionAbono.fecha_fin >= today
+        )
+        .order_by(CesionAbono.fecha_cesion.desc())
+        .first()
+    )
+
+    if not cesion:
+        return None
+
+    cesion_abono, abono = cesion
+
+    return {
+        "dni_cedente": cesion_abono.dni_cedente,
+        "dni_beneficiario": cesion_abono.dni_beneficiario,
+        "fecha_inicio": cesion_abono.fecha_inicio,
+        "fecha_fin": cesion_abono.fecha_fin,
+        "fecha_cesion": cesion_abono.fecha_cesion,
+        "temporada": abono.temporada,
+        "fecha_inicio_abono": abono.fecha_inicio,
+        "fecha_fin_abono": abono.fecha_fin,
+    }
+    

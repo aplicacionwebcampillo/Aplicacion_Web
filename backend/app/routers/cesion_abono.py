@@ -41,3 +41,10 @@ def eliminar_cesion_abono(id_cesion: int, db: Session = Depends(get_db)):
         raise HTTPException(status_code=404, detail="Cesión no encontrada")
     return {"mensaje": "Cesión eliminada correctamente"}
 
+@router.get("/socio/{dni_beneficiario}/cesion_activa")
+def obtener_cesion_activa(dni_beneficiario: str, db: Session = Depends(get_db)):
+    cesion = crud.get_cesion_activa(db, dni_beneficiario)
+    if not cesion:
+        raise HTTPException(status_code=404, detail="No hay cesión activa para este socio")
+    return cesion
+

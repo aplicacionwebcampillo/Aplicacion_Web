@@ -6,6 +6,7 @@ import datetime
 from fastapi import HTTPException
 from app.crud.abono import get_abono
 from datetime import date
+from app.models.socio import Socio
 
 
 def create_socio_abono(db: Session, socio_abono: SocioAbonoCreate):
@@ -72,6 +73,42 @@ def renovar_socio_abono(db: Session, dni: str, id_abono_actual: int, id_abono_nu
     return nuevo_socio_abono
 
 
+def get_abono_digital(db: Session, dni: str):
+    socio = (
+        db.query(Socio)
+        .filter(Socio.dni == dni, Socio.estado == 'activo')
+        .first()
+    )
 
+    if not socio:
+        return None
 
+    socio_abono = (
+        db.query(SocioAbono)
+        .filter(SocioAbono.dni == dni, SocioAbono.pagado == True)
+        .order_by(SocioAbono.fecha_compra.desc())
+        .first()
+    )
+
+    if not socio_abono:
+        return None
+
+    abono = (
+        db.query(Abono)
+        .filter(Abono.id_abono == socio_abono.id_abono)
+        .first()
+    )
+
+    if not abono:
+        return None
+
+    return {
+        "dni": socio.dni,
+        "num_socio": socio.num_socio,
+        "foto_perfil": socio.foto_perfil,
+        "tipo_membresia": socio.tipo_membresia,
+        "temporada": abono.temporada,
+        "fecha_inicio": abono.fecha_inicio,
+        "fecha_fin": abono.fecha_fin
+    }
 

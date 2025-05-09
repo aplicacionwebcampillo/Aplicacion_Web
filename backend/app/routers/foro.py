@@ -41,3 +41,7 @@ def eliminar_post_foro(id_post: int, dni: str, db: Session = Depends(get_db)):
     return {"ok": True, "mensaje": "Post eliminado correctamente"}
 
 
+@router.put("/moderar/{id_post}")
+def moderar_post(id_post: int, db: Session = Depends(get_db)):
+    return crud.moderar_post(db, id_post)
+

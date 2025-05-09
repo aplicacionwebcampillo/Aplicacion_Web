@@ -72,3 +72,13 @@ def renovar_abono(dni: str, id_abono_nuevo: int, db: Session = Depends(get_db)):
     except Exception as e:
         raise HTTPException(status_code=400, detail=f"Error al renovar el abono: {e}")
 
+
+@router.get("/socio/{dni}/abono_digital")
+def abono_digital(dni: str, db: Session = Depends(get_db)):
+    abono = crud.get_abono_digital(db, dni)
+    if not abono:
+        raise HTTPException(status_code=404, detail="No se encontró abono digital válido para este socio")
+    return abono
+
+
+

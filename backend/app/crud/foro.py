@@ -22,7 +22,7 @@ def get_post_foro(db: Session, id_post: str):
     return db.query(PostForo).filter(PostForo.id_post == id_post).first()
 
 def get_posts_foro(db: Session, skip: int = 0, limit: int = 100):
-    return db.query(PostForo).offset(skip).limit(limit).all()
+    return db.query(PostForo).filter(PostForo.moderado == False).offset(skip).limit(limit).all()
 
 def update_post_foro(db: Session, id_post: str, post_foro_update: PostForoUpdate):
     post_foro = db.query(PostForo).filter(PostForo.id_post == id_post).first()
@@ -49,5 +49,16 @@ def delete_post_foro(db: Session, dni: str, id_post: int):
         db.rollback()
         raise HTTPException(status_code=500, detail=str(e))
 
+
+def moderar_post(db: Session, id_post: int):
+    post = db.query(PostForo).filter(PostForo.id_post == id_post).first()
+
+    if not post:
+        raise HTTPException(status_code=404, detail="Post no encontrado")
+
+    post.moderado = True
+    db.commit()
+    db.refresh(post)
+    return post
 
 
