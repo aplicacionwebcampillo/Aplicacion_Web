@@ -1,8 +1,5 @@
 Funcionalidades restantes:
 
-* Aplicar descuentos
-* Comprar mediante un carrito
-
 * Validar todas los pagados (abono, predice, pedido, etc) mediante el administrador
 
 * Obtener datos automáticamente (rellenar tablas) (API RFAF)

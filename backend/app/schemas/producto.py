@@ -25,11 +25,3 @@ class ProductoResponse(BaseModel):
     stock: int
     imagen: str
 
-class ProductoSchema(BaseModel):
-    id: int
-    nombre: str
-    precio: float
-
-    class Config:
-        orm_mode = True
-

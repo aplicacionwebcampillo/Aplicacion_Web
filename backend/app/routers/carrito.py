@@ -1,57 +1,55 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
-from app.schemas.usuario import UsuarioBase
-from app.dependencies import get_db, get_current_user
-from app.crud import carrito as carrito_crud
-from app.core.auth import get_current_user, oauth2_scheme
-from fastapi.security import OAuth2PasswordBearer
-from app.schemas.carrito import CarritoResponse
-from app.models.producto import Producto
-from app.schemas.producto import ProductoSchema
-from typing import List
+from app.database import get_db
+from app.schemas.carrito import AgregarProducto, AplicarDescuento
+from app.crud import carrito as crud
+from app.dependencies import get_current_user
+from app.models.usuario import Usuario
 
 router = APIRouter(prefix="/carrito", tags=["Carrito"])
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="auth/login")
 
+@router.get("/")
+def obtener_carrito(
+    db: Session = Depends(get_db),
+    current_user: Usuario = Depends(get_current_user)
+):
+    return crud.obtener_carrito(db, current_user.dni)
 
-@router.get("/", response_model=List[ProductoSchema])
-def obtener_carrito(db: Session = Depends(get_db)):
-    productos = db.query(Producto).all()  # Consulta SQLAlchemy para obtener los productos
-    return [ProductoSchema.from_orm(producto) for producto in productos]  # Convierte a Pydantic
-
-
-@router.post("/agregar", summary="Agregar producto al carrito")
+@router.post("/agregar")
 def agregar_producto(
-    producto_id: int,
-    cantidad: int = 1,
+    datos: AgregarProducto,
     db: Session = Depends(get_db),
-    current_user: UsuarioBase = Depends(get_current_user)
+    current_user: Usuario = Depends(get_current_user)
 ):
-    return carrito_crud.agregar_producto(db, current_user.dni, producto_id, cantidad)
+    crud.agregar_producto(db, current_user.dni, datos)
+    return {"mensaje": "Producto agregado al carrito"}
 
-
-@router.put("/actualizar", summary="Actualizar cantidad de un producto")
-def actualizar_producto(
-    producto_id: int,
+@router.put("/actualizar")
+def actualizar_cantidad(
+    id_producto: int,
     cantidad: int,
-    current_user: UsuarioBase = Depends(get_current_user)
-):
-    return carrito_crud.actualizar_producto(current_user.dni, producto_id, cantidad)
-
-
-@router.post("/descuento", summary="Aplicar código de descuento")
-def aplicar_descuento(
-    codigo: str,
     db: Session = Depends(get_db),
-    current_user: UsuarioBase = Depends(get_current_user)
+    current_user: Usuario = Depends(get_current_user)
 ):
-    return carrito_crud.aplicar_descuento(db, current_user.dni, codigo.upper())
+    crud.actualizar_cantidad(db, current_user.dni, id_producto, cantidad)
+    return {"mensaje": "Cantidad actualizada"}
 
+@router.post("/descuento")
+def aplicar_descuento(
+    datos: AplicarDescuento,
+    db: Session = Depends(get_db),
+    current_user: Usuario = Depends(get_current_user)
+):
+    crud.aplicar_descuento(db, current_user.dni, datos)
+    return {"mensaje": "Descuento aplicado"}
 
-@router.post("/confirmar", summary="Confirmar el pedido")
+@router.post("/confirmar")
 def confirmar_pedido(
     db: Session = Depends(get_db),
-    current_user: UsuarioBase = Depends(get_current_user)
+    current_user: Usuario = Depends(get_current_user)
 ):
-    return carrito_crud.confirmar_pedido(db, current_user.dni)
+    pedido_id = crud.confirmar_pedido(db, current_user.dni)
+    if pedido_id is None:
+        raise HTTPException(status_code=400, detail="Carrito vacío")
+    return {"mensaje": "Pedido confirmado", "id_pedido": pedido_id}
 

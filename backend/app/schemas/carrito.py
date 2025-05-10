@@ -1,41 +1,32 @@
-from pydantic import BaseModel, Field
+from pydantic import BaseModel
 from typing import List, Optional
-from decimal import Decimal
 
-class CarritoItemBase(BaseModel):
-    producto_id: int
+class ProductoEnCarrito(BaseModel):
+    id_producto: int
     nombre: str
-    precio_unitario: Decimal
+    precio: float
     cantidad: int
-    subtotal: Decimal
+    subtotal: float
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
+class CarritoDetalle(BaseModel):
+    productos: List[ProductoEnCarrito]
+    precio_total: float
+    descuento: float
+    precio_final: float
 
-class CarritoAgregarInput(BaseModel):
-    producto_id: int
-    cantidad: int = Field(..., gt=0, description="Cantidad debe ser mayor que 0")
+    class Config:
+        from_attributes = True
 
+class AgregarProducto(BaseModel):
+    id_producto: int
+    cantidad: int
 
-class CarritoActualizarInput(BaseModel):
-    producto_id: int
-    nueva_cantidad: int = Field(..., ge=0, description="Cantidad debe ser 0 o mayor")
+class ActualizarCantidad(BaseModel):
+    cantidad: int
 
-
-class AplicarDescuentoInput(BaseModel):
+class AplicarDescuento(BaseModel):
     codigo: str
-
-
-class CarritoResponse(BaseModel):
-    items: List[CarritoItemBase]
-    subtotal: Decimal
-    descuento_aplicado: Optional[str] = None
-    total: Decimal
-
-
-class ConfirmacionPedidoResponse(BaseModel):
-    mensaje: str
-    id_pedido: int
-    total: Decimal
 

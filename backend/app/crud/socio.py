@@ -3,8 +3,10 @@ from sqlalchemy import text
 from app.models.socio import Socio
 from app.schemas.socio import SocioCreate, SocioUpdate
 from app.models.usuario import Usuario
+from app.core.auth import get_password_hash
 
 def create_socio(db: Session, socio: SocioCreate):
+    hashed_password = get_password_hash(socio.contrasena)
     db.execute(text("""
         CALL registrar_socio(
             :p_dni, :p_nombre, :p_apellidos, :p_telefono,
@@ -17,7 +19,7 @@ def create_socio(db: Session, socio: SocioCreate):
         "p_telefono": socio.telefono,
         "p_fecha_nacimiento": socio.fecha_nacimiento,
         "p_email": socio.email,
-        "p_contrasena": socio.contrasena,
+        "p_contrasena": hashed_password,
         "p_tipo_membresia": socio.tipo_membresia
     })
 

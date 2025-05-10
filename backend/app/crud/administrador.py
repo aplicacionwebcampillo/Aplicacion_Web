@@ -3,8 +3,10 @@ from sqlalchemy.sql import text
 from app.models.usuario import Usuario
 from app.models.administrador import Administrador
 from app.schemas.administrador import AdministradorCreate, AdministradorUpdate
+from app.core.auth import get_password_hash
 
 def create_administrador(db: Session, admin: AdministradorCreate):
+    hashed_password = get_password_hash(admin.contrasena)
     db.execute(text("""
         SELECT registrar_administrador(
             :p_dni, :p_nombre, :p_apellidos, :p_telefono,
@@ -18,7 +20,7 @@ def create_administrador(db: Session, admin: AdministradorCreate):
         "p_telefono": admin.telefono,
         "p_fecha_nacimiento": admin.fecha_nacimiento,
         "p_email": admin.email,
-        "p_contrasena": admin.contrasena,
+        "p_contrasena": hashed_password,
         "p_cargo": admin.cargo,
         "p_permisos": admin.permisos
     })
