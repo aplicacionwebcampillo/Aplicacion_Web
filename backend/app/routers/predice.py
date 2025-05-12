@@ -17,6 +17,25 @@ def crear_prediccion(prediccion: PrediceCreate, db: Session = Depends(get_db)):
 def obtener_todas_predicciones(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
     return predice_crud.get_predicciones(db, skip=skip, limit=limit)
 
+@router.put("/validar_pago/{dni}")
+def validar_pago_predice(
+    dni: str,
+    nombre_competicion: str,
+    temporada_competicion: str,
+    local: str,
+    visitante: str,
+    resultado: str,
+    db: Session = Depends(get_db)
+):
+    return predice_crud.validar_pago_predice(
+        db,
+        dni,
+        nombre_competicion,
+        temporada_competicion,
+        local,
+        visitante,
+        resultado
+    )
 
 @router.get("/{dni}/{nombre_competicion}/{temporada_competicion}/{local}/{visitante}", response_model=PrediceResponse)
 def obtener_prediccion_individual(

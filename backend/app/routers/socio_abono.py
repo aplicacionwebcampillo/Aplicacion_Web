@@ -19,6 +19,10 @@ router = APIRouter(prefix="/socio_abonos", tags=["Socios Abonos"])
 def crear_socio_abono(socio_abono: SocioAbonoCreate, db: Session = Depends(get_db)):
     return crud.create_socio_abono(db, socio_abono)
 
+@router.put("/validar_pago/{dni}")
+def validar_pago_socio_abono(dni: str, db: Session = Depends(get_db)):
+    return crud.validar_pago_socio_abono(db, dni)
+
 @router.get("/{dni}/{id_abono}", response_model=SocioAbonoResponse)
 def obtener_socio_abono(dni: str, id_abono: int, db: Session = Depends(get_db)):
     socio_abono = crud.get_socio_abono(db, dni, id_abono)

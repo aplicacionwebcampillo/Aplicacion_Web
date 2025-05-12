@@ -1,7 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from typing import List
-
 from app.schemas.compra import CompraCreate, CompraResponse, CompraUpdate
 from app.crud import compra as crud
 from app.database import get_db
@@ -15,6 +14,10 @@ def registrar_compra(compra: CompraCreate, db: Session = Depends(get_db)):
 @router.get("/", response_model=List[CompraResponse])
 def listar_compras(db: Session = Depends(get_db)):
     return crud.get_compras(db)
+    
+@router.put("/validar_pago/{dni}")
+def validar_pago_compra(dni: str, db: Session = Depends(get_db)):
+    return crud.validar_pago_compra(db, dni)
 
 @router.get("/{dni}/{id_pedido}", response_model=CompraResponse)
 def obtener_compra(dni: str, id_pedido: int, db: Session = Depends(get_db)):

@@ -3,6 +3,9 @@ from sqlalchemy.exc import NoResultFound
 from app.models.predice import Predice
 from app.schemas.predice import PrediceCreate, PrediceUpdate
 from typing import List
+from app.models.socio import Socio
+from datetime import datetime
+from fastapi import HTTPException
 
 def create_prediccion(db: Session, prediccion: PrediceCreate) -> Predice:
     db_predice = Predice(**prediccion.model_dump())
@@ -56,3 +59,36 @@ def delete_prediccion(db: Session, dni: str, nombre_competicion: str, temporada_
     db.commit()
     return True
 
+def validar_pago_predice(
+    db: Session,
+    dni: str,
+    nombre_competicion: str,
+    temporada_competicion: str,
+    local: str,
+    visitante: str,
+    resultado: str
+):
+    socio = db.query(Socio).filter(Socio.dni == dni).first()
+    if not socio:
+        raise HTTPException(status_code=404, detail="Socio no encontrado")
+
+    prediccion = (
+        db.query(Predice)
+        .filter(
+            Predice.dni == socio.dni,
+            Predice.nombre_competicion == nombre_competicion,
+            Predice.temporada_competicion == temporada_competicion,
+            Predice.local == local,
+            Predice.visitante == visitante,
+            Predice.resultado == resultado
+        )
+        .first()
+    )
+
+    if not prediccion:
+        raise HTTPException(status_code=404, detail="No se encontró predicción que coincida")
+
+    prediccion.pagado = True
+    db.commit()
+    db.refresh(prediccion)
+    return {"message": "Pago validado correctamente para predicción", "resultado": prediccion.resultado}

@@ -1,6 +1,4 @@
 Funcionalidades restantes:
 
-* Validar todas los pagados (abono, predice, pedido, etc) mediante el administrador
-
 * Obtener datos automáticamente (rellenar tablas) (API RFAF)
 * Mostrar clasificación/cuadro de copa

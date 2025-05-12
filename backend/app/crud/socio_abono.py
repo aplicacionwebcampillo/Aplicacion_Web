@@ -112,3 +112,23 @@ def get_abono_digital(db: Session, dni: str):
         "fecha_fin": abono.fecha_fin
     }
 
+def validar_pago_socio_abono(db: Session, dni: str):
+    socio = db.query(Socio).filter(Socio.dni == dni).first()
+    if not socio:
+        raise HTTPException(status_code=404, detail="Socio no encontrado")
+
+    socio_abono = (
+        db.query(SocioAbono)
+        .filter(SocioAbono.dni == socio.dni)
+        .order_by(SocioAbono.fecha_compra.desc())
+        .first()
+    )
+
+    if not socio_abono:
+        raise HTTPException(status_code=404, detail="No se encontró abono para este socio")
+
+    socio_abono.pagado = True
+    db.commit()
+    db.refresh(socio_abono)
+    return {"message": "Pago validado correctamente para abono", "id": socio_abono.id_abono}
+
