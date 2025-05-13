@@ -1,6 +1,8 @@
 from fastapi import FastAPI
 from app.database import Base, engine
 
+from fastapi.middleware.cors import CORSMiddleware
+
 from app.routers.usuario import router as usuario_router
 from app.routers.administrador import router as administrador_router
 from app.routers.socio import router as socio_router
@@ -26,6 +28,14 @@ app = FastAPI(
     title="API - Campillo del Río CF",
     description="Backend para la gestión de un club de fútbol",
     version="1.0.0"
+)
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:5173"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
 # Registrar todos los routers
