@@ -330,10 +330,6 @@ FOR EACH ROW EXECUTE FUNCTION validar_categoria_noticia();
 CREATE OR REPLACE FUNCTION validar_modificacion_competicion()
 RETURNS TRIGGER AS $$
 BEGIN
-    -- No se puede modificar si ya ha comenzado
-    IF OLD.estado = 'en_progreso' OR OLD.estado = 'finalizada' THEN
-        RAISE EXCEPTION 'No se puede modificar una competición que ya ha comenzado';
-    END IF;
     
     RETURN NEW;
 END;
@@ -355,8 +351,8 @@ BEGIN
         AND temporada_competicion = OLD.temporada
     ) INTO tiene_partidos;
     
-    IF OLD.estado != 'pendiente' OR tiene_partidos THEN
-        RAISE EXCEPTION 'No se puede eliminar una competición que ya ha comenzado o tiene partidos asociados';
+    IF tiene_partidos THEN
+        RAISE EXCEPTION 'No se puede eliminar una competición que tiene partidos asociados';
     END IF;
     
     RETURN OLD;

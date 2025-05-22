@@ -4,7 +4,6 @@ from app.models.predice import Predice
 from app.schemas.predice import PrediceCreate, PrediceUpdate
 from typing import List
 from app.models.socio import Socio
-from datetime import datetime
 from fastapi import HTTPException
 
 def create_prediccion(db: Session, prediccion: PrediceCreate) -> Predice:
@@ -59,6 +58,7 @@ def delete_prediccion(db: Session, dni: str, nombre_competicion: str, temporada_
     db.commit()
     return True
 
+
 def validar_pago_predice(
     db: Session,
     dni: str,
@@ -66,7 +66,8 @@ def validar_pago_predice(
     temporada_competicion: str,
     local: str,
     visitante: str,
-    resultado: str
+    resultado_local: int,
+    resultado_visitante: int
 ):
     socio = db.query(Socio).filter(Socio.dni == dni).first()
     if not socio:
@@ -80,7 +81,8 @@ def validar_pago_predice(
             Predice.temporada_competicion == temporada_competicion,
             Predice.local == local,
             Predice.visitante == visitante,
-            Predice.resultado == resultado
+            Predice.resultado_local == resultado_local,
+            Predice.resultado_visitante == resultado_visitante
         )
         .first()
     )
@@ -91,4 +93,9 @@ def validar_pago_predice(
     prediccion.pagado = True
     db.commit()
     db.refresh(prediccion)
-    return {"message": "Pago validado correctamente para predicción", "resultado": prediccion.resultado}
+    return {
+        "message": "Pago validado correctamente para predicción",
+        "resultado_local": prediccion.resultado_local,
+        "resultado_visitante": prediccion.resultado_visitante
+    }
+

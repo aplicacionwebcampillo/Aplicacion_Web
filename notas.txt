@@ -1,4 +1,10 @@
 Funcionalidades restantes:
 
-* Obtener datos automáticamente (rellenar tablas) (API RFAF)
+* Obtener datos automáticamente (rellenar tablas) --> Competición y Partidos
 * Mostrar clasificación/cuadro de copa
+* Web scraapping con selenium
+
+* Test Unitarios con selenium
+
+* Imágenes
+ 

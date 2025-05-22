@@ -7,6 +7,7 @@ class AbonoBase(BaseModel):
     precio: float
     fecha_inicio: date
     fecha_fin: date
+    descripcion: Optional[str] = None
 
 class AbonoCreate(AbonoBase):
     pass
@@ -16,6 +17,7 @@ class AbonoUpdate(BaseModel):
     precio: Optional[float] = None
     fecha_inicio: Optional[date] = None
     fecha_fin: Optional[date] = None
+    descripcion: Optional[str] = None
 
 class AbonoResponse(AbonoBase):
     id_abono: int

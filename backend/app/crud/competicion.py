@@ -15,9 +15,7 @@ def create_competicion(db: Session, competicion: CompeticionCreate):
     db_competicion = Competicion(
         nombre=competicion.nombre,
         temporada=competicion.temporada,
-        estado=competicion.estado,
-        fecha_inicio=competicion.fecha_inicio,
-        fecha_fin=competicion.fecha_fin,
+        formato=competicion.formato,
         id_equipo=competicion.id_equipo
     )
     db.add(db_competicion)

@@ -7,7 +7,7 @@ class PatrocinadorBase(BaseModel):
     tipo: str
     email: Optional[str] = None
     telefono: Optional[str] = None
-    logo: str
+    logo: Optional[str] = None
     fecha_inicio: date
     fecha_fin: Optional[date] = None
 

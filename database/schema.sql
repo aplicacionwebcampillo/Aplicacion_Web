@@ -160,6 +160,19 @@ CREATE TABLE Predice (
     PRIMARY KEY (dni, nombre_competicion, temporada_competicion, local, visitante)
 );
 
+CREATE TABLE clasificacion (
+     nombre_competicion VARCHAR(100) NOT NULL,
+     temporada_competicion VARCHAR(20) NOT NULL,
+     equipo VARCHAR(100) NOT NULL,
+     posicion INTEGER NOT NULL,
+     puntos INTEGER NOT NULL,
+     PRIMARY KEY (nombre_competicion, temporada_competicion, equipo),
+     FOREIGN KEY (nombre_competicion, temporada_competicion)
+         REFERENCES competicion(nombre, temporada)
+         ON DELETE CASCADE
+);
+
+
 
 
 

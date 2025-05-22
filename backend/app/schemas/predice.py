@@ -8,7 +8,8 @@ class PrediceBase(BaseModel):
     temporada_competicion: str = Field(..., max_length=20)
     local: str = Field(..., max_length=100)
     visitante: str = Field(..., max_length=100)
-    resultado: str = Field(..., max_length=20)
+    resultado_local: int = Field(...)
+    resultado_visitante: int = Field(...)
     pagado: Optional[bool] = False
 
 
@@ -17,11 +18,12 @@ class PrediceCreate(PrediceBase):
 
 
 class PrediceUpdate(BaseModel):
-    resultado: Optional[str] = Field(None, max_length=20)
+    resultado_local: Optional[int] = Field(None)
+    resultado_visitante: Optional[int] = Field(None)
     pagado: Optional[bool] = None
 
 
 class PrediceResponse(PrediceBase):
     class Config:
-        from_attributes = True  # pydantic v2+
+        from_attributes = True 
 

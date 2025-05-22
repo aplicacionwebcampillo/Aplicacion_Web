@@ -9,8 +9,10 @@ class PartidoBase(BaseModel):
     visitante: str
     dia: Optional[date] = None
     hora: Optional[time] = None
-    resultado: Optional[str] = None
-    estadio: Optional[str] = None
+    jornada: str
+    resultado_local: Optional[int] = None
+    resultado_visitante: Optional[int] = None
+    acta: Optional[str] = None
 
     class Config:
         orm_mode = True
@@ -18,11 +20,16 @@ class PartidoBase(BaseModel):
 class PartidoCreate(PartidoBase):
     pass
 
-class PartidoUpdate(PartidoBase):
+class PartidoUpdate(BaseModel):
     dia: Optional[date] = None
     hora: Optional[time] = None
-    resultado: Optional[str] = None
-    estadio: Optional[str] = None
+    jornada: Optional[str] = None
+    resultado_local: Optional[int] = None
+    resultado_visitante: Optional[int] = None
+    acta: Optional[str] = None
+
+    class Config:
+        orm_mode = True
 
 class PartidoResponse(PartidoBase):
     class Config:

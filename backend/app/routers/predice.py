@@ -24,7 +24,8 @@ def validar_pago_predice(
     temporada_competicion: str,
     local: str,
     visitante: str,
-    resultado: str,
+    resultado_local: str,
+    resultado_visitante: str,
     db: Session = Depends(get_db)
 ):
     return predice_crud.validar_pago_predice(
@@ -34,7 +35,8 @@ def validar_pago_predice(
         temporada_competicion,
         local,
         visitante,
-        resultado
+    	resultado_local,
+    	resultado_visitante,
     )
 
 @router.get("/{dni}/{nombre_competicion}/{temporada_competicion}/{local}/{visitante}", response_model=PrediceResponse)

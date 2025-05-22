@@ -1,10 +1,10 @@
-from sqlalchemy.orm import Session, aliased
+from sqlalchemy.orm import Session
 from sqlalchemy.exc import IntegrityError
 from typing import List, Optional
 from app.models.partido import Partido
 from app.schemas.partido import PartidoCreate, PartidoUpdate
 from fastapi import HTTPException, status
-from sqlalchemy import or_, and_
+from sqlalchemy import or_
 from datetime import datetime
 from app.models.equipo import Equipo
 
@@ -18,8 +18,10 @@ def create_partido(db: Session, partido: PartidoCreate) -> Partido:
             visitante=partido.visitante,
             dia=partido.dia,
             hora=partido.hora,
-            resultado=partido.resultado,
-            estadio=partido.estadio
+            jornada=partido.jornada,
+            resultado_local=partido.resultado_local,
+            resultado_visitante=partido.resultado_visitante,
+            acta=partido.acta
         )
         db.add(db_partido)
         db.commit()
@@ -31,6 +33,7 @@ def create_partido(db: Session, partido: PartidoCreate) -> Partido:
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Ya existe un partido con los mismos equipos y competición"
         )
+
 
 def get_partido(db: Session, nombre_competicion: str, temporada_competicion: str, local: str, visitante: str) -> Optional[Partido]:
     return db.query(Partido).filter_by(
@@ -52,6 +55,7 @@ def get_partidos_completos(db: Session, nombre_competicion: Optional[str] = None
     
     return query.all()
 
+
 def update_partido(db: Session, nombre_competicion: str, temporada_competicion: str, local: str, visitante: str, partido: PartidoUpdate) -> Partido:
     db_partido = get_partido(db, nombre_competicion, temporada_competicion, local, visitante)
     
@@ -65,15 +69,20 @@ def update_partido(db: Session, nombre_competicion: str, temporada_competicion: 
         db_partido.dia = partido.dia
     if partido.hora is not None:
         db_partido.hora = partido.hora
-    if partido.resultado is not None:
-        db_partido.resultado = partido.resultado
-    if partido.estadio is not None:
-        db_partido.estadio = partido.estadio
-    
+    if partido.jornada is not None:
+        db_partido.jornada = partido.jornada
+    if partido.resultado_local is not None:
+        db_partido.resultado_local = partido.resultado_local
+    if partido.resultado_visitante is not None:
+        db_partido.resultado_visitante = partido.resultado_visitante
+    if partido.acta is not None:
+        db_partido.acta = partido.acta
+
     db.commit()
     db.refresh(db_partido)
     
     return db_partido
+
 
 def delete_partido(db: Session, nombre_competicion: str, temporada_competicion: str, local: str, visitante: str) -> None:
     db_partido = get_partido(db, nombre_competicion, temporada_competicion, local, visitante)
@@ -86,7 +95,6 @@ def delete_partido(db: Session, nombre_competicion: str, temporada_competicion: 
     
     db.delete(db_partido)
     db.commit()
-
 
 
 def get_calendario_partidos(
@@ -129,17 +137,5 @@ def get_calendario_partidos(
     # Orden final
     query = query.order_by(Partido.dia, Partido.hora)
 
-    # Devolver resultados
     return query.all()
-
-
-
-
-
-
-
-
-
-
-
 
