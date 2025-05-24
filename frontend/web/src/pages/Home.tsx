@@ -1,9 +1,15 @@
+import UltimasNoticias from "../components/UltimasNoticias";
+import Clasificacion from "../components/Clasificacion";
+import Patrocinadores from "../components/Patrocinadores";
+
+
 export default function Home() {
   return (
-    <div className="p-6">
-      <h1 className="text-4xl font-bold text-center text-blue-800">Bienvenidos al Club Deportivo XYZ</h1>
-      <p className="mt-4 text-center text-lg">Aquí encontrarás toda la información sobre nuestro equipo.</p>
-    </div>
+    <main className="flex flex-col gap-8 px-4 py-8 max-w-screen-xl mx-auto m-[0%] p-[2%] font-sans">
+    	<UltimasNoticias />
+    	<Clasificacion />
+    	<Patrocinadores />
+    </main>
   );
 }
 

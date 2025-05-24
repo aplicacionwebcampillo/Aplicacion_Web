@@ -2,6 +2,9 @@ from sqlalchemy import Column, String, Integer, ForeignKey
 from sqlalchemy.orm import relationship
 from app.database import Base
 from sqlalchemy import CheckConstraint
+from app.models.equipo import Equipo
+from app.models.clasificacion import Clasificacion
+from app.models.partido import Partido
 
 class Competicion(Base):
     __tablename__ = "competicion"
