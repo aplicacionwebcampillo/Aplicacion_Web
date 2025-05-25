@@ -10,7 +10,7 @@ export default function Footer() {
   ];
 
   return (
-    <footer className="bg-celeste text-blanco text-center py-6 mt-10 text-sm md:text-base">
+    <footer className="bg-celeste text-blanco text-center py-6 mt-10 text-sm md:text-base rounded-t-[1rem]">
       <div className="flex flex-wrap justify-center items-center gap-x-8 gap-y-4">
       
         <p>

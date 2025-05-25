@@ -38,16 +38,16 @@ export default function UltimasNoticias() {
       {noticias.slice(-3).reverse().map((noticia, index) => (
         <div
           key={index}
-          className="min-w-[19rem] bg-white text-black shadow rounded-lg p-4 flex-shrink-0"
+          className="min-w-[19rem] bg-white text-black shadow rounded-lg p-4 flex-shrink-0 bg-blanco rounded-[1rem]"
         >
-          <div className="h-40 w-full bg-gray-300 rounded mb-2 overflow-hidden">
+          <div className="h-40 w-full bg-gray-300 rounded mb-2 overflow-hidden ">
             <img
               src={noticia.imagen || "/images/PorDefecto.png"}
               alt={noticia.titular}
               className="h-[15rem] w-auto object-cover"
             />
           </div>
-          <h3 className="text-lg font-semibold mb-1">{noticia.titular}</h3>
+          <h3 className="text-lg font-semibold mb-1 text-negro">{noticia.titular}</h3>
         </div>
       ))}
     </div>
