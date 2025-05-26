@@ -122,7 +122,7 @@ export default function NoticiasMain() {
     <div className="grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
       {noticiasPagina.map((noticia, idx) => (
         <Link to={`/noticias/${encodeURIComponent(noticia.titular)}`}>
-          <a className="min-w-[19rem] bg-white text-black shadow rounded-lg p-4 flex-shrink-0 bg-blanco rounded-[1rem] flex flex-col items-center hover:shadow-lg transition-shadow duration-300">
+          <a className="min-w-[19rem] min-h-[23rem] bg-white text-black shadow rounded-lg p-4 flex-shrink-0 bg-blanco rounded-[1rem] flex flex-col items-center hover:shadow-lg transition-shadow duration-300">
             <div className="h-40 w-full bg-gray-300 rounded mb-2 overflow-hidden flex justify-center items-center">
               <img
                 src={noticia.imagen || "/images/PorDefecto.png"}

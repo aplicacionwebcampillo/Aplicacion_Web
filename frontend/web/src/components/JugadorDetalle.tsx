@@ -41,7 +41,7 @@ export default function JugadorDetalle() {
 
   return (
     <section className="max-w-4xl mx-auto p-6 bg-white rounded-lg shadow-md font-poetsen">
-      <Link to="/plantilla" className="text-rojo font-semibold mb-4 inline-block hover:underline">
+      <Link to="/plantilla" className="text-negro no-underline font-semibold mb-4 inline-block hover:text-rojo">
         ← Volver a la plantilla
       </Link>
 

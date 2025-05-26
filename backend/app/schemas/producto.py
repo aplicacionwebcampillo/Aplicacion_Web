@@ -21,6 +21,7 @@ class ProductoUpdate(BaseModel):
 class ProductoResponse(BaseModel):
     id_producto: int
     nombre: str
+    descripcion: str
     precio: float
     stock: int
     imagen: str

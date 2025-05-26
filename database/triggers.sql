@@ -225,9 +225,9 @@ DECLARE
 BEGIN
     -- Verificar si el producto está en una compra en proceso
     SELECT EXISTS (
-        SELECT 1 FROM Pedido p
-        JOIN Compra c ON p.id_pedido = c.id_pedido
-        WHERE p.id_producto = NEW.id_producto
+        SELECT 1 FROM pedido_producto p
+        JOIN Compra c ON p.pedido_id = c.id_pedido
+        WHERE p.pedido_id = NEW.id_producto
         AND c.pagado = FALSE
     ) INTO en_compra;
     

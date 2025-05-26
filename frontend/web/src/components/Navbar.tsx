@@ -20,7 +20,7 @@ export default function Navbar() {
       label: 'Club',
       submenu: [
         { to: '/historia', label: 'Historia' },
-        { to: '/palmarés', label: 'Palmarés' },
+        { to: '/palmares', label: 'Palmarés' },
         { to: '/instalaciones', label: 'Instalaciones' },
         { to: '/contacto', label: 'Contacto' },
       ],

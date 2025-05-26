@@ -1,5 +1,7 @@
 import { useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
+
 
 interface Noticia {
   titular: string;
@@ -38,7 +40,12 @@ export default function NoticiaIndividual() {
 
   return (
     <main className="flex flex-col gap-8 px-4 py-8 max-w-screen-xl mx-auto m-[0%] p-[2%] font-sans">
-     <section className="bg-celeste text-black px-4 py-8 text-negro rounded-[1rem] font-bold font-poetsen">
+     <section className="text-black px-4 py-8 text-negro rounded-[1rem] font-bold font-poetsen">
+      <Link to="/noticias" className="text-negro no-underline font-semibold mb-4 inline-block hover:text-rojo">
+        ← Volver al menú de noticias
+      </Link>
+      
+      <div className="bg-celeste text-black px-4 py-8 text-negro rounded-[1rem] font-bold font-poetsen">
       <h1 className="text-3xl font-bold mb-4 text-center font-poetsen">{noticia.titular}</h1>
       <div className="flex justify-center">
         <img
@@ -49,6 +56,7 @@ export default function NoticiaIndividual() {
       </div>
       <h1></h1>
       <div className="flex justify-center font-poetsen" dangerouslySetInnerHTML={{ __html: noticia.contenido }} />
+      </div>
      </section>
     </main>
   );
