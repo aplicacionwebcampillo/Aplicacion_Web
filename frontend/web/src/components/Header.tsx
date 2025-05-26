@@ -1,6 +1,16 @@
 import { FaFacebookF, FaInstagram, FaXTwitter, FaUser } from 'react-icons/fa6';
+import { useState, useEffect } from "react";
 
 export default function Header() {
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    setIsLoggedIn(!!token);
+  }, []);
+
+  const userLink = isLoggedIn ? "/usuario" : "/login";
+  
   const socialLinks = [
     { icon: FaInstagram, url: 'https://www.instagram.com/campillodelriocf/' },
     { icon: FaFacebookF, url: 'https://www.facebook.com/p/Campillo-del-R%C3%ADo-C-F-100078374503289/' },
@@ -8,7 +18,7 @@ export default function Header() {
   ];
 
   const usuarioLinks = [
-    { icon: FaUser, url: '#' },
+    { icon: FaUser, url: userLink },
   ];
 
   return (

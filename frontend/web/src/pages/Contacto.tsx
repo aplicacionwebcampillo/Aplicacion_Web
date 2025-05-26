@@ -46,7 +46,7 @@ export default function Contacto() {
         type="text"
         name="nombre"
         required
-        className="w-[90%] p-3 border border-gray-300 rounded-md bg-gray-100"
+        className="w-[90%] rounded-[1rem] p-3 border border-gray-300 rounded-md bg-gray-100"
       />
     </div>
 
@@ -56,7 +56,7 @@ export default function Contacto() {
         type="email"
         name="email"
         required
-        className="w-[90%] p-3 border border-gray-300 rounded-md bg-gray-100"
+        className="w-[90%] rounded-[1rem] p-3 border border-gray-300 rounded-md bg-gray-100"
       />
     </div>
 
@@ -67,7 +67,7 @@ export default function Contacto() {
         name="mensaje"
         rows={6}
         required
-        className="w-[90%] p-3 border border-gray-300 rounded-md bg-gray-100"
+        className="w-[90%] rounded-[1rem] p-3 border border-gray-300 rounded-md bg-gray-100"
       />
     </div>
 

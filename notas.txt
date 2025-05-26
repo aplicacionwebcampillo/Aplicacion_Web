@@ -1,6 +1,5 @@
 Funcionalidades restantes:
 
-* Test Unitarios con selenium
-
 * Imágenes
+* Detalles
 

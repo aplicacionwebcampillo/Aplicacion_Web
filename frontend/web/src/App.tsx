@@ -1,5 +1,11 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Navbar from './components/Navbar';
+import Login from './pages/Login';
+import Logout from './pages/Logout';
+import Registro from './pages/Registro';
+import Usuario from './pages/Usuario';
+import Socio from './pages/Socio';
+import Administrador from './pages/Administrador';
 import Home from './pages/Home';
 import Noticias from './pages/Noticias';
 import NoticiaIndividual from "./pages/NoticiaIndividual";
@@ -12,6 +18,7 @@ import Carrito from "./pages/Carrito";
 import Contacto from './pages/Contacto';
 import Historia from './pages/Historia';
 import Palmares from './pages/Palmares';
+import Instalaciones from './pages/Instalaciones';
 import Header from './components/Header';
 import Footer from './components/Footer';
 import "./index.css";
@@ -24,6 +31,12 @@ export default function App() {
 	    <Navbar />
 	    <main className="flex-grow">
 	      <Routes>
+	        <Route path="/login" element={<Login />} />
+	        <Route path="/logout" element={<Logout />} />
+	        <Route path="/registro" element={<Registro />} />
+	        <Route path="/usuario" element={<Usuario />} />
+	        <Route path="/socio" element={<Socio />} />
+	        <Route path="/administrador" element={<Administrador />} />
 		<Route path="/" element={<Home />} />
 		<Route path="/noticias" element={<Noticias />} />
 		<Route path="/noticias/:titular" element={<NoticiaIndividual />} />
@@ -35,6 +48,7 @@ export default function App() {
 		<Route path="/carrito" element={<Carrito />} />
 		<Route path="/historia" element={<Historia />} />
 		<Route path="/palmares" element={<Palmares />} />
+		<Route path="/instalaciones" element={<Instalaciones />} />
 		<Route path="/contacto" element={<Contacto />} />
 	      </Routes>
 	    </main>
