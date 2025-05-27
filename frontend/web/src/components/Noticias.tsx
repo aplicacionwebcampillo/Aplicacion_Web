@@ -110,7 +110,7 @@ export default function NoticiasMain() {
           className={`px-4 py-2 rounded-full border-2 font-semibold transition-all ${
             categoriaSeleccionada === cat
               ? "bg-azul text-blanco border-azul"
-              : "bg-blanco text-azul border-azul hover:bg-zul hover:text-blanco"
+              : "bg-blanco text-azul border-azul hover:bg-azul hover:text-blanco"
           }`}
         >
           {cat}
@@ -120,27 +120,30 @@ export default function NoticiasMain() {
 
     {/* Tarjetas de noticias */}
     <div className="grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
-      {noticiasPagina.map((noticia, idx) => (
-        <Link to={`/noticias/${encodeURIComponent(noticia.titular)}`}>
-          <a className="min-w-[19rem] min-h-[23rem] bg-white text-black shadow rounded-lg p-4 flex-shrink-0 bg-blanco rounded-[1rem] flex flex-col items-center hover:shadow-lg transition-shadow duration-300">
-            <div className="h-40 w-full bg-gray-300 rounded mb-2 overflow-hidden flex justify-center items-center">
-              <img
-                src={noticia.imagen || "/images/PorDefecto.png"}
-                alt={noticia.titular}
-                className="h-[15rem] w-auto object-cover"
-              />
-            </div>
-            <div className="p-4 text-center w-full">
-              <h3 className="text-lg font-semibold mb-1 text-negro">{noticia.titular}</h3>
-            </div>
-          </a>
-        </Link>        
-      ))}
-    </div>
+  {noticiasPagina.map((noticia, idx) => (
+    <Link
+      key={idx}
+      to={`/noticias/${encodeURIComponent(noticia.titular)}`}
+      className="no-underline min-w-[19rem] min-h-[23rem] bg-white text-black shadow rounded-lg p-4 flex-shrink-0 bg-blanco rounded-[1rem] flex flex-col items-center hover:shadow-lg transition-shadow duration-300 hover:border-2 hover:border-azul"
+    >
+      <div className="h-40 w-full bg-gray-300 rounded mb-2 overflow-hidden flex justify-center items-center">
+        <img
+          src={noticia.imagen || "/images/PorDefecto.png"}
+          alt={noticia.titular}
+          className="h-[15rem] w-auto object-cover"
+        />
+      </div>
+      <div className="p-4 text-center w-full">
+        <h3 className="text-lg font-semibold mb-1 text-negro">{noticia.titular}</h3>
+      </div>
+    </Link>
+  ))}
+</div>
+
 
 
       {/* Paginación */}
-      {width >= 640 && totalPaginas > 1 && (
+      {totalPaginas > 1 && (
         <div className="flex justify-center items-center gap-6 mt-10">
           <button
             onClick={() => cambiarPagina("anterior")}

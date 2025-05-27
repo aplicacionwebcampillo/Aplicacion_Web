@@ -123,7 +123,7 @@ export default function Productos() {
               });
               setNombre("");
             }}
-            className={`px-4 py-2 rounded-full border-2 font-bold transition-colors duration-200 bg-blanco text-blanco border-rojo bg-blanco text-rojo border-rojo hover:bg-rojo hover:text-blanco ${
+            className={`px-4 py-2 rounded-full border-2 font-bold transition-colors duration-200 bg-blanco text-azul border-azul bg-blanco text-azul border-azul hover:bg-azul hover:text-blanco ${
               modo === m ? "bg-blue-500 text-white" : "bg-white text-black"
             }`}
           >
@@ -150,7 +150,7 @@ export default function Productos() {
     <div className="flex justify-center">
       <button
         onClick={obtenerProducto}
-        className="px-4 py-2 rounded-full border-2 font-bold transition-colors duration-200 bg-blanco text-blanco border-rojo bg-blanco text-rojo border-rojo hover:bg-rojo hover:text-blanco"
+        className="px-4 py-2 rounded-full border-2 font-bold transition-colors duration-200 bg-blanco text-azul border-azul bg-blanco text-azul border-azul hover:bg-azul hover:text-blanco"
       >
         Obtener Producto
       </button>
@@ -233,7 +233,7 @@ export default function Productos() {
           <div className="flex justify-center">
           <button
             onClick={crearProducto}
-            className="px-4 py-2 rounded-full border-2 font-bold transition-colors duration-200 bg-blanco text-blanco border-rojo bg-blanco text-rojo border-rojo hover:bg-rojo hover:text-blanc"
+            className="px-4 py-2 rounded-full border-2 font-bold transition-colors duration-200 bg-blanco text-azul border-azul bg-blanco text-azul border-azul hover:bg-azul hover:text-blanco"
           >
             Crear Producto
           </button>
@@ -247,7 +247,7 @@ export default function Productos() {
         <div className="flex justify-center">
           <button
             onClick={obtenerProducto}
-            className="px-4 py-2 rounded-full border-2 font-bold transition-colors duration-200 bg-blanco text-blanco border-rojo bg-blanco text-rojo border-rojo hover:bg-rojo hover:text-blanc"
+            className="px-4 py-2 rounded-full border-2 font-bold transition-colors duration-200 bg-blanco text-azul border-azul bg-blanco text-azul border-azul hover:bg-azul hover:text-blanco"
           >
             Cargar Producto
           </button>
@@ -311,7 +311,7 @@ export default function Productos() {
               <div className="flex justify-center">
               <button
                 onClick={actualizarProducto}
-                className="px-4 py-2 rounded-full border-2 font-bold transition-colors duration-200 bg-blanco text-blanco border-rojo bg-blanco text-rojo border-rojo hover:bg-rojo hover:text-blanc"
+                className="px-4 py-2 rounded-full border-2 font-bold transition-colors duration-200 bg-blanco text-azul border-azul bg-blanco text-azul border-azul hover:bg-azul hover:text-blanco"
               >
                 Guardar Cambios
               </button>
@@ -326,7 +326,7 @@ export default function Productos() {
       <div className="flex justify-center">
         <button
           onClick={eliminarProducto}
-          className="px-4 py-2 rounded-full border-2 font-bold transition-colors duration-200 bg-blanco text-blanco border-rojo bg-blanco text-rojo border-rojo hover:bg-rojo hover:text-blanc"
+          className="px-4 py-2 rounded-full border-2 font-bold transition-colors duration-200 bg-blanco text-azul border-azul bg-blanco text-azul border-azul hover:bg-azul hover:text-blanco"
         >
           Eliminar Producto
         </button>

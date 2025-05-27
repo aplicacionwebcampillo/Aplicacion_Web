@@ -69,7 +69,7 @@ export default function RenovarAbono() {
       <div className="space-y-4">
         <label className="block text-gray-700 font-semibold">Selecciona un abono:</label>
         <select
-          className="rounded-[1rem] font-poetsen w-[90%] bg-blanco border-2 border-rojo px-3 py-2 focus:outline-none focus:ring-2 focus:ring-cyan-500"
+          className="rounded-[1rem] font-poetsen w-[90%] bg-blanco border-2 border-azul px-3 py-2 focus:outline-none focus:ring-2 focus:ring-cyan-500"
           value={idSeleccionado ?? ""}
           onChange={(e) => setIdSeleccionado(Number(e.target.value))}
         >
@@ -84,7 +84,7 @@ export default function RenovarAbono() {
 	<div className="flex justify-center">
         <button
           onClick={handleRenovar}
-          className="px-4 py-2 rounded-full border-2 font-bold transition-colors duration-200 bg-blanco text-blanco border-rojo bg-blanco text-rojo border-rojo hover:bg-rojo hover:text-blanco"
+          className="px-4 py-2 rounded-full border-2 font-bold transition-colors duration-200 bg-blanco text-azul border-azul bg-blanco text-azul border-azul hover:bg-azul hover:text-blanco"
         >
           Renovar Abono
         </button>

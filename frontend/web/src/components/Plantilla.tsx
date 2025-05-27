@@ -86,8 +86,8 @@ export default function Plantilla() {
           onClick={() => setEquipoSeleccionado(null)}
           className={`px-4 py-2 rounded-full border-2 font-semibold transition-all ${
             equipoSeleccionado === null
-              ? "bg-rojo text-white border-rojo"
-              : "bg-blanco text-rojo border-rojo hover:bg-rojo hover:text-blanco"
+              ? "bg-azul text-blanco border-azul"
+              : "bg-blanco text-azul border-azul hover:bg-azul hover:text-blanco"
           }`}
         >
           Todos
@@ -99,8 +99,8 @@ export default function Plantilla() {
             onClick={() => setEquipoSeleccionado(cat.id)}
             className={`px-4 py-2 rounded-full border-2 font-semibold transition-all ${
               equipoSeleccionado === cat.id
-                ? "bg-rojo text-white border-rojo"
-                : "bg-blanco text-rojo border-rojo hover:bg-rojo hover:text-blanco"
+                ? "bg-azul text-blanco border-azul"
+                : "bg-blanco text-azul border-azul hover:bg-azul hover:text-blanco"
             }`}
           >
             {cat.nombre}
@@ -110,26 +110,29 @@ export default function Plantilla() {
 
       {/* Tarjetas de jugadores */}
       <div className="grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
-        {jugadoresPagina.map((jugador) => (
-          <Link to={`/jugadores/${jugador.id_jugador}`} key={jugador.id_jugador}>
-            <a className="min-w-[19rem] bg-white text-black shadow rounded-lg p-4 flex-shrink-0 bg-blanco rounded-[1rem] flex flex-col items-center hover:shadow-lg transition-shadow duration-300">
-              <div className="h-40 w-full bg-gray-200 rounded mb-2 overflow-hidden flex justify-center items-center">
-                <img
-                  src={jugador.foto || "/images/PorDefecto.png"}
-                  alt={jugador.nombre}
-                  className="h-[15rem] w-auto object-cover"
-                />
-              </div>
-              <div className="p-4 text-center w-full">
-                <h3 className="text-lg font-semibold mb-1 text-negro">{jugador.nombre}</h3>
-              </div>
-            </a>
-          </Link>
-        ))}
+  {jugadoresPagina.map((jugador) => (
+    <Link
+      to={`/jugadores/${jugador.id_jugador}`}
+      key={jugador.id_jugador}
+      className="min-w-[19rem] bg-white text-black shadow rounded-lg p-4 flex-shrink-0 bg-blanco rounded-[1rem] flex flex-col items-center hover:shadow-lg transition-shadow duration-300 no-underline hover:border-3 hover:border-azul"
+    >
+      <div className="h-40 w-full bg-gray-200 rounded mb-2 overflow-hidden flex justify-center items-center">
+        <img
+          src={jugador.foto || "/images/PorDefecto.png"}
+          alt={jugador.nombre}
+          className="h-[15rem] w-auto object-cover"
+        />
       </div>
+      <div className="p-4 text-center w-full">
+        <h3 className="text-lg font-semibold mb-1 text-negro">{jugador.nombre}</h3>
+      </div>
+    </Link>
+  ))}
+</div>
+
 
       {/* Paginación */}
-      {width >= 640 && totalPaginas > 1 && (
+      {totalPaginas > 1 && (
         <div className="flex justify-center items-center gap-6 mt-10">
           <button
             onClick={() => cambiarPagina("anterior")}
@@ -137,7 +140,7 @@ export default function Plantilla() {
             className={`text-2xl px-3 py-1 rounded-full border ${
               paginaActual === 1
                 ? "text-gray-400 border-gray-300 cursor-not-allowed"
-                : "text-rojo border-rojo bg-blanco hover:bg-rojo hover:text-blanco"
+                : "text-azul border-azul bg-blanco hover:bg-azul hover:text-blanco"
             }`}
           >
             ←
@@ -149,7 +152,7 @@ export default function Plantilla() {
             className={`text-2xl px-3 py-1 rounded-full border ${
               paginaActual === totalPaginas
                 ? "text-gray-400 border-gray-300 cursor-not-allowed"
-                : "text-rojo border-rojo bg-blanco hover:bg-rojo hover:text-blanco"
+                : "text-azul border-azul bg-blanco hover:bg-azul hover:text-blanco"
             }`}
           >
             →

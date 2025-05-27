@@ -124,7 +124,7 @@ export default function Abonos() {
         <div className="flex justify-center"> 
           <button
             key={m}
-            className={`px-4 py-2 rounded-full border-2 font-bold transition-colors duration-200 bg-blanco text-blanco border-rojo bg-blanco text-rojo border-rojo hover:bg-rojo hover:text-blanco ${
+            className={`px-4 py-2 rounded-full border-2 font-bold transition-colors duration-200 bg-blanco text-azul border-azul bg-blanco text-azul border-azul hover:bg-azul hover:text-blanco ${
               modo === m ? "bg-blue-600 text-white" : "bg-white text-black"
             }`}
             onClick={() => {
@@ -161,7 +161,7 @@ export default function Abonos() {
       <div className="flex justify-center"> 
         <button
           onClick={obtenerAbono}
-          className="px-4 py-2 rounded-full border-2 font-bold transition-colors duration-200 bg-blanco text-blanco border-rojo bg-blanco text-rojo border-rojo hover:bg-rojo hover:text-blanco"
+          className="px-4 py-2 rounded-full border-2 font-bold transition-colors duration-200 bg-blanco text-azul border-azul bg-blanco text-azul border-azul hover:bg-azul hover:text-blanco"
         >
           Cargar Abono
         </button>
@@ -173,7 +173,7 @@ export default function Abonos() {
     <div className="flex justify-center">
       <button
         onClick={obtenerAbono}
-        className="px-4 py-2 rounded-full border-2 font-bold transition-colors duration-200 bg-blanco text-rojo border-rojo hover:bg-rojo hover:text-blanco"
+        className="px-4 py-2 rounded-full border-2 font-bold transition-colors duration-200 bg-blanco text-azul border-azul hover:bg-azul hover:text-blanco"
       >
         Buscar Abono
       </button>
@@ -245,7 +245,7 @@ export default function Abonos() {
           <div className="flex justify-center"> 
           <button
             onClick={crearAbono}
-            className="px-4 py-2 rounded-full border-2 font-bold transition-colors duration-200 bg-blanco text-blanco border-rojo bg-blanco text-rojo border-rojo hover:bg-rojo hover:text-blanco"
+            className="px-4 py-2 rounded-full border-2 font-bold transition-colors duration-200 bg-blanco text-azul border-azul bg-blanco text-azul border-azul hover:bg-azul hover:text-blanco"
           >
             Crear Abono
           </button>
@@ -304,7 +304,7 @@ export default function Abonos() {
           <div className="flex justify-center"> 
           <button
             onClick={actualizarAbono}
-            className="px-4 py-2 rounded-full border-2 font-bold transition-colors duration-200 bg-blanco text-blanco border-rojo bg-blanco text-rojo border-rojo hover:bg-rojo hover:text-blanco"
+            className="px-4 py-2 rounded-full border-2 font-bold transition-colors duration-200 bg-blanco text-azul border-azul bg-blanco text-azul border-azul hover:bg-azul hover:text-blanco"
           >
             Guardar Cambios
           </button>
@@ -318,7 +318,7 @@ export default function Abonos() {
         <button
           onClick={eliminarAbono}
           disabled={!abonoIdBuscado}
-          className="px-4 py-2 rounded-full border-2 font-bold transition-colors duration-200 bg-blanco text-blanco border-rojo bg-blanco text-rojo border-rojo hover:bg-rojo hover:text-blanco"
+          className="px-4 py-2 rounded-full border-2 font-bold transition-colors duration-200 bg-blanco text-azul border-azul bg-blanco text-azul border-azul hover:bg-azul hover:text-blanco"
         >
           Eliminar Abono
         </button>

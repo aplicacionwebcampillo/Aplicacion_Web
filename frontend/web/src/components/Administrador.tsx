@@ -126,7 +126,7 @@ export default function Administrador() {
               setAdmin(null);
               setDni("");
             }}
-            className={`px-4 py-2 rounded-full border-2 font-bold transition-colors duration-200 bg-blanco text-blanco border-rojo bg-blanco text-rojo border-rojo hover:bg-rojo hover:text-blanco ${
+            className={`px-4 py-2 rounded-full border-2 font-bold transition-colors duration-200 bg-blanco text-azul border-azul bg-blanco text-azul border-azul hover:bg-azul hover:text-blanco ${
               modo === modoBtn ? "bg-blue-500 text-white" : "bg-white text-black"
             }`}
           >
@@ -149,7 +149,7 @@ export default function Administrador() {
       {modo === "buscar" && (
         <>
         <div className="flex justify-center">
-          <button onClick={obtenerAdmin} className="px-4 py-2 rounded-full border-2 font-bold transition-colors duration-200 bg-blanco text-blanco border-rojo bg-blanco text-rojo border-rojo hover:bg-rojo hover:text-blanco">
+          <button onClick={obtenerAdmin} className="px-4 py-2 rounded-full border-2 font-bold transition-colors duration-200 bg-blanco text-azul border-azul bg-blanco text-azul border-azul hover:bg-azul hover:text-blanco">
             Obtener
           </button>
           </div>
@@ -187,7 +187,7 @@ export default function Administrador() {
             />
           ))}
           <div className="flex justify-center">
-          <button onClick={crearAdmin} className="px-4 py-2 rounded-full border-2 font-bold transition-colors duration-200 bg-blanco text-blanco border-rojo bg-blanco text-rojo border-rojo hover:bg-rojo hover:text-blanco">
+          <button onClick={crearAdmin} className="px-4 py-2 rounded-full border-2 font-bold transition-colors duration-200 bg-blanco text-azul border-azul bg-blanco text-azul border-azul hover:bg-azul hover:text-blanco">
             Crear Administrador
           </button>
           </div>
@@ -197,7 +197,7 @@ export default function Administrador() {
       {modo === "editar" && (
         <>
         <div className="flex justify-center">
-          <button onClick={obtenerAdmin} className="px-4 py-2 rounded-full border-2 font-bold transition-colors duration-200 bg-blanco text-blanco border-rojo bg-blanco text-rojo border-rojo hover:bg-rojo hover:text-blanco">
+          <button onClick={obtenerAdmin} className="px-4 py-2 rounded-full border-2 font-bold transition-colors duration-200 bg-blanco text-azul border-azul bg-blanco text-azul border-azul hover:bg-azul hover:text-blanco">
             Cargar Admin
           </button>
           </div>
@@ -216,7 +216,7 @@ export default function Administrador() {
                 />
               ))}
               <div className="flex justify-center">
-              <button onClick={actualizarAdmin} className="px-4 py-2 rounded-full border-2 font-bold transition-colors duration-200 bg-blanco text-blanco border-rojo bg-blanco text-rojo border-rojo hover:bg-rojo hover:text-blanco">
+              <button onClick={actualizarAdmin} className="px-4 py-2 rounded-full border-2 font-bold transition-colors duration-200 bg-blanco text-azul border-azul bg-blanco text-azul border-azul hover:bg-azul hover:text-blanco">
                 Guardar Cambios
               </button>
               </div>
@@ -227,7 +227,7 @@ export default function Administrador() {
 
       {modo === "eliminar" && (
       <div className="flex justify-center">
-        <button onClick={eliminarAdmin} className="px-4 py-2 rounded-full border-2 font-bold transition-colors duration-200 bg-blanco text-blanco border-rojo bg-blanco text-rojo border-rojo hover:bg-rojo hover:text-blanco">
+        <button onClick={eliminarAdmin} className="px-4 py-2 rounded-full border-2 font-bold transition-colors duration-200 bg-blanco text-azul border-azul bg-blanco text-azul border-azul hover:bg-azul hover:text-blanco">
           Eliminar Administrador
         </button>
         </div>

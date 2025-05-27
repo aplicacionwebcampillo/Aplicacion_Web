@@ -7,6 +7,7 @@ module.exports = {
         dancing: ['"Dancing Script"', 'cursive'],
         sans: ['"Times New Roman"', 'serif'],
         poetsen: ['"Poetsen One"', 'cursive'],
+        bebas: ['"Bebas Neue"', 'sans-serif'],
       },
       colors: {
         celeste: '#00CFFF',

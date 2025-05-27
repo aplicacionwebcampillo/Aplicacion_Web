@@ -209,18 +209,18 @@ useEffect(() => {
   return (
     <div className="flex flex-col md:flex-row bg-gray-50">
       {/* Menú lateral */}
-      <aside className="bg-celeste text-white px-6 py-8 rounded-[1rem] font-poetsen font-bold md:w-full max-w-full m-[1.5rem] md:max-w-[20rem] md:max-h-[24rem] md:w-1/4 flex flex-col justify-center items-center space-y-4">
+      <aside className="bg-celeste text-azul px-6 py-8 rounded-[1rem] font-poetsen font-bold md:w-full max-w-full m-[1.5rem] md:max-w-[20rem] md:max-h-[24rem] md:w-1/4 flex flex-col justify-center items-center space-y-4">
 
         <button
           onClick={() => setSeccion("modificar")}
-          className="min-w-[14rem] px-4 py-2 rounded-full border-2 font-bold transition-colors duration-200 bg-blanco text-blanco border-rojo bg-blanco text-rojo border-rojo hover:bg-rojo hover:text-blanco"
+          className="min-w-[14rem] px-4 py-2 rounded-full border-2 font-bold transition-colors duration-200 bg-blanco text-azul border-azul bg-blanco text-azul border-azul hover:bg-azul hover:text-blanco"
         >
           Modificar Usuario
         </button>
         {socioData && (
         <button
           onClick={() => navigate("/socio")}
-          className="min-w-[14rem] px-4 py-2 rounded-full border-2 font-bold transition-colors duration-200 bg-blanco text-blanco border-rojo bg-blanco text-rojo border-rojo hover:bg-rojo hover:text-blanco"
+          className="min-w-[14rem] px-4 py-2 rounded-full border-2 font-bold transition-colors duration-200 bg-blanco text-azul border-azul bg-blanco text-azul border-azul hover:bg-azul hover:text-blanco"
         >
           Zona Socio
         </button>
@@ -229,7 +229,7 @@ useEffect(() => {
         {adminData && (
         <button
           onClick={() => navigate("/administrador")}
-          className="min-w-[14rem] px-4 py-2 rounded-full border-2 font-bold transition-colors duration-200 bg-blanco text-blanco border-rojo bg-blanco text-rojo border-rojo hover:bg-rojo hover:text-blanco"
+          className="min-w-[14rem] px-4 py-2 rounded-full border-2 font-bold transition-colors duration-200 bg-blanco text-azul border-azul bg-blanco text-azul border-azul hover:bg-azul hover:text-blanco"
         >
           Zona Administrador
         </button>
@@ -237,14 +237,14 @@ useEffect(() => {
 
         <button
           onClick={handleLogout}
-          className="min-w-[14rem] px-4 py-2 rounded-full border-2 font-bold transition-colors duration-200 bg-blanco text-blanco border-rojo bg-blanco text-rojo border-rojo hover:bg-rojo hover:text-blanco"
+          className="min-w-[14rem] px-4 py-2 rounded-full border-2 font-bold transition-colors duration-200 bg-blanco text-azul border-azul bg-blanco text-azul border-azul hover:bg-azul hover:text-blanco"
         >
           Cerrar Sesión
         </button>
 
         <button
           onClick={() => setSeccion("eliminar")}
-          className="min-w-[14rem] px-4 py-2 rounded-full border-2 font-bold transition-colors duration-200 bg-blanco text-blanco border-rojo bg-blanco text-rojo border-rojo hover:bg-rojo hover:text-blanco"
+          className="min-w-[14rem] px-4 py-2 rounded-full border-2 font-bold transition-colors duration-200 bg-blanco text-azul border-azul bg-blanco text-azul border-azul hover:bg-azul hover:text-blanco"
         >
           Eliminar Usuario
         </button>
@@ -275,7 +275,7 @@ useEffect(() => {
             <div className="flex justify-center">
               <button
                 type="submit"
-                className="px-4 py-2 rounded-full border-2 font-bold transition-colors duration-200 bg-blanco text-blanco border-rojo bg-blanco text-rojo border-rojo hover:bg-rojo hover:text-blanco"
+                className="px-4 py-2 rounded-full border-2 font-bold transition-colors duration-200 bg-blanco text-azul border-azul bg-blanco text-azul border-azul hover:bg-azul hover:text-blanco"
               >
                 Guardar Cambios
               </button>
@@ -290,7 +290,7 @@ useEffect(() => {
             <div className="flex justify-center">
             <button
               onClick={handleEliminar}
-              className="px-4 py-2 rounded-full border-2 font-bold transition-colors duration-200 bg-blanco text-blanco border-rojo bg-blanco text-rojo border-rojo hover:bg-rojo hover:text-blanco"
+              className="px-4 py-2 rounded-full border-2 font-bold transition-colors duration-200 bg-blanco text-azul border-azul bg-blanco text-azul border-azul hover:bg-azul hover:text-blanco"
             > 
               Confirmar Eliminación
             </button>

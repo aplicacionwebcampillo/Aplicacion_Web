@@ -158,7 +158,7 @@ export default function ValidarPago() {
       <div className="flex justify-center"> 
       <button
         onClick={validarPago}
-        className="px-4 py-2 rounded-full border-2 font-bold transition-colors duration-200 bg-blanco text-blanco border-rojo bg-blanco text-rojo border-rojo hover:bg-rojo hover:text-blanco"
+        className="px-4 py-2 rounded-full border-2 font-bold transition-colors duration-200 bg-blanco text-azul border-azul bg-blanco text-azul border-azul hover:bg-azul hover:text-blanco"
       >
         Validar Pago
       </button>

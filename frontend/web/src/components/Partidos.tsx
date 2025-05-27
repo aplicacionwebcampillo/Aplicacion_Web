@@ -75,7 +75,7 @@ export default function Partidos() {
           <h3 className="text-xl font-bold mb-2 text-center">
             {tipo === "próximo" ? "Próximo Partido" : "Último Partido"}
           </h3>
-          <p className="text-gray-500">
+          <p className="text-negro_texto">
             {tipo === "próximo"
               ? "Actualmente no hay partidos programados"
               : "Actualmente no hay partidos jugados"}
@@ -98,12 +98,12 @@ export default function Partidos() {
 
         {/* Línea competición */}
         <div className="text-center text-sm text-gray-600 space-y-1 mb-2">
-          <p className="">{partido.nombre_competicion}</p>
+          <p className="text-negro_texto">{partido.nombre_competicion}</p>
         </div>
 
         {/* Línea de jornada */}
         <div className="text-center text-sm text-gray-600 space-y-1 mb-2">
-          <p>Jornada {partido.jornada}</p>
+          <p className="text-negro_texto">Jornada {partido.jornada}</p>
         </div>
 
         {/* Línea de equipos y resultado/VS */}
@@ -124,13 +124,13 @@ export default function Partidos() {
 
         {/* Línea fecha */}
         <div className="text-center text-sm text-gray-600 space-y-1">
-          <p>{fechaFormateada}</p>
+          <p className="text-negro_texto">{fechaFormateada}</p>
         </div>
 
         {/* Línea hora */}
         <div className="text-center text-sm text-gray-600 space-y-1">
           {tipo === "próximo" &&
-            partido.hora?.match(/^\d{2}:\d{2}:\d{2}$/) && <p>{partido.hora.slice(0, 5)}</p>}
+            partido.hora?.match(/^\d{2}:\d{2}:\d{2}$/) && <p className="text-negro_texto">{partido.hora.slice(0, 5)}</p>}
         </div>
       </div>
     );
@@ -147,8 +147,8 @@ export default function Partidos() {
             onClick={() => setCategoriaActiva(cat)}
             className={`px-4 py-2 rounded-full border-2 font-bold transition-colors duration-200 ${
               categoriaActiva === cat
-                ? "bg-rojo text-blanco border-rojo"
-                : "bg-blanco text-rojo border-rojo hover:bg-rojo hover:text-blanco"
+                ? "bg-azul text-blanco border-azul"
+                : "bg-blanco text-azul border-azul hover:bg-azul hover:text-blanco"
             }`}
           >
             {cat}

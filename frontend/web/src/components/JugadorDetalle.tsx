@@ -41,7 +41,7 @@ export default function JugadorDetalle() {
 
   return (
     <section className="max-w-4xl mx-auto p-6 bg-white rounded-lg shadow-md font-poetsen">
-      <Link to="/plantilla" className="text-negro no-underline font-semibold mb-4 inline-block hover:text-rojo">
+      <Link to="/plantilla" className="text-negro no-underline font-semibold mb-4 inline-block hover:text-azul">
         ← Volver a la plantilla
       </Link>
 
@@ -54,10 +54,22 @@ export default function JugadorDetalle() {
 
         <div className="flex flex-col gap-3">
           <h1 className="text-3xl font-bold text-negro">{jugador.nombre}</h1>
-          <p><strong>Posición:</strong> {jugador.posicion}</p>
-          <p><strong>Dorsal:</strong> {jugador.dorsal}</p>
-          <p><strong>Fecha de nacimiento:</strong> {new Date(jugador.fecha_nacimiento).toLocaleDateString()}</p>
-          <p className="mt-4 text-negro_texto">{jugador.biografia}</p>
+          <p>
+  <strong>Posición:</strong>{" "}
+  <span className="text-negro_texto">{jugador.posicion}</span>
+</p>
+<p>
+  <strong>Dorsal:</strong>{" "}
+  <span className="text-negro_texto">{jugador.dorsal}</span>
+</p>
+<p>
+  <strong>Fecha de nacimiento:</strong>{" "}
+  <span className="text-negro_texto">
+    {new Date(jugador.fecha_nacimiento).toLocaleDateString()}
+  </span>
+</p>
+<p className="mt-4 text-negro_texto text-justify">{jugador.biografia}</p>
+
         </div>
       </div>
     </section>

@@ -44,8 +44,8 @@ export default function Clasificacion() {
             onClick={() => setCategoriaActiva(cat)}
             className={`px-4 py-2 rounded-full border-2 font-bold transition-colors duration-200 ${
               categoriaActiva === cat
-                ? "bg-rojo text-blanco border-rojo"
-                : "bg-blanco text-rojo border-rojo hover:bg-rojo hover:text-blanco"
+                ? "bg-azul text-blanco border-azul"
+                : "bg-blanco text-azul border-azul hover:bg-azul hover:text-blanco"
             }`}
           >
             {cat}
@@ -55,7 +55,7 @@ export default function Clasificacion() {
 
       {/* Tabla de clasificación */}
       <div className="overflow-x-auto">
-        <table className="min-w-full table-auto border-[0.2rem] border-rojo bg-blanco text-negro rounded-[1rem]">
+        <table className="min-w-full table-auto border-[0.2rem] border-azul bg-blanco text-negro rounded-[1rem]">
           <thead className="bg-gray-200 text-center rounded-[1rem]">
             <tr>
               <th className="px-4 py-2">Posición</th>
@@ -63,19 +63,19 @@ export default function Clasificacion() {
               <th className="px-4 py-2">Puntos</th>
             </tr>
           </thead>
-          <tbody>
+          <tbody className="text-negro_texto">
             {datos
               .sort((a, b) => a.posicion - b.posicion)
               .map((fila, index) => (
                 <tr
                   key={index}
                   className={`hover:bg-gray-100 ${
-                    fila.equipo === "C.D. CAMPILLO DEL RÍO C.F." ? "bg-green-200 text-rojo" : ""
+                    fila.equipo === "C.D. CAMPILLO DEL RÍO C.F." ? "bg-green-200 text-azul" : ""
                   }`}
                 >
-                  <td className="px-4 py-2 border-t">{fila.posicion}</td>
-                  <td className="px-4 py-2 border-t">{fila.equipo}</td>
-                  <td className="px-4 py-2 border-t">{fila.puntos}</td>
+                  <td className="px-4 py-2 md:pl-[5rem] border-t">{fila.posicion}</td>
+                  <td className="px-4 py-2 md:pl-[11rem] border-t">{fila.equipo}</td>
+                  <td className="px-4 py-2 md:pl-[3rem] border-t">{fila.puntos}</td>
                 </tr>
               ))}
           </tbody>

@@ -14,13 +14,13 @@ export default function Footer() {
       <div className="flex flex-wrap justify-center items-center gap-x-8 gap-y-4">
       
         <p>
-          <a href="/aviso-legal" className="no-underline text-blanco  hover:text-rojo transition-colors ">
+          <a href="/aviso-legal" className="no-underline text-blanco  hover:text-azul transition-colors ">
             Aviso Legal
           </a>
         </p>
         
         <p>
-          <a href="contacto" className="no-underline text-blanco  hover:text-rojo transition-colors ">
+          <a href="contacto" className="no-underline text-blanco  hover:text-azul transition-colors ">
             Contacto
           </a>
         </p>
@@ -34,7 +34,7 @@ export default function Footer() {
 	      rel="noopener noreferrer"
 	      className="w-[1rem] h-[1rem] flex items-center justify-center rounded-full bg-celeste hover:scale-110 transition-transform duration-200 shadow-lg"
 	    >
-	      <Icon className="text-blanco text-3xl hover:text-rojo [font-size:1rem]" />
+	      <Icon className="text-blanco text-3xl hover:text-azul [font-size:1rem]" />
 	    </a>
 	  ))}
         </p>
@@ -42,15 +42,15 @@ export default function Footer() {
         
         <div className="max-w-5xl mx-auto px-4 space-y-2">
         <p>
-          © {new Date().getFullYear()} <a href="/" className="no-underline text-blanco  hover:text-rojo transition-colors ">
+          © {new Date().getFullYear()} <a href="/" className="no-underline text-blanco  hover:text-azul transition-colors ">
             <strong> Campillo del Río C.F. </strong>
           </a> Todos los derechos reservados.
         </p>
         <p>
-          Desarrollado por <a href="https://www.linkedin.com/in/gabriel-vico-arboledas-277189330/" target="_blank" className="no-underline text-blanco  hover:text-rojo transition-colors ">
+          Desarrollado por <a href="https://www.linkedin.com/in/gabriel-vico-arboledas-277189330/" target="_blank" className="no-underline text-blanco  hover:text-azul transition-colors ">
             <strong> Gabriel Vico Arboledas </strong>
           </a> en colaboración con la
-          <a href="https://www.ugr.es/" target="_blank"className="no-underline text-blanco  hover:text-rojo transition-colors ">
+          <a href="https://www.ugr.es/" target="_blank"className="no-underline text-blanco  hover:text-azul transition-colors ">
             <strong> Universidad de Granada (UGR) </strong>
           </a>.
         </p>

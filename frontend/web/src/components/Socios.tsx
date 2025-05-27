@@ -128,7 +128,7 @@ export default function Socios() {
               setSocio(null);
               setDni("");
             }}
-            className={`px-4 py-2 rounded-full border-2 font-bold transition-colors duration-200 bg-blanco text-blanco border-rojo bg-blanco text-rojo border-rojo hover:bg-rojo hover:text-blanco ${
+            className={`px-4 py-2 rounded-full border-2 font-bold transition-colors duration-200 bg-blanco text-azul border-azul bg-blanco text-azul border-azul hover:bg-azul hover:text-blanco ${
               modo === m ? "bg-blue-500 text-white" : "bg-white text-black"
             }`}
           >
@@ -152,7 +152,7 @@ export default function Socios() {
       {modo === "buscar" && (
   <>
     <div className="flex justify-center"> 
-      <button onClick={obtenerSocio} className="px-4 py-2 rounded-full border-2 font-bold transition-colors duration-200 bg-blanco text-blanco border-rojo bg-blanco text-rojo border-rojo hover:bg-rojo hover:text-blanco">
+      <button onClick={obtenerSocio} className="px-4 py-2 rounded-full border-2 font-bold transition-colors duration-200 bg-blanco text-azul border-azul bg-blanco text-azul border-azul hover:bg-azul hover:text-blanco">
         Obtener Socio
       </button>
     </div>
@@ -190,7 +190,7 @@ export default function Socios() {
             />
           ))}
           <div className="flex justify-center"> 
-          <button onClick={crearSocio} className="px-4 py-2 rounded-full border-2 font-bold transition-colors duration-200 bg-blanco text-blanco border-rojo bg-blanco text-rojo border-rojo hover:bg-rojo hover:text-blanco">
+          <button onClick={crearSocio} className="px-4 py-2 rounded-full border-2 font-bold transition-colors duration-200 bg-blanco text-azul border-azul bg-blanco text-azul border-azul hover:bg-azul hover:text-blanco">
             Crear Socio
           </button>
           </div>
@@ -201,7 +201,7 @@ export default function Socios() {
       {modo === "editar" && (
         <>
         <div className="flex justify-center"> 
-          <button onClick={obtenerSocio} className="px-4 py-2 rounded-full border-2 font-bold transition-colors duration-200 bg-blanco text-blanco border-rojo bg-blanco text-rojo border-rojo hover:bg-rojo hover:text-blanco">
+          <button onClick={obtenerSocio} className="px-4 py-2 rounded-full border-2 font-bold transition-colors duration-200 bg-blanco text-azul border-azul bg-blanco text-azul border-azul hover:bg-azul hover:text-blanco">
             Cargar Socio
           </button>
           </div>
@@ -220,7 +220,7 @@ export default function Socios() {
                 />
               ))}
               <div className="flex justify-center"> 
-              <button onClick={actualizarSocio} className="px-4 py-2 rounded-full border-2 font-bold transition-colors duration-200 bg-blanco text-blanco border-rojo bg-blanco text-rojo border-rojo hover:bg-rojo hover:text-blanco">
+              <button onClick={actualizarSocio} className="px-4 py-2 rounded-full border-2 font-bold transition-colors duration-200 bg-blanco text-azul border-azul bg-blanco text-azul border-azul hover:bg-azul hover:text-blanco">
                 Guardar Cambios
               </button>
               </div>
@@ -232,7 +232,7 @@ export default function Socios() {
       {/* Eliminar socio */}
       {modo === "eliminar" && (
       <div className="flex justify-center"> 
-        <button onClick={eliminarSocio} className="px-4 py-2 rounded-full border-2 font-bold transition-colors duration-200 bg-blanco text-blanco border-rojo bg-blanco text-rojo border-rojo hover:bg-rojo hover:text-blanco">
+        <button onClick={eliminarSocio} className="px-4 py-2 rounded-full border-2 font-bold transition-colors duration-200 bg-blanco text-azul border-azul bg-blanco text-azul border-azul hover:bg-azul hover:text-blanco">
           Eliminar Socio
         </button>
         </div>

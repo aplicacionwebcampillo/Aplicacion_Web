@@ -130,7 +130,7 @@ export default function Patrocinadores() {
           <div className="flex justify-center"> 
           <button
             key={m}
-            className={`px-4 py-2 rounded-full border-2 font-bold transition-colors duration-200 bg-blanco text-blanco border-rojo bg-blanco text-rojo border-rojo hover:bg-rojo hover:text-blanco ${
+            className={`px-4 py-2 rounded-full border-2 font-bold transition-colors duration-200 bg-blanco text-azul border-azul bg-blanco text-azul border-azul hover:bg-azul hover:text-blanco ${
               modo === m ? "bg-blue-600 text-white" : "bg-white text-black"
             }`}
             onClick={() => {
@@ -171,7 +171,7 @@ export default function Patrocinadores() {
         <div className="flex justify-center"> 
           <button
             onClick={obtenerPatrocinador}
-            className="px-4 py-2 rounded-full border-2 font-bold transition-colors duration-200 bg-blanco text-blanco border-rojo bg-blanco text-rojo border-rojo hover:bg-rojo hover:text-blanco"
+            className="px-4 py-2 rounded-full border-2 font-bold transition-colors duration-200 bg-blanco text-azul border-azul bg-blanco text-azul border-azul hover:bg-azul hover:text-blanco"
           >
             Obtener Patrocinador
           </button>
@@ -224,7 +224,7 @@ export default function Patrocinadores() {
           <div className="flex justify-center"> 
           <button
             onClick={crearPatrocinador}
-            className="px-4 py-2 rounded-full border-2 font-bold transition-colors duration-200 bg-blanco text-blanco border-rojo bg-blanco text-rojo border-rojo hover:bg-rojo hover:text-blanco"
+            className="px-4 py-2 rounded-full border-2 font-bold transition-colors duration-200 bg-blanco text-azul border-azul bg-blanco text-azul border-azul hover:bg-azul hover:text-blanco"
           >
             Crear Patrocinador
           </button>
@@ -238,7 +238,7 @@ export default function Patrocinadores() {
         <div className="flex justify-center"> 
           <button
             onClick={obtenerPatrocinador}
-            className="px-4 py-2 rounded-full border-2 font-bold transition-colors duration-200 bg-blanco text-blanco border-rojo bg-blanco text-rojo border-rojo hover:bg-rojo hover:text-blanco"
+            className="px-4 py-2 rounded-full border-2 font-bold transition-colors duration-200 bg-blanco text-azul border-azul bg-blanco text-azul border-azul hover:bg-azul hover:text-blanco"
           >
             Cargar Patrocinador
           </button>
@@ -272,7 +272,7 @@ export default function Patrocinadores() {
               <div className="flex justify-center"> 
               <button
                 onClick={actualizarPatrocinador}
-                className="px-4 py-2 rounded-full border-2 font-bold transition-colors duration-200 bg-blanco text-blanco border-rojo bg-blanco text-rojo border-rojo hover:bg-rojo hover:text-blanco"
+                className="px-4 py-2 rounded-full border-2 font-bold transition-colors duration-200 bg-blanco text-azul border-azul bg-blanco text-azul border-azul hover:bg-azul hover:text-blanco"
               >
                 Guardar Cambios
               </button>
@@ -289,7 +289,7 @@ export default function Patrocinadores() {
           <button
             onClick={eliminarPatrocinador}
             disabled={!nombreBuscado}
-            className="px-4 py-2 rounded-full border-2 font-bold transition-colors duration-200 bg-blanco text-blanco border-rojo bg-blanco text-rojo border-rojo hover:bg-rojo hover:text-blanco"
+            className="px-4 py-2 rounded-full border-2 font-bold transition-colors duration-200 bg-blanco text-azul border-azul bg-blanco text-azul border-azul hover:bg-azul hover:text-blanco"
           >
             Eliminar Patrocinador
           </button>

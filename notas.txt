@@ -1,45 +1,10 @@
 Funcionalidades restantes:
 
 * Imágenes
-* Detalles
 
+* Aviso legal
 * Botón/método para pasar de usuario a socio o administrador
 * Enviar correo de compra/predice ...
 
-
-
-
-<div className="flex justify-center">  centrar
-
-px-4 py-2 rounded-full border-2 font-bold transition-colors duration-200 bg-blanco text-blanco border-rojo bg-blanco text-rojo border-rojo hover:bg-rojo hover:text-blanco boton
-
-
-rounded-[1rem] font-poetsen w-[90%] rounded-xl border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-cyan-500     input
-
-
-bg-celeste text-blanco px-6 py-10 rounded-[1rem] font-poetsen font-bold w-full max-w-[40rem] shadow-lg space-y-4     div superior
-
-flex flex-wrap justify-center gap-3 mb-6     botones responsive
-
-
-<div className="mt-4 space-y-2">
-          {admins.map((a) => (
-            <div key={a.dni} className="bg-blanco text-negro px-6 py-10 rounded-[1rem] font-poetsen font-bold shadow-lg space-y-4">
-            
-            
-           
-
-
-
-
-
-**********************************************************************
-Título: Dancing Script 
-
-escudo esquipos
-quitar negrita en dia, hora, lugar
-
-justificar texto y cambiar colo texto despues de los dos puntos
-
-infor secundario negro_texto
+* Buscar información del antiguo club
 

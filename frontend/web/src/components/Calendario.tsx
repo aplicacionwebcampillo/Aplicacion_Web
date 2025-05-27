@@ -1,5 +1,18 @@
 import { useEffect, useState } from "react";
 
+function useWindowWidth() {
+  const [width, setWidth] = useState<number | null>(null);
+
+  useEffect(() => {
+    const handleResize = () => setWidth(window.innerWidth);
+    handleResize();
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
+  return width;
+}
+
 interface Partido {
   nombre_competicion: string;
   temporada_competicion: string;
@@ -25,11 +38,18 @@ const competicionesPorCategoria: Record<string, string[]> = {
   Juvenil: ["3ª Andaluza Juvenil (Jaén)"],
 };
 
+const FILAS_POR_PAGINA = 3;
+const COLUMNAS = 3;
+const PARTIDOS_POR_PAGINA = FILAS_POR_PAGINA * COLUMNAS;
+
 export default function TodosPartidos() {
   const [categoriaActiva, setCategoriaActiva] = useState<
     "Senior" | "Femenino" | "Juvenil" | "Todos"
   >("Todos");
   const [partidos, setPartidos] = useState<Partido[]>([]);
+  const [paginaActual, setPaginaActual] = useState(1);
+
+  const width = useWindowWidth();
 
   useEffect(() => {
     const temporada_competicion = "Temporada 2024-2025";
@@ -39,7 +59,6 @@ export default function TodosPartidos() {
         let competicionesAConsultar: string[] = [];
 
         if (categoriaActiva === "Todos") {
-          // Todas las competiciones de todas las categorías
           competicionesAConsultar = Object.values(competicionesPorCategoria).flat();
         } else {
           competicionesAConsultar = competicionesPorCategoria[categoriaActiva];
@@ -56,7 +75,6 @@ export default function TodosPartidos() {
         const resultados = await Promise.all(fetches);
         const todosPartidos = resultados.flat();
 
-        // Ordenar por fecha ascendente
         todosPartidos.sort(
           (a, b) => new Date(a.dia).getTime() - new Date(b.dia).getTime()
         );
@@ -71,8 +89,30 @@ export default function TodosPartidos() {
     fetchAllPartidos();
   }, [categoriaActiva]);
 
+  // Resetear página cuando cambia categoría
+  useEffect(() => {
+    setPaginaActual(1);
+  }, [categoriaActiva]);
+
+  const totalPaginas = Math.ceil(partidos.length / PARTIDOS_POR_PAGINA);
+
+  const partidosPagina = partidos.slice(
+    (paginaActual - 1) * PARTIDOS_POR_PAGINA,
+    paginaActual * PARTIDOS_POR_PAGINA
+  );
+
+  const cambiarPagina = (direccion: "anterior" | "siguiente") => {
+    setPaginaActual((prev) => {
+      if (direccion === "anterior" && prev > 1) return prev - 1;
+      if (direccion === "siguiente" && prev < totalPaginas) return prev + 1;
+      return prev;
+    });
+  };
+
+  if (width === null) return null;
+
   return (
-    <section className="bg-celeste text-black px-4 py-8 text-blanco rounded-[1rem] font-bold font-poetsen">
+    <section className="md:w-[101%] bg-celeste text-black px-4 py-8 text-blanco rounded-[1rem] font-bold font-poetsen">
       <h2 className="text-2xl font-bold mb-6 text-center">Calendario</h2>
 
       {/* Botones categoría */}
@@ -83,8 +123,8 @@ export default function TodosPartidos() {
             onClick={() => setCategoriaActiva(cat)}
             className={`px-4 py-2 rounded-full border-2 font-bold transition-colors duration-200 ${
               categoriaActiva === cat
-                ? "bg-rojo text-blanco border-rojo"
-                : "bg-blanco text-rojo border-rojo hover:bg-rojo hover:text-blanco"
+                ? "bg-azul text-blanco border-azul"
+                : "bg-blanco text-azul border-azul hover:bg-azul hover:text-blanco"
             }`}
           >
             {cat}
@@ -92,21 +132,21 @@ export default function TodosPartidos() {
         ))}
       </div>
 
-      {/* Lista de Partidos */}
-      <div className="grid gap-6 sm:grid-cols-2">
-        {partidos.length === 0 && (
+      {/* Lista de Partidos (paginados) */}
+      <div className="w-[99%] grid gap-6 sm:grid-cols-2 lg:grid-cols-3 justify-center">
+        {partidosPagina.length === 0 && (
           <p className="text-center text-gray-500 col-span-2">
             No hay partidos disponibles para esta selección.
           </p>
         )}
 
-        {partidos.map((partido, index) => {
+        {partidosPagina.map((partido, index) => {
           const fecha = new Date(partido.dia);
           const dia = String(fecha.getDate()).padStart(2, "0");
           const mes = String(fecha.getMonth() + 1).padStart(2, "0");
           const anio = fecha.getFullYear();
           const fechaFormateada = `${dia}/${mes}/${anio}`;
-          
+
           const ahora = new Date();
           const fechaPartido = new Date(`${partido.dia}T${partido.hora}`);
           const mostrarResultado = fechaPartido < ahora;
@@ -114,41 +154,71 @@ export default function TodosPartidos() {
           return (
             <div
               key={index}
-              className="bg-blanco rounded-[1rem] min-w-[19rem] max-w-[19rem] md:min-w-[24rem] md:max-w-[24rem] shadow-md rounded-lg p-4 max-w-2xl mx-auto text-negro"
+              className="bg-blanco rounded-[1rem] min-w-[19rem] max-w-[19rem] md:min-w-[24rem] md:max-w-[24rem] shadow-md p-4 text-negro"
             >
               {/* Competición */}
-              <div className="text-center text-sm text-gray-600 space-y-1 mb-2">
-                <p className="italic">{partido.nombre_competicion}</p>
+              <div className="text-center text-sm space-y-1 mb-2">
+                <p className="text-negro_texto">{partido.nombre_competicion}</p>
               </div>
 
               {/* Jornada */}
-              <div className="text-center text-sm text-gray-600 space-y-1 mb-2">
-                <p>Jornada {partido.jornada}</p>
+              <div className="text-center text-sm space-y-1 mb-2">
+                <p className="text-negro_texto">Jornada {partido.jornada}</p>
               </div>
 
               {/* Equipos y resultado */}
-              <div className="flex justify-between items-center text-white font-semibold mb-2">
-                <div className="w-1/3 text-left text-black">{partido.local}</div>
-                <div className="w-1/3 text-center text-black text-2xl font-bold">
+              <div className="flex justify-between items-center font-semibold mb-2">
+                <div className="w-1/3 text-left">{partido.local}</div>
+                <div className="w-1/3 text-center text-2xl font-bold">
                   {mostrarResultado
                     ? `${partido.resultado_local} - ${partido.resultado_visitante}`
                     : "vs"}
                 </div>
-                <div className="w-1/3 text-right text-black">{partido.visitante}</div>
+                <div className="w-1/3 text-right">{partido.visitante}</div>
               </div>
 
               {/* Fecha y hora */}
-              <div className="text-center text-sm text-gray-600 space-y-1">
-                <p>{fechaFormateada}</p>
+              <div className="text-center text-sm space-y-1">
+                <p className="text-negro_texto">{fechaFormateada}</p>
                 {partido.hora?.match(/^\d{2}:\d{2}:\d{2}$/) && (
-                  <p>{partido.hora.slice(0, 5)}</p>
+                  <p className="text-negro_texto">{partido.hora.slice(0, 5)}</p>
                 )}
               </div>
             </div>
           );
         })}
       </div>
-      
+
+      {/* Paginación */}
+      {totalPaginas > 1 && (
+        <div className="flex justify-center items-center gap-6 mt-10">
+          <button
+            onClick={() => cambiarPagina("anterior")}
+            disabled={paginaActual === 1}
+            className={`text-2xl px-3 py-1 rounded-full border ${
+              paginaActual === 1
+                ? "text-gray-400 border-gray-300 cursor-not-allowed"
+                : "text-azul border-azul bg-blanco hover:bg-azul hover:text-blanco"
+            }`}
+          >
+            ←
+          </button>
+          <span className="text-lg font-bold">
+            {paginaActual} / {totalPaginas}
+          </span>
+          <button
+            onClick={() => cambiarPagina("siguiente")}
+            disabled={paginaActual === totalPaginas}
+            className={`text-2xl px-3 py-1 rounded-full border ${
+              paginaActual === totalPaginas
+                ? "text-gray-400 border-gray-300 cursor-not-allowed"
+                : "text-azul border-azul bg-blanco hover:bg-azul hover:text-blanco"
+            }`}
+          >
+            →
+          </button>
+        </div>
+      )}
     </section>
   );
 }

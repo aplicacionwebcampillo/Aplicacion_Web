@@ -83,10 +83,10 @@ export default function Usuario() {
   return (
     <div className="bg-celeste text-blanco px-6 py-10 rounded-[1rem] font-poetsen font-bold w-full max-w-[20rem] md:max-w-[40rem] shadow-lg space-y-4">
       <div className="flex flex-wrap justify-center gap-3 mb-6">
-        <button onClick={() => setModo("listar")} className="px-4 py-2 rounded-full border-2 font-bold transition-colors duration-200 bg-blanco text-blanco border-rojo bg-blanco text-rojo border-rojo hover:bg-rojo hover:text-blanco">Listar Usuarios</button>
-        <button onClick={() => setModo("buscar")} className="px-4 py-2 rounded-full border-2 font-bold transition-colors duration-200 bg-blanco text-blanco border-rojo bg-blanco text-rojo border-rojo hover:bg-rojo hover:text-blanco">Buscar Usuario</button>
-        <button onClick={() => setModo("editar")} className="px-4 py-2 rounded-full border-2 font-bold transition-colors duration-200 bg-blanco text-blanco border-rojo bg-blanco text-rojo border-rojo hover:bg-rojo hover:text-blanco">Editar Usuario</button>
-        <button onClick={() => setModo("eliminar")} className="px-4 py-2 rounded-full border-2 font-bold transition-colors duration-200 bg-blanco text-blanco border-rojo bg-blanco text-rojo border-rojo hover:bg-rojo hover:text-blanco">Eliminar Usuario</button>
+        <button onClick={() => setModo("listar")} className="px-4 py-2 rounded-full border-2 font-bold transition-colors duration-200 bg-blanco text-azul border-azul bg-blanco text-azul border-azul hover:bg-azul hover:text-blanco">Listar Usuarios</button>
+        <button onClick={() => setModo("buscar")} className="px-4 py-2 rounded-full border-2 font-bold transition-colors duration-200 bg-blanco text-azul border-azul bg-blanco text-azul border-azul hover:bg-azul hover:text-blanco">Buscar Usuario</button>
+        <button onClick={() => setModo("editar")} className="px-4 py-2 rounded-full border-2 font-bold transition-colors duration-200 bg-blanco text-azul border-azul bg-blanco text-azul border-azul hover:bg-azul hover:text-blanco">Editar Usuario</button>
+        <button onClick={() => setModo("eliminar")} className="px-4 py-2 rounded-full border-2 font-bold transition-colors duration-200 bg-blanco text-azul border-azul bg-blanco text-azul border-azul hover:bg-azul hover:text-blanco">Eliminar Usuario</button>
       </div>
 
       {(modo === "buscar" || modo === "editar" || modo === "eliminar") && (
@@ -104,7 +104,7 @@ export default function Usuario() {
   <div className="flex justify-center">
     <button
       onClick={obtenerUsuario}
-      className="px-4 py-2 rounded-full border-2 font-bold transition-colors duration-200 bg-blanco text-rojo border-rojo hover:bg-rojo hover:text-blanco"
+      className="px-4 py-2 rounded-full border-2 font-bold transition-colors duration-200 bg-blanco text-azul border-azul hover:bg-azul hover:text-blanco"
     >
       Obtener Usuario
     </button>
@@ -127,7 +127,7 @@ export default function Usuario() {
       {modo === "editar" && (
         <>
           <div className="flex justify-center">
-          <button onClick={obtenerUsuario} className="px-4 py-2 rounded-full border-2 font-bold transition-colors duration-200 bg-blanco text-blanco border-rojo bg-blanco text-rojo border-rojo hover:bg-rojo hover:text-blanco">
+          <button onClick={obtenerUsuario} className="px-4 py-2 rounded-full border-2 font-bold transition-colors duration-200 bg-blanco text-azul border-azul bg-blanco text-azul border-azul hover:bg-azul hover:text-blanco">
             Cargar Usuario
           </button>
           </div>
@@ -146,7 +146,7 @@ export default function Usuario() {
                 />
               ))}
               <div className="flex justify-center">
-              <button onClick={actualizarUsuario} className="px-4 py-2 rounded-full border-2 font-bold transition-colors duration-200 bg-blanco text-blanco border-rojo bg-blanco text-rojo border-rojo hover:bg-rojo hover:text-blanco">
+              <button onClick={actualizarUsuario} className="px-4 py-2 rounded-full border-2 font-bold transition-colors duration-200 bg-blanco text-azul border-azul bg-blanco text-azul border-azul hover:bg-azul hover:text-blanco">
                 Guardar Cambios
               </button>
               </div>
@@ -157,7 +157,7 @@ export default function Usuario() {
 
       {modo === "eliminar" && (
       <div className="flex justify-center">
-        <button onClick={eliminarUsuario} className="px-4 py-2 rounded-full border-2 font-bold transition-colors duration-200 bg-blanco text-blanco border-rojo bg-blanco text-rojo border-rojo hover:bg-rojo hover:text-blanco">
+        <button onClick={eliminarUsuario} className="px-4 py-2 rounded-full border-2 font-bold transition-colors duration-200 bg-blanco text-azul border-azul bg-blanco text-azul border-azul hover:bg-azul hover:text-blanco">
           Eliminar Usuario
         </button>
       </div>

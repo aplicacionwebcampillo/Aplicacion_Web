@@ -150,7 +150,7 @@ export default function CesionesAbono() {
           <button
             key={m}
             onClick={() => setModo(m as any)}
-            className="px-4 py-2 rounded-full border-2 font-bold transition-colors duration-200 bg-blanco text-rojo border-rojo hover:bg-rojo hover:text-blanco"
+            className="px-4 py-2 rounded-full border-2 font-bold transition-colors duration-200 bg-blanco text-azul border-azul hover:bg-azul hover:text-blanco"
           >
             {m[0].toUpperCase() + m.slice(1)}
           </button>
@@ -249,7 +249,7 @@ export default function CesionesAbono() {
         <div className="flex justify-center">
           <button
             onClick={handleModoSubmit}
-            className="px-4 py-2 rounded-full border-2 font-bold transition-colors duration-200 bg-blanco text-rojo border-rojo hover:bg-rojo hover:text-blanco"
+            className="px-4 py-2 rounded-full border-2 font-bold transition-colors duration-200 bg-blanco text-azul border-azul hover:bg-azul hover:text-blanco"
           >
             {modo === "crear"
               ? "Crear Cesión"

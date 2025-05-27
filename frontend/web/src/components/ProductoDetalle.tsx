@@ -46,22 +46,23 @@ export default function ProductoDetalle() {
     <section className="text-blanco px-6 py-10 rounded-[1rem] font-poetsen font-bold">
       <Link
         to="/tienda"
-        className="text-negro no-underline font-semibold mb-4 inline-block hover:text-rojo"
+        className="text-negro no-underline font-semibold mb-4 inline-block hover:text-azul"
       >
         ← Volver a la tienda
       </Link>
 
-      <div className="bg-celeste text-blanco px-6 py-10 rounded-[1rem] font-poetsen font-bold flex flex-col lg:flex-row items-center gap-10">
+      <div className="bg-celeste text-blanco px-6 py-10 rounded-[1rem] font-poetsen font-bold flex flex-col items-center justify-center gap-10 max-w-[60rem] mx-auto">
+
         <div className="flex justify-between items-center mb-6 w-full">
           <p> </p>
           <Link
             to="/carrito"
-            className="px-6 py-2 rounded-full font-bold border-2 transition-all bg-blanco text-rojo border-rojo hover:bg-rojo hover:text-blanco"
+            className="px-6 py-2 rounded-full font-bold border-2 transition-all bg-blanco text-azul border-azul hover:bg-azul hover:text-blanco"
           >
             Ver carrito ({carrito.length})
           </Link>
         </div>
-
+	
         <div className="w-full max-w-[30rem]">
           <img
             src={producto.imagen || "/images/PorDefecto.png"}
@@ -70,10 +71,10 @@ export default function ProductoDetalle() {
           />
         </div>
 
-        <div className="text-center lg:text-left w-full max-w-[30rem]">
+        <div className="text-center w-full max-w-[30rem]">
           <h2 className="text-4xl mb-4">{producto.nombre}</h2>
           <p className="text-lg mb-4 text-negro">{producto.descripcion}</p>
-          <p className="text-2xl text-rojo mb-2">{producto.precio} €</p>
+          <p className="text-2xl text-azul mb-2">{producto.precio} €</p>
           <p className="mb-4">
             {producto.stock > 0 ? `Stock disponible: ${producto.stock}` : "Agotado"}
           </p>
@@ -89,18 +90,18 @@ export default function ProductoDetalle() {
               onChange={(e) => setTallaSeleccionada(e.target.value)}
               className="rounded px-2 py-1"
             >
-              <option value="L">4</option>
-              <option value="XL">6</option>
-              <option value="L">8</option>
-              <option value="XL">10</option>
-              <option value="L">12</option>
-              <option value="XL">14</option>
+              <option value="4">4</option>
+              <option value="6">6</option>
+              <option value="8">8</option>
+              <option value="10">10</option>
+              <option value="12">12</option>
+              <option value="14">14</option>
               <option value="S">S</option>
               <option value="M">M</option>
               <option value="L">L</option>
               <option value="XL">XL</option>
-              <option value="S">XXL</option>
-              <option value="M">3XL</option>
+              <option value="XXL">XXL</option>
+              <option value="3XL">3XL</option>
             </select>
           </div>
 
@@ -108,7 +109,7 @@ export default function ProductoDetalle() {
             onClick={handleAgregar}
             className={`px-6 py-2 rounded-full font-bold border-2 transition-all ${
               producto.stock > 0
-                ? "bg-blanco text-rojo border-rojo hover:bg-rojo hover:text-blanco"
+                ? "bg-blanco text-azul border-azul hover:bg-azul hover:text-blanco"
                 : "bg-gray-400 text-white cursor-not-allowed border-gray-400"
             }`}
             disabled={producto.stock === 0}

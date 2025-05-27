@@ -130,7 +130,7 @@ export default function Jugadores() {
         <div className="flex justify-center"> 
           <button
             key={m}
-            className={`px-4 py-2 rounded-full border-2 font-bold transition-colors duration-200 bg-blanco text-blanco border-rojo bg-blanco text-rojo border-rojo hover:bg-rojo hover:text-blanco ${
+            className={`px-4 py-2 rounded-full border-2 font-bold transition-colors duration-200 bg-blanco text-azul border-azul bg-blanco text-azul border-azul hover:bg-azul hover:text-blanco ${
               modo === m ? "bg-blue-600 text-white" : "bg-white text-black"
             }`}
             onClick={() => {
@@ -170,7 +170,7 @@ export default function Jugadores() {
     <div className="flex justify-center"> 
       <button
         onClick={obtenerJugador}
-        className="px-4 py-2 rounded-full border-2 font-bold transition-colors duration-200 bg-blanco text-rojo border-rojo hover:bg-rojo hover:text-blanco"
+        className="px-4 py-2 rounded-full border-2 font-bold transition-colors duration-200 bg-blanco text-azul border-azul hover:bg-azul hover:text-blanco"
       >
         Cargar Jugador
       </button>
@@ -183,7 +183,7 @@ export default function Jugadores() {
     <div className="flex justify-center"> 
       <button
         onClick={obtenerJugador}
-        className="px-4 py-2 rounded-full border-2 font-bold transition-colors duration-200 bg-blanco text-rojo border-rojo hover:bg-rojo hover:text-blanco"
+        className="px-4 py-2 rounded-full border-2 font-bold transition-colors duration-200 bg-blanco text-azul border-azul hover:bg-azul hover:text-blanco"
       >
         Buscar Jugador
       </button>
@@ -243,7 +243,7 @@ export default function Jugadores() {
           <div className="flex justify-center"> 
           <button
             onClick={crearJugador}
-            className="px-4 py-2 rounded-full border-2 font-bold transition-colors duration-200 bg-blanco text-blanco border-rojo bg-blanco text-rojo border-rojo hover:bg-rojo hover:text-blanco"
+            className="px-4 py-2 rounded-full border-2 font-bold transition-colors duration-200 bg-blanco text-azul border-azul bg-blanco text-azul border-azul hover:bg-azul hover:text-blanco"
           >
             Crear Jugador
           </button>
@@ -285,7 +285,7 @@ export default function Jugadores() {
           <div className="flex justify-center"> 
           <button
             onClick={actualizarJugador}
-            className="px-4 py-2 rounded-full border-2 font-bold transition-colors duration-200 bg-blanco text-blanco border-rojo bg-blanco text-rojo border-rojo hover:bg-rojo hover:text-blanco"
+            className="px-4 py-2 rounded-full border-2 font-bold transition-colors duration-200 bg-blanco text-azul border-azul bg-blanco text-azul border-azul hover:bg-azul hover:text-blanco"
           >
             Guardar Cambios
           </button>
@@ -300,7 +300,7 @@ export default function Jugadores() {
         <button
           onClick={eliminarJugador}
           disabled={!jugadorIdBuscado}
-          className="px-4 py-2 rounded-full border-2 font-bold transition-colors duration-200 bg-blanco text-blanco border-rojo bg-blanco text-rojo border-rojo hover:bg-rojo hover:text-blanco"
+          className="px-4 py-2 rounded-full border-2 font-bold transition-colors duration-200 bg-blanco text-azul border-azul bg-blanco text-azul border-azul hover:bg-azul hover:text-blanco"
         >
           Eliminar Jugador
         </button>

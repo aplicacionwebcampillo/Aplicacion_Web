@@ -41,7 +41,7 @@ export default function NoticiaIndividual() {
   return (
     <main className="flex flex-col gap-8 px-4 py-8 max-w-screen-xl mx-auto m-[0%] p-[2%] font-sans">
      <section className="text-black px-4 py-8 text-negro rounded-[1rem] font-bold font-poetsen">
-      <Link to="/noticias" className="text-negro no-underline font-semibold mb-4 inline-block hover:text-rojo">
+      <Link to="/noticias" className="text-negro no-underline font-semibold mb-4 inline-block hover:text-azul">
         ← Volver al menú de noticias
       </Link>
       
@@ -55,7 +55,7 @@ export default function NoticiaIndividual() {
         />
       </div>
       <h1></h1>
-      <div className="flex justify-center text-negro_texto font-poetsen" dangerouslySetInnerHTML={{ __html: noticia.contenido }} />
+      <div className="text-justify flex justify-center text-negro_texto font-poetsen" dangerouslySetInnerHTML={{ __html: noticia.contenido }} />
       </div>
      </section>
     </main>

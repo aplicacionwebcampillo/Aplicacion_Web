@@ -24,7 +24,7 @@ export function Introduccion() {
 
 export default function SocioPage() {
   const navigate = useNavigate();
-  const [seccion, setSeccion] = useState<string>("modificar");
+  const [seccion, setSeccion] = useState<string>("introduccion");
   const [socioData, setSocioData] = useState<null | {
     tipo_membresia: string;
     estado: string;
@@ -73,7 +73,7 @@ export default function SocioPage() {
       <aside className="bg-celeste text-white h-auto px-6 py-10 rounded-[1rem] font-poetsen font-bold md:w-full max-w-full m-[1.5rem] md:max-w-[20rem]  md:w-1/4 flex flex-col justify-center items-center md:items-start space-y-4">
         <button
           onClick={() => navigate("/usuario")}
-          className="w-full max-w-xs px-4 py-2 rounded-full border-2 font-bold transition duration-200 bg-blanco text-rojo border-rojo hover:bg-rojo hover:text-blanco"
+          className="w-full max-w-xs px-4 py-2 rounded-full border-2 font-bold transition duration-200 bg-blanco text-azul border-azul hover:bg-azul hover:text-blanco"
         >
           Zona Usuario
         </button>
@@ -82,7 +82,7 @@ export default function SocioPage() {
           <button
             key={btn.id}
             onClick={() => setSeccion(btn.id)}
-            className={`w-full max-w-xs px-4 py-2 rounded-full border-2 font-bold transition duration-200 bg-blanco text-rojo border-rojo hover:bg-rojo hover:text-blanco ${
+            className={`w-full max-w-xs px-4 py-2 rounded-full border-2 font-bold transition duration-200 bg-blanco text-azul border-azul hover:bg-azul hover:text-blanco ${
               seccion === btn.id
                 ? ""
                 : ""
@@ -97,7 +97,7 @@ export default function SocioPage() {
 
       {/* Contenido derecho */}
       <main className="flex-1 p-6 flex justify-center items-start">
-      	{seccion === "modificar" && socioData && <Introduccion />}
+      	{seccion === "introduccion" && socioData && <Introduccion />}
         {seccion === "modificar" && <FormularioEditarSocio />}
         {seccion === "cesionesAbono" &&  <CesionesAbono />}
         {seccion === "predicciones" && <Predicciones />}

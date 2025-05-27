@@ -65,7 +65,7 @@ export default function Historia() {
   
     <main className="flex flex-col gap-8 px-4 py-8 max-w-screen-xl mx-auto m-[0%] p-[2%] font-sans">
      <section className="bg-celeste text-blanco px-4 py-8  rounded-[1rem] font-bold font-poetsen">
-     	<h2 className="text-4xl font-bold text-center text-negro mb-8">
+     	<h2 className="text-4xl font-bold text-center mb-8">
         Historia del Club
       </h2>
       <div className="space-y-6 text-blancotext-base leading-relaxed text-negro_texto">
@@ -124,7 +124,7 @@ export default function Historia() {
                 className={`text-2xl px-3 py-1 rounded-full border ${
                   paginaActual === 1
                     ? "text-gray-400 border-gray-300 cursor-not-allowed"
-                    : "text-rojo border-rojo bg-blanco hover:bg-rojo hover:text-blanco"
+                    : "text-azul border-azul bg-blanco hover:bg-azul hover:text-blanco"
                 }`}
               >
                 ←
@@ -138,7 +138,7 @@ export default function Historia() {
                 className={`text-2xl px-3 py-1 rounded-full border ${
                   paginaActual === totalPaginas
                     ? "text-gray-400 border-gray-300 cursor-not-allowed"
-                    : "text-rojo border-rojo bg-blanco hover:bg-rojo hover:text-blanco"
+                    : "text-azul border-azul bg-blanco hover:bg-azul hover:text-blanco"
                 }`}
               >
                 →

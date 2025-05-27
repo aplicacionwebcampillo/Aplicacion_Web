@@ -29,7 +29,7 @@ export default function App() {
 	  <div className="flex flex-col min-h-screen">
 	    <Header />
 	    <Navbar />
-	    <main className="flex-grow">
+	    <main className="flex-grow text-justify">
 	      <Routes>
 	        <Route path="/login" element={<Login />} />
 	        <Route path="/logout" element={<Logout />} />

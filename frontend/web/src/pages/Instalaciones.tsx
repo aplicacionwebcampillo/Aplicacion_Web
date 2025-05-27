@@ -96,7 +96,7 @@ export default function Instalaciones() {
                 className={`text-2xl px-3 py-1 rounded-full border ${
                   paginaActual === 1
                     ? "text-gray-400 border-gray-300 cursor-not-allowed"
-                    : "text-rojo border-rojo bg-blanco hover:bg-rojo hover:text-blanco"
+                    : "text-azul border-azul bg-blanco hover:bg-azul hover:text-blanco"
                 }`}
               >
                 ←
@@ -110,7 +110,7 @@ export default function Instalaciones() {
                 className={`text-2xl px-3 py-1 rounded-full border ${
                   paginaActual === totalPaginas
                     ? "text-gray-400 border-gray-300 cursor-not-allowed"
-                    : "text-rojo border-rojo bg-blanco hover:bg-rojo hover:text-blanco"
+                    : "text-azul border-azul bg-blanco hover:bg-azul hover:text-blanco"
                 }`}
               >
                 →

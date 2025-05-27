@@ -68,7 +68,7 @@ export default function TiendaMain() {
         <p> </p>	
         <Link
           to="/carrito"
-          className="px-6 py-2 rounded-full font-bold border-2 transition-all bg-blanco text-rojo border-rojo hover:bg-rojo hover:text-blanco"
+          className="px-6 py-2 rounded-full font-bold border-2 transition-all bg-blanco text-azul border-azul hover:bg-azul hover:text-blanco"
         >
           Ver carrito ({carrito.length}) 
         </Link>     
@@ -77,7 +77,7 @@ export default function TiendaMain() {
       <div className="grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
         {productosPagina.map((producto) => (
           <Link to={`/tienda/${encodeURIComponent(producto.nombre)}`} key={producto.id_producto} className="no-underline">
-            <div className="bg-blanco text-negro rounded-[1rem] shadow-md p-4 hover:shadow-xl transition-shadow min-h-[32rem] border-3 border-transparent hover:border-rojo">
+            <div className="bg-blanco text-negro rounded-[1rem] shadow-md p-4 hover:shadow-xl transition-shadow min-h-[32rem] border-3 border-transparent hover:border-azul">
               <div className="w-full h-64 overflow-hidden rounded-md flex justify-center items-center bg-gray-200">
                 <img
                   src={producto.imagen || "/images/PorDefecto.png"}
@@ -87,7 +87,7 @@ export default function TiendaMain() {
               </div>
               <div className="mt-4 text-center">
                 <h3 className="text-xl font-semibold">{producto.nombre}</h3>
-                <p className="text-lg mt-2 text-rojo">{producto.precio} €</p>
+                <p className="text-lg mt-2 text-azul">{producto.precio} €</p>
               </div>
             </div>
           </Link>
@@ -95,7 +95,7 @@ export default function TiendaMain() {
       </div>
       
       {/* Paginación */}
-      {width >= 640 && totalPaginas > 1 && (
+      {totalPaginas > 1 && (
         <div className="flex justify-center items-center gap-6 mt-10">
           <button
             onClick={() => cambiarPagina("anterior")}
@@ -103,7 +103,7 @@ export default function TiendaMain() {
             className={`text-2xl px-3 py-1 rounded-full border ${
               paginaActual === 1
                 ? "text-gray-400 border-gray-300 cursor-not-allowed"
-                : "text-rojo border-rojo bg-blanco hover:bg-rojo hover:text-blanco"
+                : "text-azul border-azul bg-blanco hover:bg-azul hover:text-blanco"
             }`}
           >
             ←
@@ -115,7 +115,7 @@ export default function TiendaMain() {
             className={`text-2xl px-3 py-1 rounded-full border ${
               paginaActual === totalPaginas
                 ? "text-gray-400 border-gray-300 cursor-not-allowed"
-                : "text-rojo border-rojo bg-blanco hover:bg-rojo hover:text-blanco"
+                : "text-azul border-azul bg-blanco hover:bg-azul hover:text-blanco"
             }`}
           >
             →
