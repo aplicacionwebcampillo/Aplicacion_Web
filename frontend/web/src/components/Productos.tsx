@@ -105,10 +105,11 @@ export default function Productos() {
   };
 
   return (
-    <div className="p-4 space-y-4">
+    <div className="bg-celeste text-blanco px-6 py-10 rounded-[1rem] font-poetsen font-bold w-full max-w-[40rem] shadow-lg space-y-4">
       {/* Menú de modos */}
-      <div className="flex flex-wrap gap-2">
+      <div className="flex flex-wrap justify-center gap-3 mb-6 ">
         {["crear", "listar", "buscar", "editar", "eliminar"].map((m) => (
+        <div className="flex justify-center">
           <button
             key={m}
             onClick={() => {
@@ -122,12 +123,13 @@ export default function Productos() {
               });
               setNombre("");
             }}
-            className={`px-3 py-1 rounded border ${
+            className={`px-4 py-2 rounded-full border-2 font-bold transition-colors duration-200 bg-blanco text-blanco border-rojo bg-blanco text-rojo border-rojo hover:bg-rojo hover:text-blanco ${
               modo === m ? "bg-blue-500 text-white" : "bg-white text-black"
             }`}
           >
             {m.toUpperCase()}
           </button>
+          </div>
         ))}
       </div>
 
@@ -136,7 +138,7 @@ export default function Productos() {
         <input
           type="text"
           placeholder="Nombre del producto"
-          className="border p-2 rounded w-full"
+          className="rounded-[1rem] font-poetsen w-[90%] rounded-xl border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-cyan-500 "
           value={nombre}
           onChange={(e) => setNombre(e.target.value)}
         />
@@ -144,18 +146,35 @@ export default function Productos() {
 
       {/* Buscar producto */}
       {modo === "buscar" && (
-        <>
-          <button
-            onClick={obtenerProducto}
-            className="bg-blue-500 text-white px-4 py-2 rounded mt-2"
-          >
-            Obtener Producto
-          </button>
-          {producto.nombre && (
-            <pre className="mt-2">{JSON.stringify(producto, null, 2)}</pre>
-          )}
-        </>
-      )}
+  <>
+    <div className="flex justify-center">
+      <button
+        onClick={obtenerProducto}
+        className="px-4 py-2 rounded-full border-2 font-bold transition-colors duration-200 bg-blanco text-blanco border-rojo bg-blanco text-rojo border-rojo hover:bg-rojo hover:text-blanco"
+      >
+        Obtener Producto
+      </button>
+    </div>
+	{producto && (
+  <div className="mt-6 p-4 bg-blanco text-negro rounded-[1rem] shadow-md space-y-2">
+    <p><strong>ID:</strong> {producto.id_producto}</p>
+    <p><strong>Nombre:</strong> {producto.nombre}</p>
+    <p><strong>Descripción:</strong> {producto.descripcion}</p>
+    <p><strong>Precio:</strong> {producto.precio.toFixed(2)}€</p>
+    <p><strong>Stock:</strong> {producto.stock}</p>
+    {producto.imagen && (
+      <img
+        src={producto.imagen}
+        alt={`Imagen de ${producto.nombre}`}
+        className="w-24 h-24 rounded-xl mt-4 object-cover"
+      />
+    )}
+  </div>
+)}
+
+    </>
+)}
+
 
       {/* Crear producto */}
       {modo === "crear" && (
@@ -167,7 +186,7 @@ export default function Productos() {
             onChange={(e) =>
               setProducto((prev) => ({ ...prev, nombre: e.target.value }))
             }
-            className="border p-2 rounded w-full"
+            className="rounded-[1rem] font-poetsen w-[90%] rounded-xl border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-cyan-500 "
           />
           <input
             type="text"
@@ -176,7 +195,7 @@ export default function Productos() {
             onChange={(e) =>
               setProducto((prev) => ({ ...prev, descripcion: e.target.value }))
             }
-            className="border p-2 rounded w-full"
+            className="rounded-[1rem] font-poetsen w-[90%] rounded-xl border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-cyan-500 "
           />
           <input
             type="number"
@@ -188,7 +207,7 @@ export default function Productos() {
                 precio: Number(e.target.value),
               }))
             }
-            className="border p-2 rounded w-full"
+            className="rounded-[1rem] font-poetsen w-[90%] rounded-xl border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-cyan-500 "
           />
           <input
             type="number"
@@ -200,7 +219,7 @@ export default function Productos() {
                 stock: Number(e.target.value),
               }))
             }
-            className="border p-2 rounded w-full"
+            className="rounded-[1rem] font-poetsen w-[90%] rounded-xl border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-cyan-500 "
           />
           <input
             type="text"
@@ -209,26 +228,30 @@ export default function Productos() {
             onChange={(e) =>
               setProducto((prev) => ({ ...prev, imagen: e.target.value }))
             }
-            className="border p-2 rounded w-full"
+            className="rounded-[1rem] font-poetsen w-[90%] rounded-xl border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-cyan-500 "
           />
+          <div className="flex justify-center">
           <button
             onClick={crearProducto}
-            className="bg-green-600 text-white px-4 py-2 rounded"
+            className="px-4 py-2 rounded-full border-2 font-bold transition-colors duration-200 bg-blanco text-blanco border-rojo bg-blanco text-rojo border-rojo hover:bg-rojo hover:text-blanc"
           >
             Crear Producto
           </button>
+          </div>
         </div>
       )}
 
       {/* Editar producto */}
       {modo === "editar" && (
         <>
+        <div className="flex justify-center">
           <button
             onClick={obtenerProducto}
-            className="bg-yellow-400 text-white px-4 py-2 rounded"
+            className="px-4 py-2 rounded-full border-2 font-bold transition-colors duration-200 bg-blanco text-blanco border-rojo bg-blanco text-rojo border-rojo hover:bg-rojo hover:text-blanc"
           >
             Cargar Producto
           </button>
+          </div>
           {producto.nombre && (
             <div className="space-y-2 mt-2">
               <input
@@ -238,7 +261,7 @@ export default function Productos() {
                 onChange={(e) =>
                   setProducto((prev) => ({ ...prev, nombre: e.target.value }))
                 }
-                className="border p-2 rounded w-full"
+                className="rounded-[1rem] font-poetsen w-[90%] rounded-xl border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-cyan-500 "
               />
               <input
                 type="text"
@@ -250,7 +273,7 @@ export default function Productos() {
                     descripcion: e.target.value,
                   }))
                 }
-                className="border p-2 rounded w-full"
+                className="rounded-[1rem] font-poetsen w-[90%] rounded-xl border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-cyan-500 "
               />
               <input
                 type="number"
@@ -262,7 +285,7 @@ export default function Productos() {
                     precio: Number(e.target.value),
                   }))
                 }
-                className="border p-2 rounded w-full"
+                className="rounded-[1rem] font-poetsen w-[90%] rounded-xl border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-cyan-500 "
               />
               <input
                 type="number"
@@ -274,7 +297,7 @@ export default function Productos() {
                     stock: Number(e.target.value),
                   }))
                 }
-                className="border p-2 rounded w-full"
+                className="rounded-[1rem] font-poetsen w-[90%] rounded-xl border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-cyan-500 "
               />
               <input
                 type="text"
@@ -283,14 +306,16 @@ export default function Productos() {
                 onChange={(e) =>
                   setProducto((prev) => ({ ...prev, imagen: e.target.value }))
                 }
-                className="border p-2 rounded w-full"
+                className="rounded-[1rem] font-poetsen w-[90%] rounded-xl border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-cyan-500 "
               />
+              <div className="flex justify-center">
               <button
                 onClick={actualizarProducto}
-                className="bg-green-500 text-white px-4 py-2 rounded"
+                className="px-4 py-2 rounded-full border-2 font-bold transition-colors duration-200 bg-blanco text-blanco border-rojo bg-blanco text-rojo border-rojo hover:bg-rojo hover:text-blanc"
               >
                 Guardar Cambios
               </button>
+              </div>
             </div>
           )}
         </>
@@ -298,21 +323,23 @@ export default function Productos() {
 
       {/* Eliminar producto */}
       {modo === "eliminar" && (
+      <div className="flex justify-center">
         <button
           onClick={eliminarProducto}
-          className="bg-red-600 text-white px-4 py-2 rounded mt-2"
+          className="px-4 py-2 rounded-full border-2 font-bold transition-colors duration-200 bg-blanco text-blanco border-rojo bg-blanco text-rojo border-rojo hover:bg-rojo hover:text-blanc"
         >
           Eliminar Producto
         </button>
+        </div>
       )}
 
       {/* Listar productos */}
       {modo === "listar" && (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mt-4">
+        <div className="mt-4 space-y-2">
           {productos.map((p) => (
             <div
               key={p.id_producto}
-              className="border rounded shadow p-3 flex flex-col items-center"
+              className="bg-blanco text-negro px-6 py-10 rounded-[1rem] font-poetsen font-bold shadow-lg space-y-4"
             >
               <h3 className="font-bold text-lg">{p.nombre}</h3>
               <img
@@ -322,7 +349,7 @@ export default function Productos() {
               />
               <p>{p.descripcion}</p>
               <p>
-                Precio: <b>${p.precio.toFixed(2)}</b>
+                Precio: <b>{p.precio.toFixed(2)}€</b>
               </p>
               <p>Stock: {p.stock}</p>
             </div>

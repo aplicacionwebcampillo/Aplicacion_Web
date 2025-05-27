@@ -123,13 +123,14 @@ export default function Jugadores() {
   };
 
   return (
-    <div className="p-4 space-y-4">
+    <div className="bg-celeste text-blanco px-6 py-10 rounded-[1rem] font-poetsen font-bold w-full max-w-[40rem] shadow-lg space-y-4">
       {/* Menú */}
-      <div className="flex flex-wrap gap-2">
+      <div className="flex flex-wrap justify-center gap-3 mb-6">
         {["crear", "listar", "buscar", "editar", "eliminar"].map((m) => (
+        <div className="flex justify-center"> 
           <button
             key={m}
-            className={`px-3 py-1 rounded border ${
+            className={`px-4 py-2 rounded-full border-2 font-bold transition-colors duration-200 bg-blanco text-blanco border-rojo bg-blanco text-rojo border-rojo hover:bg-rojo hover:text-blanco ${
               modo === m ? "bg-blue-600 text-white" : "bg-white text-black"
             }`}
             onClick={() => {
@@ -148,6 +149,7 @@ export default function Jugadores() {
           >
             {m.toUpperCase()}
           </button>
+          </div>
         ))}
       </div>
 
@@ -158,19 +160,54 @@ export default function Jugadores() {
           placeholder="ID del jugador"
           value={jugadorIdBuscado}
           onChange={(e) => setJugadorIdBuscado(e.target.value)}
-          className="border p-2 rounded w-full max-w-xs"
+          className="rounded-[1rem] font-poetsen w-[90%] rounded-xl border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-cyan-500 "
         />
       )}
 
       {/* Botón para obtener jugador (buscar, editar) */}
-      {(modo === "buscar" || modo === "editar") && (
-        <button
-          onClick={obtenerJugador}
-          className="bg-blue-500 text-white px-4 py-2 rounded mt-2"
-        >
-          Cargar Jugador
-        </button>
-      )}
+     {(modo === "editar") && (
+  <>
+    <div className="flex justify-center"> 
+      <button
+        onClick={obtenerJugador}
+        className="px-4 py-2 rounded-full border-2 font-bold transition-colors duration-200 bg-blanco text-rojo border-rojo hover:bg-rojo hover:text-blanco"
+      >
+        Cargar Jugador
+      </button>
+    </div>
+
+    </>
+)}
+	     {(modo === "buscar") && (
+  <>
+    <div className="flex justify-center"> 
+      <button
+        onClick={obtenerJugador}
+        className="px-4 py-2 rounded-full border-2 font-bold transition-colors duration-200 bg-blanco text-rojo border-rojo hover:bg-rojo hover:text-blanco"
+      >
+        Buscar Jugador
+      </button>
+    </div>
+
+    {jugador && (
+      <div className="mt-6 p-4 bg-blanco text-negro rounded-[1rem] shadow-md space-y-2">
+        <p><strong>Nombre:</strong> {jugador.nombre}</p>
+        <p><strong>Posición:</strong> {jugador.posicion}</p>
+        <p><strong>Fecha de nacimiento:</strong> {jugador.fecha_nacimiento}</p>
+        <p><strong>Dorsal:</strong> {jugador.dorsal}</p>
+        <p><strong>ID Equipo:</strong> {jugador.id_equipo}</p>
+        <p><strong>Biografía:</strong> {jugador.biografia}</p>
+        {jugador.foto && (
+          <img
+            src={jugador.foto}
+            alt={`Foto de ${jugador.nombre}`}
+            className="w-24 h-24 rounded-xl mt-4 object-cover"
+          />
+        )}
+      </div>
+    )}
+  </>
+)}
 
       {/* Formulario para crear */}
       {modo === "crear" && (
@@ -200,15 +237,17 @@ export default function Jugadores() {
                   [key]: val,
                 }));
               }}
-              className="border p-2 rounded w-full"
+              className="rounded-[1rem] font-poetsen w-[90%] rounded-xl border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-cyan-500 "
             />
           ))}
+          <div className="flex justify-center"> 
           <button
             onClick={crearJugador}
-            className="bg-green-600 text-white px-4 py-2 rounded"
+            className="px-4 py-2 rounded-full border-2 font-bold transition-colors duration-200 bg-blanco text-blanco border-rojo bg-blanco text-rojo border-rojo hover:bg-rojo hover:text-blanco"
           >
             Crear Jugador
           </button>
+          </div>
         </div>
       )}
 
@@ -240,36 +279,41 @@ export default function Jugadores() {
                   [key]: val,
                 }));
               }}
-              className="border p-2 rounded w-full"
+              className="rounded-[1rem] font-poetsen w-[90%] rounded-xl border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-cyan-500 "
             />
           ))}
+          <div className="flex justify-center"> 
           <button
             onClick={actualizarJugador}
-            className="bg-green-500 text-white px-4 py-2 rounded"
+            className="px-4 py-2 rounded-full border-2 font-bold transition-colors duration-200 bg-blanco text-blanco border-rojo bg-blanco text-rojo border-rojo hover:bg-rojo hover:text-blanco"
           >
             Guardar Cambios
           </button>
+          </div>
+
         </div>
       )}
 
       {/* Botón eliminar */}
       {modo === "eliminar" && (
+      <div className="flex justify-center"> 
         <button
           onClick={eliminarJugador}
           disabled={!jugadorIdBuscado}
-          className="bg-red-600 text-white px-4 py-2 rounded"
+          className="px-4 py-2 rounded-full border-2 font-bold transition-colors duration-200 bg-blanco text-blanco border-rojo bg-blanco text-rojo border-rojo hover:bg-rojo hover:text-blanco"
         >
           Eliminar Jugador
         </button>
+        </div>
       )}
 
       {/* Listado */}
       {modo === "listar" && (
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="mt-4 space-y-2">
           {jugadores.map((j) => (
             <div
               key={j.id_jugador}
-              className="border rounded p-4 shadow hover:shadow-lg transition"
+              className="bg-blanco text-negro px-6 py-10 rounded-[1rem] font-poetsen font-bold shadow-lg space-y-4"
             >
               <h3 className="font-bold text-lg">{j.nombre}</h3>
               <img

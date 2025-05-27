@@ -68,7 +68,7 @@ export default function ValidarPago() {
   };
 
   return (
-    <div className="p-4 max-w-lg mx-auto space-y-4 border rounded shadow">
+    <div className="bg-celeste text-blanco px-6 py-10 rounded-[1rem] font-poetsen font-bold w-full max-w-[40rem] shadow-lg space-y-4">
       <h2 className="text-xl font-bold mb-2">Validar Pago</h2>
 
       {/* Selección del modo */}
@@ -79,7 +79,7 @@ export default function ValidarPago() {
           setRespuesta(null);
           setError(null);
         }}
-        className="border p-2 rounded w-full"
+        className="rounded-[1rem] font-poetsen w-[96%] rounded-xl border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-cyan-500 bg-blanco"
       >
         <option value="compra">Validar Pago Compra</option>
         <option value="predice">Validar Pago Predice</option>
@@ -92,7 +92,7 @@ export default function ValidarPago() {
         placeholder="DNI"
         value={dni}
         onChange={(e) => setDni(e.target.value)}
-        className="border p-2 rounded w-full"
+        className="rounded-[1rem] font-poetsen w-[90%] rounded-xl border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-cyan-500 "
       />
 
       {/* Parámetros extra solo para predice */}
@@ -105,7 +105,7 @@ export default function ValidarPago() {
             onChange={(e) =>
               setPrediceParams((p) => ({ ...p, nombre_competicion: e.target.value }))
             }
-            className="border p-2 rounded w-full"
+            className="rounded-[1rem] font-poetsen w-[90%] rounded-xl border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-cyan-500 "
           />
           <input
             type="text"
@@ -114,7 +114,7 @@ export default function ValidarPago() {
             onChange={(e) =>
               setPrediceParams((p) => ({ ...p, temporada_competicion: e.target.value }))
             }
-            className="border p-2 rounded w-full"
+            className="rounded-[1rem] font-poetsen w-[90%] rounded-xl border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-cyan-500 "
           />
           <input
             type="text"
@@ -123,7 +123,7 @@ export default function ValidarPago() {
             onChange={(e) =>
               setPrediceParams((p) => ({ ...p, local: e.target.value }))
             }
-            className="border p-2 rounded w-full"
+            className="rounded-[1rem] font-poetsen w-[90%] rounded-xl border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-cyan-500 "
           />
           <input
             type="text"
@@ -132,7 +132,7 @@ export default function ValidarPago() {
             onChange={(e) =>
               setPrediceParams((p) => ({ ...p, visitante: e.target.value }))
             }
-            className="border p-2 rounded w-full"
+            className="rounded-[1rem] font-poetsen w-[90%] rounded-xl border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-cyan-500 "
           />
           <input
             type="text"
@@ -141,7 +141,7 @@ export default function ValidarPago() {
             onChange={(e) =>
               setPrediceParams((p) => ({ ...p, resultado_local: e.target.value }))
             }
-            className="border p-2 rounded w-full"
+            className="rounded-[1rem] font-poetsen w-[90%] rounded-xl border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-cyan-500 "
           />
           <input
             type="text"
@@ -150,17 +150,19 @@ export default function ValidarPago() {
             onChange={(e) =>
               setPrediceParams((p) => ({ ...p, resultado_visitante: e.target.value }))
             }
-            className="border p-2 rounded w-full"
+            className="rounded-[1rem] font-poetsen w-[90%] rounded-xl border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-cyan-500 "
           />
         </div>
       )}
-
+	
+      <div className="flex justify-center"> 
       <button
         onClick={validarPago}
-        className="bg-blue-600 text-white px-4 py-2 rounded mt-2 w-full"
+        className="px-4 py-2 rounded-full border-2 font-bold transition-colors duration-200 bg-blanco text-blanco border-rojo bg-blanco text-rojo border-rojo hover:bg-rojo hover:text-blanco"
       >
         Validar Pago
       </button>
+      </div> 
 
       {/* Resultado */}
       {respuesta && (

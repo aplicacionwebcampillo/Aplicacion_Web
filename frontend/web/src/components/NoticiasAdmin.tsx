@@ -106,10 +106,11 @@ export default function Noticias() {
   };
 
   return (
-    <div className="p-4 space-y-4">
+    <div className="bg-celeste text-blanco px-6 py-10 rounded-[1rem] font-poetsen font-bold w-full max-w-[40rem] shadow-lg space-y-4">
       {/* Menú de modos */}
-      <div className="flex flex-wrap gap-2">
+      <div className="flex flex-wrap justify-center gap-3 mb-6">
         {["crear", "listar", "buscar", "editar", "eliminar"].map((m) => (
+          <div className="flex justify-center">
           <button
             key={m}
             onClick={() => {
@@ -123,12 +124,13 @@ export default function Noticias() {
               });
               setTitular("");
             }}
-            className={`px-3 py-1 rounded border ${
+            className={`px-4 py-2 rounded-full border-2 font-bold transition-colors duration-200 bg-blanco text-blanco border-rojo bg-blanco text-rojo border-rojo hover:bg-rojo hover:text-blanco ${
               modo === m ? "bg-blue-500 text-white" : "bg-white text-black"
             }`}
           >
             {m.toUpperCase()}
           </button>
+          </div>
         ))}
       </div>
 
@@ -137,7 +139,7 @@ export default function Noticias() {
         <input
           type="text"
           placeholder="Titular de la noticia"
-          className="border p-2 rounded w-full"
+          className="rounded-[1rem] font-poetsen w-[90%] rounded-xl border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-cyan-500 "
           value={titular}
           onChange={(e) => setTitular(e.target.value)}
         />
@@ -146,14 +148,16 @@ export default function Noticias() {
       {/* Buscar noticia */}
       {modo === "buscar" && (
         <>
+        <div className="flex justify-center">
           <button
             onClick={obtenerNoticia}
-            className="bg-blue-500 text-white px-4 py-2 rounded mt-2"
+            className="px-4 py-2 rounded-full border-2 font-bold transition-colors duration-200 bg-blanco text-blanco border-rojo bg-blanco text-rojo border-rojo hover:bg-rojo hover:text-blanco"
           >
             Obtener Noticia
           </button>
+          </div>
           {noticia.titular && (
-            <div className="mt-4 border p-4 rounded shadow">
+            <div className="bg-blanco text-negro px-6 py-10 rounded-[1rem] font-poetsen font-bold shadow-lg space-y-4">
               <h3 className="text-xl font-bold mb-2">{noticia.titular}</h3>
               <img
                 src={noticia.imagen}
@@ -178,7 +182,7 @@ export default function Noticias() {
             onChange={(e) =>
               setNoticia((prev) => ({ ...prev, titular: e.target.value }))
             }
-            className="border p-2 rounded w-full"
+            className="rounded-[1rem] font-poetsen w-[90%] rounded-xl border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-cyan-500 "
           />
           <input
             type="text"
@@ -187,7 +191,7 @@ export default function Noticias() {
             onChange={(e) =>
               setNoticia((prev) => ({ ...prev, imagen: e.target.value }))
             }
-            className="border p-2 rounded w-full"
+            className="rounded-[1rem] font-poetsen w-[90%] rounded-xl border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-cyan-500 "
           />
           <textarea
             placeholder="Contenido"
@@ -195,7 +199,7 @@ export default function Noticias() {
             onChange={(e) =>
               setNoticia((prev) => ({ ...prev, contenido: e.target.value }))
             }
-            className="border p-2 rounded w-full"
+            className="rounded-[1rem] font-poetsen w-[90%] rounded-xl border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-cyan-500 "
             rows={4}
           />
           <input
@@ -205,7 +209,7 @@ export default function Noticias() {
             onChange={(e) =>
               setNoticia((prev) => ({ ...prev, categoria: e.target.value }))
             }
-            className="border p-2 rounded w-full"
+            className="rounded-[1rem] font-poetsen w-[90%] rounded-xl border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-cyan-500 "
           />
           <input
             type="text"
@@ -214,26 +218,30 @@ export default function Noticias() {
             onChange={(e) =>
               setNoticia((prev) => ({ ...prev, dni_administrador: e.target.value }))
             }
-            className="border p-2 rounded w-full"
+            className="rounded-[1rem] font-poetsen w-[90%] rounded-xl border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-cyan-500 "
           />
+          <div className="flex justify-center">
           <button
             onClick={crearNoticia}
-            className="bg-green-600 text-white px-4 py-2 rounded"
+            className="px-4 py-2 rounded-full border-2 font-bold transition-colors duration-200 bg-blanco text-blanco border-rojo bg-blanco text-rojo border-rojo hover:bg-rojo hover:text-blanco"
           >
             Crear Noticia
           </button>
+          </div>
         </div>
       )}
 
       {/* Editar noticia */}
       {modo === "editar" && (
         <>
+        <div className="flex justify-center">
           <button
             onClick={obtenerNoticia}
-            className="bg-yellow-400 text-white px-4 py-2 rounded"
+            className="px-4 py-2 rounded-full border-2 font-bold transition-colors duration-200 bg-blanco text-blanco border-rojo bg-blanco text-rojo border-rojo hover:bg-rojo hover:text-blanco"
           >
             Cargar Noticia
           </button>
+          </div>
           {noticia.titular && (
             <div className="space-y-2 mt-2">
               <input
@@ -243,7 +251,7 @@ export default function Noticias() {
                 onChange={(e) =>
                   setNoticia((prev) => ({ ...prev, titular: e.target.value }))
                 }
-                className="border p-2 rounded w-full"
+                className="rounded-[1rem] font-poetsen w-[90%] rounded-xl border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-cyan-500 "
               />
               <input
                 type="text"
@@ -260,7 +268,7 @@ export default function Noticias() {
                 onChange={(e) =>
                   setNoticia((prev) => ({ ...prev, contenido: e.target.value }))
                 }
-                className="border p-2 rounded w-full"
+                className="rounded-[1rem] font-poetsen w-[90%] rounded-xl border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-cyan-500 "
                 rows={4}
               />
               <input
@@ -270,7 +278,7 @@ export default function Noticias() {
                 onChange={(e) =>
                   setNoticia((prev) => ({ ...prev, categoria: e.target.value }))
                 }
-                className="border p-2 rounded w-full"
+                className="rounded-[1rem] font-poetsen w-[90%] rounded-xl border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-cyan-500 "
               />
               <input
                 type="text"
@@ -279,14 +287,16 @@ export default function Noticias() {
                 onChange={(e) =>
                   setNoticia((prev) => ({ ...prev, dni_administrador: e.target.value }))
                 }
-                className="border p-2 rounded w-full"
+                className="rounded-[1rem] font-poetsen w-[90%] rounded-xl border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-cyan-500 "
               />
+              <div className="flex justify-center">
               <button
                 onClick={actualizarNoticia}
-                className="bg-green-500 text-white px-4 py-2 rounded"
+                className="px-4 py-2 rounded-full border-2 font-bold transition-colors duration-200 bg-blanco text-blanco border-rojo bg-blanco text-rojo border-rojo hover:bg-rojo hover:text-blanco"
               >
                 Guardar Cambios
               </button>
+              </div>
             </div>
           )}
         </>
@@ -294,21 +304,23 @@ export default function Noticias() {
 
       {/* Eliminar noticia */}
       {modo === "eliminar" && (
+      <div className="flex justify-center">
         <button
           onClick={eliminarNoticia}
-          className="bg-red-600 text-white px-4 py-2 rounded mt-2"
+          className="px-4 py-2 rounded-full border-2 font-bold transition-colors duration-200 bg-blanco text-blanco border-rojo bg-blanco text-rojo border-rojo hover:bg-rojo hover:text-blanco"
         >
           Eliminar Noticia
         </button>
+        </div>
       )}
 
       {/* Listar noticias */}
       {modo === "listar" && (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mt-4">
+        <div className="mt-4 space-y-2">
           {noticias.map((n, i) => (
             <div
               key={i}
-              className="border rounded shadow p-3 flex flex-col items-center"
+              className="bg-blanco text-negro px-6 py-10 rounded-[1rem] font-poetsen font-bold shadow-lg space-y-4"
             >
               <h3 className="font-bold text-lg mb-2">{n.titular}</h3>
               <img

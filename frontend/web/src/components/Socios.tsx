@@ -116,10 +116,11 @@ export default function Socios() {
   ];
 
   return (
-    <div className="p-4 space-y-4">
+    <div className="bg-celeste text-blanco px-6 py-10 rounded-[1rem] font-poetsen font-bold w-full max-w-[40rem] shadow-lg space-y-4     div superior">
       {/* Menú de modos */}
-      <div className="flex flex-wrap gap-2">
+      <div className="flex flex-wrap justify-center gap-3 mb-6">
         {["crear", "listar", "buscar", "editar", "eliminar"].map((m) => (
+        <div className="flex justify-center"> 
           <button
             key={m}
             onClick={() => {
@@ -127,12 +128,13 @@ export default function Socios() {
               setSocio(null);
               setDni("");
             }}
-            className={`px-3 py-1 rounded border ${
+            className={`px-4 py-2 rounded-full border-2 font-bold transition-colors duration-200 bg-blanco text-blanco border-rojo bg-blanco text-rojo border-rojo hover:bg-rojo hover:text-blanco ${
               modo === m ? "bg-blue-500 text-white" : "bg-white text-black"
             }`}
           >
             {m.toUpperCase()}
           </button>
+          </div>
         ))}
       </div>
 
@@ -141,21 +143,36 @@ export default function Socios() {
         <input
           type="text"
           placeholder="DNI"
-          className="border p-2 rounded w-full"
+          className="rounded-[1rem] font-poetsen w-[90%] rounded-xl border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-cyan-500"
           value={dni}
           onChange={(e) => setDni(e.target.value)}
         />
       )}
 
-      {/* Buscar socio */}
       {modo === "buscar" && (
-        <>
-          <button onClick={obtenerSocio} className="bg-blue-500 text-white px-4 py-2 rounded mt-2">
-            Obtener Socio
-          </button>
-          {socio && <pre>{JSON.stringify(socio, null, 2)}</pre>}
-        </>
-      )}
+  <>
+    <div className="flex justify-center"> 
+      <button onClick={obtenerSocio} className="px-4 py-2 rounded-full border-2 font-bold transition-colors duration-200 bg-blanco text-blanco border-rojo bg-blanco text-rojo border-rojo hover:bg-rojo hover:text-blanco">
+        Obtener Socio
+      </button>
+    </div>
+    {socio && (
+      <div className="mt-6 p-4 bg-blanco text-negro rounded-[1rem] shadow-md space-y-2">
+        <p><strong>DNI:</strong> {socio.dni}</p>
+        <p><strong>Número Socio:</strong> {socio.num_socio}</p>
+        <p><strong>Membresía:</strong> {socio.tipo_membresia}</p>
+        <p><strong>Estado:</strong> {socio.estado}</p>
+        {socio.foto_perfil && (
+          <img
+            src={socio.foto_perfil}
+            alt="Foto de perfil"
+            className="w-24 h-24 rounded-full mt-4"
+          />
+        )}
+      </div>
+    )}
+  </>
+)}
 
       {/* Crear socio */}
       {modo === "crear" && (
@@ -165,25 +182,29 @@ export default function Socios() {
               key={campo}
               type={campo === "fecha_nacimiento" ? "date" : "text"}
               placeholder={campo}
-              className="border p-2 rounded w-full"
+              className="rounded-[1rem] font-poetsen w-[90%] rounded-xl border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-cyan-500"
               value={(socio as any)?.[campo] || ""}
               onChange={(e) =>
                 setSocio((prev) => ({ ...prev, [campo]: e.target.value }))
               }
             />
           ))}
-          <button onClick={crearSocio} className="bg-green-600 text-white px-4 py-2 rounded">
+          <div className="flex justify-center"> 
+          <button onClick={crearSocio} className="px-4 py-2 rounded-full border-2 font-bold transition-colors duration-200 bg-blanco text-blanco border-rojo bg-blanco text-rojo border-rojo hover:bg-rojo hover:text-blanco">
             Crear Socio
           </button>
+          </div>
         </div>
       )}
 
       {/* Editar socio */}
       {modo === "editar" && (
         <>
-          <button onClick={obtenerSocio} className="bg-yellow-400 text-white px-4 py-2 rounded">
+        <div className="flex justify-center"> 
+          <button onClick={obtenerSocio} className="px-4 py-2 rounded-full border-2 font-bold transition-colors duration-200 bg-blanco text-blanco border-rojo bg-blanco text-rojo border-rojo hover:bg-rojo hover:text-blanco">
             Cargar Socio
           </button>
+          </div>
           {socio && (
             <div className="space-y-2 mt-2">
               {["tipo_membresia", "estado", "foto_perfil"].map((campo) => (
@@ -195,12 +216,14 @@ export default function Socios() {
                   onChange={(e) =>
                     setSocio((prev) => prev && { ...prev, [campo]: e.target.value })
                   }
-                  className="border p-2 rounded w-full"
+                  className="rounded-[1rem] font-poetsen w-[90%] rounded-xl border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-cyan-500"
                 />
               ))}
-              <button onClick={actualizarSocio} className="bg-green-500 text-white px-4 py-2 rounded">
+              <div className="flex justify-center"> 
+              <button onClick={actualizarSocio} className="px-4 py-2 rounded-full border-2 font-bold transition-colors duration-200 bg-blanco text-blanco border-rojo bg-blanco text-rojo border-rojo hover:bg-rojo hover:text-blanco">
                 Guardar Cambios
               </button>
+              </div>
             </div>
           )}
         </>
@@ -208,16 +231,18 @@ export default function Socios() {
 
       {/* Eliminar socio */}
       {modo === "eliminar" && (
-        <button onClick={eliminarSocio} className="bg-red-600 text-white px-4 py-2 rounded mt-2">
+      <div className="flex justify-center"> 
+        <button onClick={eliminarSocio} className="px-4 py-2 rounded-full border-2 font-bold transition-colors duration-200 bg-blanco text-blanco border-rojo bg-blanco text-rojo border-rojo hover:bg-rojo hover:text-blanco">
           Eliminar Socio
         </button>
+        </div>
       )}
 
       {/* Listar socios */}
       {modo === "listar" && (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-2 mt-4">
+        <div className="mt-4 space-y-2">
           {socios.map((s) => (
-            <div key={s.dni} className="p-3 border rounded shadow">
+            <div key={s.dni} className="bg-blanco text-negro px-6 py-10 rounded-[1rem] font-poetsen font-bold shadow-lg space-y-4">
               <strong>{s.dni}</strong> - {s.num_socio}
               <div>Membresía: {s.tipo_membresia}</div>
               <div>Estado: {s.estado}</div>

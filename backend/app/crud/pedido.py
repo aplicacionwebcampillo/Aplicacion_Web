@@ -3,7 +3,7 @@ from app.models.pedido import Pedido
 from app.models.producto import Producto
 from app.schemas.pedido import PedidoCreate, PedidoUpdate
 from collections import Counter
-from sqlalchemy import insert
+from sqlalchemy import insert, delete
 from app.models.pedido_producto import pedido_producto
 
 def create_pedido(db: Session, pedido: PedidoCreate):

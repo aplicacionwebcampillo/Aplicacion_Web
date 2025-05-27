@@ -57,7 +57,7 @@ export default function JugadorDetalle() {
           <p><strong>Posición:</strong> {jugador.posicion}</p>
           <p><strong>Dorsal:</strong> {jugador.dorsal}</p>
           <p><strong>Fecha de nacimiento:</strong> {new Date(jugador.fecha_nacimiento).toLocaleDateString()}</p>
-          <p className="mt-4">{jugador.biografia}</p>
+          <p className="mt-4 text-negro_texto">{jugador.biografia}</p>
         </div>
       </div>
     </section>

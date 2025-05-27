@@ -15,51 +15,73 @@ export interface ProductoEnCarrito {
   cantidad: number;
 }
 
-
 interface CarritoContextType {
-  carrito: Producto[];
-  agregarAlCarrito: (producto: Producto) => void;
-  quitarDelCarrito: (id_producto: number) => void;
+  carrito: ProductoEnCarrito[];
+  agregarAlCarrito: (producto: Producto, talla: string) => void;
+  quitarDelCarrito: (id_producto: number, talla: string) => void;
+  actualizarCantidad: (id_producto: number, talla: string, cantidad: number) => void;
   vaciarCarrito: () => void;
 }
 
 const CarritoContext = createContext<CarritoContextType | undefined>(undefined);
 
-
-
 export function CarritoProvider({ children }: { children: ReactNode }) {
   const [carrito, setCarrito] = useState<ProductoEnCarrito[]>([]);
 
-  const agregarAlCarrito = (producto: Producto, talla: string) => {
-  setCarrito((prev) => {
-    const index = prev.findIndex(
+  const agregarAlCarrito = async (producto: Producto, talla: string) => {
+    const token = localStorage.getItem("token");
+    const index = carrito.findIndex(
       (item) => item.producto.id_producto === producto.id_producto && item.talla === talla
     );
 
     if (index !== -1) {
-      const actualizado = [...prev];
-      const item = actualizado[index];
-      if (item.cantidad < item.producto.stock) {
-        actualizado[index] = { ...item, cantidad: item.cantidad + 1 };
-      }
-      return actualizado;
+      actualizarCantidad(producto.id_producto, talla, carrito[index].cantidad + 1);
+      return;
     }
 
-    return [...prev, { producto, talla, cantidad: 1 }];
-  });
-};
-
-
+    try {
+      await fetch("http://localhost:8000/carrito/agregar", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ id_producto: producto.id_producto, cantidad: 1 }),
+      });
+      setCarrito((prev) => [...prev, { producto, talla, cantidad: 1 }]);
+    } catch (error) {
+      console.error("Error al agregar al carrito:", error);
+    }
+  };
 
   const quitarDelCarrito = (id_producto: number, talla: string) => {
-  setCarrito((prev) =>
-    prev.filter(
-      (item) => !(item.producto.id_producto === id_producto && item.talla === talla)
-    )
-  );
-};
+    setCarrito((prev) =>
+      prev.filter(
+        (item) => !(item.producto.id_producto === id_producto && item.talla === talla)
+      )
+    );
+  };
 
-
+  const actualizarCantidad = async (id_producto: number, talla: string, cantidad: number) => {
+    const token = localStorage.getItem("token");
+    try {
+      await fetch(`http://localhost:8000/carrito/actualizar?id_producto=${id_producto}&cantidad=${cantidad}`, {
+        method: "PUT",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      setCarrito((prev) =>
+        prev.map((item) =>
+          item.producto.id_producto === id_producto && item.talla === talla
+            ? { ...item, cantidad }
+            : item
+        )
+      );
+    } catch (error) {
+      console.error("Error al actualizar cantidad:", error);
+    }
+  };
 
   const vaciarCarrito = () => {
     setCarrito([]);
@@ -67,7 +89,7 @@ export function CarritoProvider({ children }: { children: ReactNode }) {
 
   return (
     <CarritoContext.Provider
-      value={{ carrito, agregarAlCarrito, quitarDelCarrito, vaciarCarrito }}
+      value={{ carrito, agregarAlCarrito, quitarDelCarrito, actualizarCantidad, vaciarCarrito }}
     >
       {children}
     </CarritoContext.Provider>

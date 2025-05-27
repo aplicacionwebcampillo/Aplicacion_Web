@@ -98,7 +98,7 @@ export default function Partidos() {
 
         {/* Línea competición */}
         <div className="text-center text-sm text-gray-600 space-y-1 mb-2">
-          <p className="italic">{partido.nombre_competicion}</p>
+          <p className="">{partido.nombre_competicion}</p>
         </div>
 
         {/* Línea de jornada */}

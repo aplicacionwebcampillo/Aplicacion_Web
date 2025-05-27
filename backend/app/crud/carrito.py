@@ -1,3 +1,4 @@
+from fastapi import HTTPException
 from sqlalchemy.orm import Session
 from app.models.producto import Producto
 from app.models.usuario import Usuario

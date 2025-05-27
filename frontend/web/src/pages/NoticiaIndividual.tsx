@@ -55,7 +55,7 @@ export default function NoticiaIndividual() {
         />
       </div>
       <h1></h1>
-      <div className="flex justify-center font-poetsen" dangerouslySetInnerHTML={{ __html: noticia.contenido }} />
+      <div className="flex justify-center text-negro_texto font-poetsen" dangerouslySetInnerHTML={{ __html: noticia.contenido }} />
       </div>
      </section>
     </main>

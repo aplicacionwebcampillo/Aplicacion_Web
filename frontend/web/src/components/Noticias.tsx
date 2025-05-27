@@ -96,8 +96,8 @@ export default function NoticiasMain() {
         }}
         className={`px-4 py-2 rounded-full border-2 font-semibold transition-all ${
           categoriaSeleccionada === null
-            ? "bg-rojo text-white border-rojo"
-            : "bg-blanco text-rojo border-rojo hover:bg-rojo hover:text-blanco"
+            ? "bg-azul text-blanco border-azul"
+            : "bg-blanco text-azul border-azul hover:bg-azul hover:text-blanco"
         }`}
       >
         Todas
@@ -109,8 +109,8 @@ export default function NoticiasMain() {
           onClick={() => handleCategoriaClick(cat)}
           className={`px-4 py-2 rounded-full border-2 font-semibold transition-all ${
             categoriaSeleccionada === cat
-              ? "bg-rojo text-white border-rojo"
-              : "bg-blanco text-rojo border-rojo hover:bg-rojo hover:text-blanco"
+              ? "bg-azul text-blanco border-azul"
+              : "bg-blanco text-azul border-azul hover:bg-zul hover:text-blanco"
           }`}
         >
           {cat}

@@ -65,10 +65,10 @@ export default function Historia() {
   
     <main className="flex flex-col gap-8 px-4 py-8 max-w-screen-xl mx-auto m-[0%] p-[2%] font-sans">
      <section className="bg-celeste text-blanco px-4 py-8  rounded-[1rem] font-bold font-poetsen">
-     	<h2 className="text-4xl font-bold text-center text-gray-800 mb-8">
+     	<h2 className="text-4xl font-bold text-center text-negro mb-8">
         Historia del Club
       </h2>
-      <div className="space-y-6 text-blancotext-base leading-relaxed">
+      <div className="space-y-6 text-blancotext-base leading-relaxed text-negro_texto">
         <p>
           En el corazón de la provincia de Jaén, en la pequeña pedanía de <strong>Campillo del Río</strong>, perteneciente al municipio de Torreblascopedro y con apenas 625 habitantes, el fútbol ha vuelto a cobrar vida. Tras 17 años sin un equipo federado, un grupo de amigos decidió reunirse en enero de 2022, durante una cena marcada por la ilusión del nuevo campo de fútbol, y comenzó a gestarse un sueño: devolver el fútbol al pueblo.
         </p>

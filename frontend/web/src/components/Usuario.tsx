@@ -81,12 +81,12 @@ export default function Usuario() {
   };
 
   return (
-    <div className="p-4 space-y-4">
-      <div className="flex space-x-2">
-        <button onClick={() => setModo("listar")}>Listar Usuarios</button>
-        <button onClick={() => setModo("buscar")}>Buscar Usuario</button>
-        <button onClick={() => setModo("editar")}>Editar Usuario</button>
-        <button onClick={() => setModo("eliminar")}>Eliminar Usuario</button>
+    <div className="bg-celeste text-blanco px-6 py-10 rounded-[1rem] font-poetsen font-bold w-full max-w-[20rem] md:max-w-[40rem] shadow-lg space-y-4">
+      <div className="flex flex-wrap justify-center gap-3 mb-6">
+        <button onClick={() => setModo("listar")} className="px-4 py-2 rounded-full border-2 font-bold transition-colors duration-200 bg-blanco text-blanco border-rojo bg-blanco text-rojo border-rojo hover:bg-rojo hover:text-blanco">Listar Usuarios</button>
+        <button onClick={() => setModo("buscar")} className="px-4 py-2 rounded-full border-2 font-bold transition-colors duration-200 bg-blanco text-blanco border-rojo bg-blanco text-rojo border-rojo hover:bg-rojo hover:text-blanco">Buscar Usuario</button>
+        <button onClick={() => setModo("editar")} className="px-4 py-2 rounded-full border-2 font-bold transition-colors duration-200 bg-blanco text-blanco border-rojo bg-blanco text-rojo border-rojo hover:bg-rojo hover:text-blanco">Editar Usuario</button>
+        <button onClick={() => setModo("eliminar")} className="px-4 py-2 rounded-full border-2 font-bold transition-colors duration-200 bg-blanco text-blanco border-rojo bg-blanco text-rojo border-rojo hover:bg-rojo hover:text-blanco">Eliminar Usuario</button>
       </div>
 
       {(modo === "buscar" || modo === "editar" || modo === "eliminar") && (
@@ -95,21 +95,42 @@ export default function Usuario() {
           placeholder="DNI del usuario"
           value={dni}
           onChange={(e) => setDni(e.target.value)}
-          className="border p-2 rounded w-full"
+          className="rounded-[1rem] font-poetsen w-[90%] rounded-xl border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-cyan-500"
         />
       )}
 
       {modo === "buscar" && (
-        <button onClick={obtenerUsuario} className="bg-blue-500 text-white px-4 py-2 rounded">
-          Obtener Usuario
-        </button>
-      )}
+  <div className="space-y-4">
+  <div className="flex justify-center">
+    <button
+      onClick={obtenerUsuario}
+      className="px-4 py-2 rounded-full border-2 font-bold transition-colors duration-200 bg-blanco text-rojo border-rojo hover:bg-rojo hover:text-blanco"
+    >
+      Obtener Usuario
+    </button>
+    </div>
+
+    {usuario && (
+      <div className="mt-6 p-4 bg-blanco text-negro rounded-[1rem] shadow-md space-y-2">
+        <p><strong>DNI:</strong> {usuario.dni}</p>
+        <p><strong>Nombre:</strong> {usuario.nombre}</p>
+        <p><strong>Apellidos:</strong> {usuario.apellidos}</p>
+        <p><strong>Teléfono:</strong> {usuario.telefono}</p>
+        <p><strong>Fecha Nac:</strong> {usuario.fecha_nacimiento}</p>
+        <p><strong>Correo:</strong> {usuario.email}</p>
+      </div>
+    )}
+  </div>
+)}
+
 
       {modo === "editar" && (
         <>
-          <button onClick={obtenerUsuario} className="bg-yellow-500 text-white px-4 py-2 rounded">
+          <div className="flex justify-center">
+          <button onClick={obtenerUsuario} className="px-4 py-2 rounded-full border-2 font-bold transition-colors duration-200 bg-blanco text-blanco border-rojo bg-blanco text-rojo border-rojo hover:bg-rojo hover:text-blanco">
             Cargar Usuario
           </button>
+          </div>
           {usuario && (
             <div className="space-y-2 mt-2">
               {["nombre", "apellidos", "telefono", "fecha_nacimiento", "email", "contrasena"].map((field) => (
@@ -121,27 +142,31 @@ export default function Usuario() {
                   onChange={(e) =>
                     setUsuario((prev) => prev && { ...prev, [field]: e.target.value })
                   }
-                  className="border p-2 rounded w-full"
+                  className="rounded-[1rem] font-poetsen w-[90%] rounded-xl border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-cyan-500"
                 />
               ))}
-              <button onClick={actualizarUsuario} className="bg-green-500 text-white px-4 py-2 rounded">
+              <div className="flex justify-center">
+              <button onClick={actualizarUsuario} className="px-4 py-2 rounded-full border-2 font-bold transition-colors duration-200 bg-blanco text-blanco border-rojo bg-blanco text-rojo border-rojo hover:bg-rojo hover:text-blanco">
                 Guardar Cambios
               </button>
+              </div>
             </div>
           )}
         </>
       )}
 
       {modo === "eliminar" && (
-        <button onClick={eliminarUsuario} className="bg-red-600 text-white px-4 py-2 rounded">
+      <div className="flex justify-center">
+        <button onClick={eliminarUsuario} className="px-4 py-2 rounded-full border-2 font-bold transition-colors duration-200 bg-blanco text-blanco border-rojo bg-blanco text-rojo border-rojo hover:bg-rojo hover:text-blanco">
           Eliminar Usuario
         </button>
+      </div>
       )}
 
       {modo === "listar" && (
         <div className="mt-4 space-y-2">
           {usuarios.map((u) => (
-            <div key={u.dni} className="p-2 border rounded shadow-sm">
+            <div key={u.dni} className="bg-blanco text-negro px-6 py-10 rounded-[1rem] font-poetsen font-bold shadow-lg space-y-4">
               <strong>{u.nombre} {u.apellidos}</strong> - {u.dni}
               <div>{u.email} | {u.telefono}</div>
               <div>Fecha Nac: {u.fecha_nacimiento}</div>

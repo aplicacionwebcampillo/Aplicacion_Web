@@ -6,7 +6,20 @@ import Predicciones from "../components/Predicciones";
 import CesionesAbono from "../components/CesionesAbono";
 import RenovarAbono from "../components/RenovarAbono";
 
-
+export function Introduccion() {
+  return (
+    <div className="bg-celeste text-blanco h-auto px-6 py-10 rounded-[1rem] font-poetsen font-bold md:w-full max-w-full m-[1.5rem] md:max-w-[20rem] md:w-1/4 flex flex-col justify-center items-center md:items-start space-y-4">
+      <h2 className="text-2xl">Panel de Socio</h2>
+      <p className="text-white text-base font-normal leading-relaxed">
+        Bienvenido al panel de socio del club. Desde aquí puedes gestionar tus datos de socio, realizar cesiones de abono, las predicciones y otras funcionalidades.
+      </p>
+      <p className="text-white text-base font-normal leading-relaxed">
+        Usa el menú de la izquierda para navegar por las diferentes secciones. Cada módulo te permite visualizar, editar o crear recursos según tus permisos.
+      </p>
+    </div>
+  );
+}
+       
 
 
 export default function SocioPage() {
@@ -84,8 +97,8 @@ export default function SocioPage() {
 
       {/* Contenido derecho */}
       <main className="flex-1 p-6 flex justify-center items-start">
-      
-        {seccion === "modificar" && socioData && <FormularioEditarSocio />}
+      	{seccion === "modificar" && socioData && <Introduccion />}
+        {seccion === "modificar" && <FormularioEditarSocio />}
         {seccion === "cesionesAbono" &&  <CesionesAbono />}
         {seccion === "predicciones" && <Predicciones />}
         {seccion === "renovarAbono" && <RenovarAbono />}

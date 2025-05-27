@@ -11,10 +11,26 @@ import Equipos from "../components/Equipos";
 import Abonos from "../components/Abonos";
 import ValidarPago from "../components/ValidarPago";
 
+export function Introduccion() {
+  return (
+    <div className="bg-celeste text-blanco h-auto px-6 py-10 rounded-[1rem] font-poetsen font-bold md:w-full max-w-full m-[1.5rem] md:max-w-[20rem] md:w-1/4 flex flex-col justify-center items-center md:items-start space-y-4">
+      <h2 className="text-2xl">Panel de Administrador</h2>
+      <p className="text-white text-base font-normal leading-relaxed">
+        Bienvenido al panel de administración del club. Desde aquí puedes gestionar los datos de los socios, las cesiones de abono, las predicciones y otras funcionalidades clave del sistema.
+      </p>
+      <p className="text-white text-base font-normal leading-relaxed">
+        Usa el menú de la izquierda para navegar por las diferentes secciones. Cada módulo te permite visualizar, editar o crear recursos según tus permisos.
+      </p>
+    </div>
+  );
+}
+
+
+
 
 export default function AdministradorPage() {
   const navigate = useNavigate();
-  const [seccion, setSeccion] = useState<string>("modificar");
+  const [seccion, setSeccion] = useState<string>("introduccion");
   const [adminData, setAdminData] = useState<null | {
     cargo: string;
     permisos: string;
@@ -91,7 +107,8 @@ export default function AdministradorPage() {
 
       {/* Contenido derecho */}
       <main className="flex-1 p-6 flex justify-center items-start">
-        {seccion === "usuarios" && adminData && <Usuario />}
+      	{seccion === "introduccion" && adminData && <Introduccion />}
+        {seccion === "usuarios" && <Usuario />}
         {seccion === "administrador" && <Administrador />}
         {seccion === "socios" && <Socios />}
         {seccion === "productos" && <Productos />}

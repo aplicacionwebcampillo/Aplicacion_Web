@@ -117,13 +117,14 @@ export default function Abonos() {
   };
 
   return (
-    <div className="p-4 space-y-4">
+    <div className="bg-celeste text-blanco px-6 py-10 rounded-[1rem] font-poetsen font-bold w-full max-w-[40rem] shadow-lg space-y-4   ">
       {/* Menú */}
-      <div className="flex flex-wrap gap-2">
+      <div className="flex flex-wrap justify-center gap-3 mb-6">
         {["crear", "listar", "buscar", "editar", "eliminar"].map((m) => (
+        <div className="flex justify-center"> 
           <button
             key={m}
-            className={`px-3 py-1 rounded border ${
+            className={`px-4 py-2 rounded-full border-2 font-bold transition-colors duration-200 bg-blanco text-blanco border-rojo bg-blanco text-rojo border-rojo hover:bg-rojo hover:text-blanco ${
               modo === m ? "bg-blue-600 text-white" : "bg-white text-black"
             }`}
             onClick={() => {
@@ -140,6 +141,7 @@ export default function Abonos() {
           >
             {m.toUpperCase()}
           </button>
+          </div>
         ))}
       </div>
 
@@ -150,19 +152,47 @@ export default function Abonos() {
           placeholder="ID del abono"
           value={abonoIdBuscado}
           onChange={(e) => setAbonoIdBuscado(e.target.value)}
-          className="border p-2 rounded w-full max-w-xs"
+          className="rounded-[1rem] font-poetsen w-[90%] rounded-xl border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-cyan-500  "
         />
       )}
 
       {/* Botón cargar abono */}
-      {(modo === "buscar" || modo === "editar") && (
+      {(modo === "editar") && (
+      <div className="flex justify-center"> 
         <button
           onClick={obtenerAbono}
-          className="bg-blue-500 text-white px-4 py-2 rounded mt-2"
+          className="px-4 py-2 rounded-full border-2 font-bold transition-colors duration-200 bg-blanco text-blanco border-rojo bg-blanco text-rojo border-rojo hover:bg-rojo hover:text-blanco"
         >
           Cargar Abono
         </button>
+        </div>
       )}
+      
+      {modo === "buscar" && (
+  <>
+    <div className="flex justify-center">
+      <button
+        onClick={obtenerAbono}
+        className="px-4 py-2 rounded-full border-2 font-bold transition-colors duration-200 bg-blanco text-rojo border-rojo hover:bg-rojo hover:text-blanco"
+      >
+        Buscar Abono
+      </button>
+    </div>
+
+    {abono && (
+      <div className="mt-6 p-4 bg-blanco text-negro rounded-[1rem] shadow-md space-y-2">
+        <h3 className="font-bold text-lg">Temporada: {abono.temporada}</h3>
+              <p><b>Precio:</b> {abono.precio}€</p>
+              <p>
+                <b>Desde:</b> {abono.fecha_inicio} <b>Hasta:</b> {abono.fecha_fin}
+              </p>
+              <p>{abono.descripcion}</p>
+              <p><b>ID Abono:</b> {abono.id_abono}</p>
+      </div>
+    )}
+  </>
+)}
+
 
       {/* Formulario crear */}
       {modo === "crear" && (
@@ -174,7 +204,7 @@ export default function Abonos() {
             onChange={(e) =>
               setAbono((prev) => ({ ...prev, temporada: e.target.value }))
             }
-            className="border p-2 rounded w-full"
+            className="rounded-[1rem] font-poetsen w-[90%] rounded-xl border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-cyan-500  "
           />
           <input
             type="number"
@@ -183,7 +213,7 @@ export default function Abonos() {
             onChange={(e) =>
               setAbono((prev) => ({ ...prev, precio: Number(e.target.value) }))
             }
-            className="border p-2 rounded w-full"
+            className="rounded-[1rem] font-poetsen w-[90%] rounded-xl border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-cyan-500  "
           />
           <input
             type="date"
@@ -192,7 +222,7 @@ export default function Abonos() {
             onChange={(e) =>
               setAbono((prev) => ({ ...prev, fecha_inicio: e.target.value }))
             }
-            className="border p-2 rounded w-full"
+            className="rounded-[1rem] font-poetsen w-[90%] rounded-xl border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-cyan-500  "
           />
           <input
             type="date"
@@ -201,7 +231,7 @@ export default function Abonos() {
             onChange={(e) =>
               setAbono((prev) => ({ ...prev, fecha_fin: e.target.value }))
             }
-            className="border p-2 rounded w-full"
+            className="rounded-[1rem] font-poetsen w-[90%] rounded-xl border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-cyan-500  "
           />
           <textarea
             placeholder="Descripción"
@@ -212,12 +242,14 @@ export default function Abonos() {
             className="border p-2 rounded w-full"
             rows={3}
           />
+          <div className="flex justify-center"> 
           <button
             onClick={crearAbono}
-            className="bg-green-600 text-white px-4 py-2 rounded"
+            className="px-4 py-2 rounded-full border-2 font-bold transition-colors duration-200 bg-blanco text-blanco border-rojo bg-blanco text-rojo border-rojo hover:bg-rojo hover:text-blanco"
           >
             Crear Abono
           </button>
+          </div>
         </div>
       )}
 
@@ -231,7 +263,7 @@ export default function Abonos() {
             onChange={(e) =>
               setAbono((prev) => ({ ...prev, temporada: e.target.value }))
             }
-            className="border p-2 rounded w-full"
+            className="rounded-[1rem] font-poetsen w-[90%] rounded-xl border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-cyan-500  "
           />
           <input
             type="number"
@@ -240,7 +272,7 @@ export default function Abonos() {
             onChange={(e) =>
               setAbono((prev) => ({ ...prev, precio: Number(e.target.value) }))
             }
-            className="border p-2 rounded w-full"
+            className="rounded-[1rem] font-poetsen w-[90%] rounded-xl border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-cyan-500  "
           />
           <input
             type="date"
@@ -249,7 +281,7 @@ export default function Abonos() {
             onChange={(e) =>
               setAbono((prev) => ({ ...prev, fecha_inicio: e.target.value }))
             }
-            className="border p-2 rounded w-full"
+            className="rounded-[1rem] font-poetsen w-[90%] rounded-xl border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-cyan-500  "
           />
           <input
             type="date"
@@ -258,7 +290,7 @@ export default function Abonos() {
             onChange={(e) =>
               setAbono((prev) => ({ ...prev, fecha_fin: e.target.value }))
             }
-            className="border p-2 rounded w-full"
+            className="rounded-[1rem] font-poetsen w-[90%] rounded-xl border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-cyan-500  "
           />
           <textarea
             placeholder="Descripción"
@@ -266,39 +298,43 @@ export default function Abonos() {
             onChange={(e) =>
               setAbono((prev) => ({ ...prev, descripcion: e.target.value }))
             }
-            className="border p-2 rounded w-full"
+            className="rounded-[1rem] font-poetsen w-[90%] rounded-xl border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-cyan-500  "
             rows={3}
           />
+          <div className="flex justify-center"> 
           <button
             onClick={actualizarAbono}
-            className="bg-green-500 text-white px-4 py-2 rounded"
+            className="px-4 py-2 rounded-full border-2 font-bold transition-colors duration-200 bg-blanco text-blanco border-rojo bg-blanco text-rojo border-rojo hover:bg-rojo hover:text-blanco"
           >
             Guardar Cambios
           </button>
+          </div>
         </div>
       )}
 
       {/* Botón eliminar */}
       {modo === "eliminar" && (
+      <div className="flex justify-center"> 
         <button
           onClick={eliminarAbono}
           disabled={!abonoIdBuscado}
-          className="bg-red-600 text-white px-4 py-2 rounded"
+          className="px-4 py-2 rounded-full border-2 font-bold transition-colors duration-200 bg-blanco text-blanco border-rojo bg-blanco text-rojo border-rojo hover:bg-rojo hover:text-blanco"
         >
           Eliminar Abono
         </button>
+        </div>
       )}
 
       {/* Listado */}
       {modo === "listar" && (
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="mt-4 space-y-2">
           {abonos.map((a) => (
             <div
               key={a.id_abono}
-              className="border rounded p-4 shadow hover:shadow-lg transition"
+              className="bg-blanco text-negro px-6 py-10 rounded-[1rem] font-poetsen font-bold shadow-lg space-y-4"
             >
               <h3 className="font-bold text-lg">Temporada: {a.temporada}</h3>
-              <p><b>Precio:</b> ${a.precio}</p>
+              <p><b>Precio:</b> {a.precio}€</p>
               <p>
                 <b>Desde:</b> {a.fecha_inicio} <b>Hasta:</b> {a.fecha_fin}
               </p>

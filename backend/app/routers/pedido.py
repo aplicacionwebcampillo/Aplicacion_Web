@@ -45,11 +45,13 @@ def serialize_pedido(pedido):
         "productos": [{
             "id_producto": p.id_producto,
             "nombre": p.nombre,
+            "descripcion": p.descripcion,
             "precio": float(p.precio),
             "stock": p.stock,
             "imagen": p.imagen
         } for p in pedido.productos]
     }
+
 
 
 

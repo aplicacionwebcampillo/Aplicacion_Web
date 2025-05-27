@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
-import { Link } from "react-router-dom";
+import { useParams, Link, useNavigate } from "react-router-dom";
 
 import { useCarrito } from "../context/CarritoContext";
+import { useAuth } from "../context/useAuth"; // ajusta la ruta si hace falta
 
 interface Producto {
   id_producto: number;
@@ -16,8 +16,11 @@ interface Producto {
 export default function ProductoDetalle() {
   const { nombre } = useParams();
   const [producto, setProducto] = useState<Producto | null>(null);
-  const { agregarAlCarrito } = useCarrito();
-  const { carrito } = useCarrito();
+  const { agregarAlCarrito, carrito } = useCarrito();
+  const { usuario } = useAuth();
+  const navigate = useNavigate();
+
+  const [tallaSeleccionada, setTallaSeleccionada] = useState("M"); 
 
   useEffect(() => {
     fetch(`http://localhost:8000/productos/${nombre}`)
@@ -30,25 +33,35 @@ export default function ProductoDetalle() {
     return <div className="text-center text-blanco mt-10">Cargando...</div>;
   }
 
-  return (   
+  const handleAgregar = () => {
+    if (!usuario) {
+      alert("Debes iniciar sesión para poder comprar.");
+      navigate("/login");
+      return;
+    }
+    agregarAlCarrito(producto, tallaSeleccionada);
+  };
+
+  return (
     <section className="text-blanco px-6 py-10 rounded-[1rem] font-poetsen font-bold">
-      <Link to="/tienda" className="text-negro no-underline font-semibold mb-4 inline-block hover:text-rojo">
+      <Link
+        to="/tienda"
+        className="text-negro no-underline font-semibold mb-4 inline-block hover:text-rojo"
+      >
         ← Volver a la tienda
       </Link>
-      
-          
+
       <div className="bg-celeste text-blanco px-6 py-10 rounded-[1rem] font-poetsen font-bold flex flex-col lg:flex-row items-center gap-10">
-      
-        <div className="flex justify-between items-center mb-6">
-        <p> </p>	
-        <Link
-          to="/carrito"
-          className="px-6 py-2 rounded-full font-bold border-2 transition-all bg-blanco text-rojo border-rojo hover:bg-rojo hover:text-blanco"
-        >
-          Ver carrito ({carrito.length}) 
-        </Link>     
-      </div>
-      
+        <div className="flex justify-between items-center mb-6 w-full">
+          <p> </p>
+          <Link
+            to="/carrito"
+            className="px-6 py-2 rounded-full font-bold border-2 transition-all bg-blanco text-rojo border-rojo hover:bg-rojo hover:text-blanco"
+          >
+            Ver carrito ({carrito.length})
+          </Link>
+        </div>
+
         <div className="w-full max-w-[30rem]">
           <img
             src={producto.imagen || "/images/PorDefecto.png"}
@@ -57,7 +70,7 @@ export default function ProductoDetalle() {
           />
         </div>
 
-        <div className="text-center lg:text-left">
+        <div className="text-center lg:text-left w-full max-w-[30rem]">
           <h2 className="text-4xl mb-4">{producto.nombre}</h2>
           <p className="text-lg mb-4 text-negro">{producto.descripcion}</p>
           <p className="text-2xl text-rojo mb-2">{producto.precio} €</p>
@@ -65,8 +78,34 @@ export default function ProductoDetalle() {
             {producto.stock > 0 ? `Stock disponible: ${producto.stock}` : "Agotado"}
           </p>
 
+          {/* Selector de talla */}
+          <div className="mb-4">
+            <label htmlFor="talla" className="mr-2 font-semibold text-negro">
+              Selecciona talla:
+            </label>
+            <select
+              id="talla"
+              value={tallaSeleccionada}
+              onChange={(e) => setTallaSeleccionada(e.target.value)}
+              className="rounded px-2 py-1"
+            >
+              <option value="L">4</option>
+              <option value="XL">6</option>
+              <option value="L">8</option>
+              <option value="XL">10</option>
+              <option value="L">12</option>
+              <option value="XL">14</option>
+              <option value="S">S</option>
+              <option value="M">M</option>
+              <option value="L">L</option>
+              <option value="XL">XL</option>
+              <option value="S">XXL</option>
+              <option value="M">3XL</option>
+            </select>
+          </div>
+
           <button
-            onClick={() => agregarAlCarrito(producto, tallaSeleccionada)}
+            onClick={handleAgregar}
             className={`px-6 py-2 rounded-full font-bold border-2 transition-all ${
               producto.stock > 0
                 ? "bg-blanco text-rojo border-rojo hover:bg-rojo hover:text-blanco"

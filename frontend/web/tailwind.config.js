@@ -10,9 +10,11 @@ module.exports = {
       },
       colors: {
         celeste: '#00CFFF',
+        azul: ' #0b7ef2 ',
         blanco: '#FFFFFF',
         rojo: '#FF3B3B',
         negro: '#000000',
+        negro_texto: ' #4a4b4b ',
       },
       screens: {
 	sm: '40rem',
