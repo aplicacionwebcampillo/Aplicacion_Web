@@ -22,7 +22,17 @@ export default function UsuarioPage() {
     email: "",
     contrasena: "",
   });
-  const [seccion, setSeccion] = useState<"modificar" | "eliminar">("modificar");
+  
+  const [adminData, setAdminData] = useState<Administrador | null>(null);
+  const [socioData, setSocioData] = useState<null | {
+    tipo_membresia: string;
+    estado: string;
+    foto_perfil: string;
+  }>(
+    null
+  );
+  
+  const [seccion, setSeccion] = useState<"modificar" | "eliminar" | "admin" | "socio" | "">("modificar");
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -138,7 +148,64 @@ export default function UsuarioPage() {
     localStorage.removeItem("dni");
     navigate("/login");
   };
+  
+  useEffect(() => {
+  const token = localStorage.getItem("token");
+  const dni = localStorage.getItem("dni");
 
+  if (!token || !dni) return;
+
+  const fetchSocio = async () => {
+    try {
+      const res = await fetch(`http://localhost:8000/socios/${dni}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+        setSocioData({
+          tipo_membresia: data.tipo_membresia,
+          estado: data.estado,
+          foto_perfil: data.foto_perfil,
+        });
+      }
+    } catch (err) {
+      console.error("Error al obtener socio:", err);
+    }
+  };
+
+  fetchSocio();
+}, []);
+
+useEffect(() => {
+  const token = localStorage.getItem("token");
+  const dni = localStorage.getItem("dni");
+
+  if (!token || !dni) return;
+
+  const fetchAdmin = async () => {
+    try {
+      const res = await fetch(`http://localhost:8000/administradores/${dni}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (res.ok) {
+        const adminInfo = await res.json();
+        setAdminData(adminInfo);
+      }
+    } catch (err) {
+      console.error("Error al obtener admin:", err);
+    }
+  };
+
+  fetchAdmin();
+}, []);
+
+  
   return (
     <div className="flex flex-col md:flex-row bg-gray-50">
       {/* Menú lateral */}
@@ -150,20 +217,23 @@ export default function UsuarioPage() {
         >
           Modificar Usuario
         </button>
-
+        {socioData && (
         <button
           onClick={() => navigate("/socio")}
           className="min-w-[14rem] px-4 py-2 rounded-full border-2 font-bold transition-colors duration-200 bg-blanco text-blanco border-rojo bg-blanco text-rojo border-rojo hover:bg-rojo hover:text-blanco"
         >
-          Modificar Socio
+          Zona Socio
         </button>
-
+        )}
+        
+        {adminData && (
         <button
           onClick={() => navigate("/administrador")}
           className="min-w-[14rem] px-4 py-2 rounded-full border-2 font-bold transition-colors duration-200 bg-blanco text-blanco border-rojo bg-blanco text-rojo border-rojo hover:bg-rojo hover:text-blanco"
         >
-          Modificar Administrador
+          Zona Administrador
         </button>
+        )}
 
         <button
           onClick={handleLogout}

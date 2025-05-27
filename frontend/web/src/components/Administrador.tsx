@@ -1,0 +1,224 @@
+import { useEffect, useState } from "react";
+
+interface Administrador {
+  dni: string;
+  cargo: string;
+  permisos: string;
+  estado: string;
+  foto_perfil: string;
+  nombre?: string;
+  apellidos?: string;
+  telefono?: string;
+  fecha_nacimiento?: string;
+  email?: string;
+  contrasena?: string;
+}
+
+export default function Administrador() {
+  const [modo, setModo] = useState<"crear" | "listar" | "buscar" | "editar" | "eliminar">("listar");
+  const [dni, setDni] = useState("");
+  const [admin, setAdmin] = useState<Administrador | null>(null);
+  const [admins, setAdmins] = useState<Administrador[]>([]);
+
+  useEffect(() => {
+    if (modo === "listar") {
+      fetch("http://localhost:8000/administradores/")
+        .then((res) => res.json())
+        .then(setAdmins)
+        .catch((err) => console.error("Error al listar administradores:", err));
+    }
+  }, [modo]);
+
+  const obtenerAdmin = async () => {
+    try {
+      const res = await fetch(`http://localhost:8000/administradores/${dni}`);
+      if (res.ok) {
+        const data = await res.json();
+        setAdmin(data);
+      } else {
+        alert("Administrador no encontrado.");
+      }
+    } catch (err) {
+      console.error("Error al obtener administrador:", err);
+    }
+  };
+
+  const crearAdmin = async () => {
+    try {
+      const res = await fetch(`http://localhost:8000/administradores/`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(admin),
+      });
+      if (res.ok) {
+        alert("Administrador creado correctamente.");
+        setAdmin(null);
+        setModo("listar");
+      } else {
+        alert("Error al crear administrador.");
+      }
+    } catch (err) {
+      console.error("Error al crear administrador:", err);
+    }
+  };
+
+  const actualizarAdmin = async () => {
+    try {
+      const res = await fetch(`http://localhost:8000/administradores/${dni}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          cargo: admin?.cargo,
+          permisos: admin?.permisos,
+          estado: admin?.estado,
+          foto_perfil: admin?.foto_perfil,
+        }),
+      });
+      if (res.ok) {
+        alert("Administrador actualizado.");
+      } else {
+        alert("Error al actualizar.");
+      }
+    } catch (err) {
+      console.error("Error al actualizar administrador:", err);
+    }
+  };
+
+  const eliminarAdmin = async () => {
+    try {
+      const res = await fetch(`http://localhost:8000/administradores/${dni}`, {
+        method: "DELETE",
+      });
+      if (res.ok) {
+        alert("Administrador eliminado.");
+        setModo("listar");
+      } else {
+        alert("Error al eliminar.");
+      }
+    } catch (err) {
+      console.error("Error al eliminar administrador:", err);
+    }
+  };
+
+  const camposCrear = [
+    "dni",
+    "nombre",
+    "apellidos",
+    "telefono",
+    "fecha_nacimiento",
+    "email",
+    "contrasena",
+    "cargo",
+    "permisos",
+    "estado",
+    "foto_perfil",
+  ];
+
+  return (
+    <div className="p-4 space-y-4">
+      <div className="flex flex-wrap gap-2">
+        {["crear", "listar", "buscar", "editar", "eliminar"].map((modoBtn) => (
+          <button
+            key={modoBtn}
+            onClick={() => {
+              setModo(modoBtn as any);
+              setAdmin(null);
+              setDni("");
+            }}
+            className={`px-3 py-1 rounded border ${
+              modo === modoBtn ? "bg-blue-500 text-white" : "bg-white text-black"
+            }`}
+          >
+            {modoBtn.toUpperCase()}
+          </button>
+        ))}
+      </div>
+
+      {(modo === "buscar" || modo === "editar" || modo === "eliminar") && (
+        <input
+          type="text"
+          placeholder="DNI"
+          className="border p-2 rounded w-full"
+          value={dni}
+          onChange={(e) => setDni(e.target.value)}
+        />
+      )}
+
+      {modo === "buscar" && (
+        <>
+          <button onClick={obtenerAdmin} className="bg-blue-500 text-white px-4 py-2 rounded mt-2">
+            Obtener
+          </button>
+          {admin && <pre>{JSON.stringify(admin, null, 2)}</pre>}
+        </>
+      )}
+
+      {modo === "crear" && (
+        <div className="space-y-2">
+          {camposCrear.map((campo) => (
+            <input
+              key={campo}
+              type={campo === "fecha_nacimiento" ? "date" : "text"}
+              placeholder={campo}
+              className="border p-2 rounded w-full"
+              value={(admin as any)?.[campo] || ""}
+              onChange={(e) =>
+                setAdmin((prev) => ({ ...prev, [campo]: e.target.value }))
+              }
+            />
+          ))}
+          <button onClick={crearAdmin} className="bg-green-600 text-white px-4 py-2 rounded">
+            Crear Administrador
+          </button>
+        </div>
+      )}
+
+      {modo === "editar" && (
+        <>
+          <button onClick={obtenerAdmin} className="bg-yellow-400 text-white px-4 py-2 rounded">
+            Cargar Admin
+          </button>
+          {admin && (
+            <div className="space-y-2 mt-2">
+              {["cargo", "permisos", "estado", "foto_perfil"].map((campo) => (
+                <input
+                  key={campo}
+                  type="text"
+                  placeholder={campo}
+                  value={(admin as any)[campo]}
+                  onChange={(e) =>
+                    setAdmin((prev) => prev && { ...prev, [campo]: e.target.value })
+                  }
+                  className="border p-2 rounded w-full"
+                />
+              ))}
+              <button onClick={actualizarAdmin} className="bg-green-500 text-white px-4 py-2 rounded">
+                Guardar Cambios
+              </button>
+            </div>
+          )}
+        </>
+      )}
+
+      {modo === "eliminar" && (
+        <button onClick={eliminarAdmin} className="bg-red-600 text-white px-4 py-2 rounded mt-2">
+          Eliminar Administrador
+        </button>
+      )}
+
+      {modo === "listar" && (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-2 mt-4">
+          {admins.map((a) => (
+            <div key={a.dni} className="p-3 border rounded shadow">
+              <strong>{a.dni}</strong> - {a.cargo}
+              <div>Permisos: {a.permisos}</div>
+              <div>Estado: {a.estado}</div>
+              <img src={a.foto_perfil} alt="Perfil" className="h-16 w-16 object-cover mt-1" />
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+

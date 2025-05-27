@@ -3,3 +3,4 @@ Funcionalidades restantes:
 * Imágenes
 * Detalles
 
+* Botón/método para pasar de usuario a socio o administrador

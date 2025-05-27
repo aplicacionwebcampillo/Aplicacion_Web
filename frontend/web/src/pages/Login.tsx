@@ -65,8 +65,9 @@ export default function Login() {
       if (payload && payload.sub) {
         localStorage.setItem("dni", payload.sub);
       }
-
-      navigate("/");
+      
+      window.location.reload();
+      //navigate("/");
     } catch (err: any) {
       setError(err.message || "Error desconocido");
     } finally {
