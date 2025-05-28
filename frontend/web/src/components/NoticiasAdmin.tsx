@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useSubirImagen } from "../hooks/useSubirImagen";
 
 interface Noticia {
   titular: string;
@@ -13,6 +14,8 @@ export default function Noticias() {
     "crear" | "listar" | "buscar" | "editar" | "eliminar"
   >("listar");
 
+  // Hook para subir imagen
+  const { subirImagen, loading: cargandoImagen, error: errorImagen } = useSubirImagen();
   const [titular, setTitular] = useState("");
   const [noticia, setNoticia] = useState<Noticia>({
     titular: "",
@@ -105,65 +108,95 @@ export default function Noticias() {
     }
   };
 
+  const handleImagenChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    try {
+      const url = await subirImagen(file);
+      if (url) {
+        setNoticia((prev) => ({ ...prev, imagen: url }));
+      } else {
+        alert("Error al subir la imagen");
+      }
+    } catch (error) {
+      alert("Error al subir la imagen");
+      console.error(error);
+    }
+  };
+
+  const ImagenInput = (
+    <>
+      <input
+        type="file"
+        accept="image/*"
+        onChange={handleImagenChange}
+        className="rounded-[1rem] font-poetsen w-[90%] rounded-xl border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-cyan-500"
+      />
+      {cargandoImagen && <p className="text-yellow-400 text-sm">Subiendo imagen...</p>}
+      {errorImagen && <p className="text-red-600 text-sm">{errorImagen}</p>}
+      {noticia.imagen && (
+        <img
+          src={noticia.imagen}
+          alt="Vista previa"
+          className="mt-2 w-full h-48 object-cover rounded-xl"
+        />
+      )}
+    </>
+  );
+
   return (
     <div className="bg-celeste text-blanco px-6 py-10 rounded-[1rem] font-poetsen font-bold w-full max-w-[40rem] shadow-lg space-y-4">
       {/* Menú de modos */}
       <div className="flex flex-wrap justify-center gap-3 mb-6">
         {["crear", "listar", "buscar", "editar", "eliminar"].map((m) => (
-          <div className="flex justify-center">
-          <button
-            key={m}
-            onClick={() => {
-              setModo(m as any);
-              setNoticia({
-                titular: "",
-                imagen: "",
-                contenido: "",
-                categoria: "",
-                dni_administrador: "",
-              });
-              setTitular("");
-            }}
-            className={`px-4 py-2 rounded-full border-2 font-bold transition-colors duration-200 bg-blanco text-azul border-azul bg-blanco text-azul border-azul hover:bg-azul hover:text-blanco ${
-              modo === m ? "bg-blue-500 text-white" : "bg-white text-black"
-            }`}
-          >
-            {m.toUpperCase()}
-          </button>
+          <div className="flex justify-center" key={m}>
+            <button
+              onClick={() => {
+                setModo(m as any);
+                setNoticia({
+                  titular: "",
+                  imagen: "",
+                  contenido: "",
+                  categoria: "",
+                  dni_administrador: "",
+                });
+                setTitular("");
+              }}
+              className={`px-4 py-2 rounded-full border-2 font-bold transition-colors duration-200 ${
+                modo === m ? "bg-blue-500 text-white" : "bg-white text-black border-azul"
+              }`}
+            >
+              {m.toUpperCase()}
+            </button>
           </div>
         ))}
       </div>
 
-      {/* Input titular para buscar/editar/eliminar */}
       {(modo === "buscar" || modo === "editar" || modo === "eliminar") && (
         <input
           type="text"
           placeholder="Titular de la noticia"
-          className="rounded-[1rem] font-poetsen w-[90%] rounded-xl border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-cyan-500 "
+          className="rounded-[1rem] font-poetsen w-[90%] border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-cyan-500"
           value={titular}
           onChange={(e) => setTitular(e.target.value)}
         />
       )}
 
-      {/* Buscar noticia */}
       {modo === "buscar" && (
         <>
-        <div className="flex justify-center">
-          <button
-            onClick={obtenerNoticia}
-            className="px-4 py-2 rounded-full border-2 font-bold transition-colors duration-200 bg-blanco text-azul border-azul bg-blanco text-azul border-azul hover:bg-azul hover:text-blanco"
-          >
-            Obtener Noticia
-          </button>
+          <div className="flex justify-center">
+            <button
+              onClick={obtenerNoticia}
+              className="px-4 py-2 rounded-full border-2 font-bold bg-blanco text-azul border-azul hover:bg-azul hover:text-blanco"
+            >
+              Obtener Noticia
+            </button>
           </div>
           {noticia.titular && (
-            <div className="bg-blanco text-negro px-6 py-10 rounded-[1rem] font-poetsen font-bold shadow-lg space-y-4">
-              <h3 className="text-xl font-bold mb-2">{noticia.titular}</h3>
-              <img
-                src={noticia.imagen}
-                alt={noticia.titular}
-                className="w-full h-48 object-cover mb-2"
-              />
+            <div className="bg-blanco text-negro px-6 py-10 rounded-[1rem] shadow-lg space-y-4">
+              <h3 className="text-xl font-bold">{noticia.titular}</h3>
+              <img src={noticia.imagen} alt={noticia.titular} className="w-full h-48 object-cover" />
               <p><b>Categoría:</b> {noticia.categoria}</p>
               <p><b>Contenido:</b> {noticia.contenido}</p>
               <p><b>Administrador DNI:</b> {noticia.dni_administrador}</p>
@@ -172,167 +205,79 @@ export default function Noticias() {
         </>
       )}
 
-      {/* Crear noticia */}
-      {modo === "crear" && (
+      {(modo === "crear" || (modo === "editar" && noticia.titular)) && (
         <div className="space-y-2">
           <input
             type="text"
             placeholder="Titular"
             value={noticia.titular}
-            onChange={(e) =>
-              setNoticia((prev) => ({ ...prev, titular: e.target.value }))
-            }
-            className="rounded-[1rem] font-poetsen w-[90%] rounded-xl border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-cyan-500 "
+            onChange={(e) => setNoticia({ ...noticia, titular: e.target.value })}
+            className="rounded-[1rem] font-poetsen w-[90%] border border-gray-300 px-3 py-2"
           />
-          <input
-            type="text"
-            placeholder="URL Imagen"
-            value={noticia.imagen}
-            onChange={(e) =>
-              setNoticia((prev) => ({ ...prev, imagen: e.target.value }))
-            }
-            className="rounded-[1rem] font-poetsen w-[90%] rounded-xl border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-cyan-500 "
-          />
+          {ImagenInput}
           <textarea
             placeholder="Contenido"
             value={noticia.contenido}
-            onChange={(e) =>
-              setNoticia((prev) => ({ ...prev, contenido: e.target.value }))
-            }
-            className="rounded-[1rem] font-poetsen w-[90%] rounded-xl border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-cyan-500 "
+            onChange={(e) => setNoticia({ ...noticia, contenido: e.target.value })}
+            className="rounded-[1rem] font-poetsen w-[90%] border border-gray-300 px-3 py-2"
             rows={4}
           />
           <input
             type="text"
             placeholder="Categoría"
             value={noticia.categoria}
-            onChange={(e) =>
-              setNoticia((prev) => ({ ...prev, categoria: e.target.value }))
-            }
-            className="rounded-[1rem] font-poetsen w-[90%] rounded-xl border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-cyan-500 "
+            onChange={(e) => setNoticia({ ...noticia, categoria: e.target.value })}
+            className="rounded-[1rem] font-poetsen w-[90%] border border-gray-300 px-3 py-2"
           />
           <input
             type="text"
             placeholder="DNI Administrador"
             value={noticia.dni_administrador}
-            onChange={(e) =>
-              setNoticia((prev) => ({ ...prev, dni_administrador: e.target.value }))
-            }
-            className="rounded-[1rem] font-poetsen w-[90%] rounded-xl border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-cyan-500 "
+            onChange={(e) => setNoticia({ ...noticia, dni_administrador: e.target.value })}
+            className="rounded-[1rem] font-poetsen w-[90%] border border-gray-300 px-3 py-2"
           />
           <div className="flex justify-center">
-          <button
-            onClick={crearNoticia}
-            className="px-4 py-2 rounded-full border-2 font-bold transition-colors duration-200 bg-blanco text-azul border-azul bg-blanco text-azul border-azul hover:bg-azul hover:text-blanco"
-          >
-            Crear Noticia
-          </button>
+            <button
+              onClick={modo === "crear" ? crearNoticia : actualizarNoticia}
+              className="px-4 py-2 rounded-full border-2 font-bold bg-blanco text-azul border-azul hover:bg-azul hover:text-blanco"
+            >
+              {modo === "crear" ? "Crear Noticia" : "Guardar Cambios"}
+            </button>
           </div>
         </div>
       )}
 
-      {/* Editar noticia */}
-      {modo === "editar" && (
-        <>
+      {modo === "editar" && !noticia.titular && (
         <div className="flex justify-center">
           <button
             onClick={obtenerNoticia}
-            className="px-4 py-2 rounded-full border-2 font-bold transition-colors duration-200 bg-blanco text-azul border-azul bg-blanco text-azul border-azul hover:bg-azul hover:text-blanco"
+            className="px-4 py-2 rounded-full border-2 font-bold bg-blanco text-azul border-azul hover:bg-azul hover:text-blanco"
           >
             Cargar Noticia
           </button>
-          </div>
-          {noticia.titular && (
-            <div className="space-y-2 mt-2">
-              <input
-                type="text"
-                placeholder="Titular"
-                value={noticia.titular}
-                onChange={(e) =>
-                  setNoticia((prev) => ({ ...prev, titular: e.target.value }))
-                }
-                className="rounded-[1rem] font-poetsen w-[90%] rounded-xl border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-cyan-500 "
-              />
-              <input
-                type="text"
-                placeholder="URL Imagen"
-                value={noticia.imagen}
-                onChange={(e) =>
-                  setNoticia((prev) => ({ ...prev, imagen: e.target.value }))
-                }
-                className="border p-2 rounded w-full"
-              />
-              <textarea
-                placeholder="Contenido"
-                value={noticia.contenido}
-                onChange={(e) =>
-                  setNoticia((prev) => ({ ...prev, contenido: e.target.value }))
-                }
-                className="rounded-[1rem] font-poetsen w-[90%] rounded-xl border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-cyan-500 "
-                rows={4}
-              />
-              <input
-                type="text"
-                placeholder="Categoría"
-                value={noticia.categoria}
-                onChange={(e) =>
-                  setNoticia((prev) => ({ ...prev, categoria: e.target.value }))
-                }
-                className="rounded-[1rem] font-poetsen w-[90%] rounded-xl border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-cyan-500 "
-              />
-              <input
-                type="text"
-                placeholder="DNI Administrador"
-                value={noticia.dni_administrador}
-                onChange={(e) =>
-                  setNoticia((prev) => ({ ...prev, dni_administrador: e.target.value }))
-                }
-                className="rounded-[1rem] font-poetsen w-[90%] rounded-xl border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-cyan-500 "
-              />
-              <div className="flex justify-center">
-              <button
-                onClick={actualizarNoticia}
-                className="px-4 py-2 rounded-full border-2 font-bold transition-colors duration-200 bg-blanco text-azul border-azul bg-blanco text-azul border-azul hover:bg-azul hover:text-blanco"
-              >
-                Guardar Cambios
-              </button>
-              </div>
-            </div>
-          )}
-        </>
-      )}
-
-      {/* Eliminar noticia */}
-      {modo === "eliminar" && (
-      <div className="flex justify-center">
-        <button
-          onClick={eliminarNoticia}
-          className="px-4 py-2 rounded-full border-2 font-bold transition-colors duration-200 bg-blanco text-azul border-azul bg-blanco text-azul border-azul hover:bg-azul hover:text-blanco"
-        >
-          Eliminar Noticia
-        </button>
         </div>
       )}
 
-      {/* Listar noticias */}
+      {modo === "eliminar" && (
+        <div className="flex justify-center">
+          <button
+            onClick={eliminarNoticia}
+            className="px-4 py-2 rounded-full border-2 font-bold bg-blanco text-azul border-azul hover:bg-azul hover:text-blanco"
+          >
+            Eliminar Noticia
+          </button>
+        </div>
+      )}
+
       {modo === "listar" && (
         <div className="mt-4 space-y-2">
           {noticias.map((n, i) => (
-            <div
-              key={i}
-              className="bg-blanco text-negro px-6 py-10 rounded-[1rem] font-poetsen font-bold shadow-lg space-y-4"
-            >
-              <h3 className="font-bold text-lg mb-2">{n.titular}</h3>
-              <img
-                src={n.imagen}
-                alt={n.titular}
-                className="w-full h-48 object-cover mb-2"
-              />
+            <div key={i} className="bg-blanco text-negro px-6 py-10 rounded-[1rem] shadow-lg space-y-4">
+              <h3 className="text-lg font-bold">{n.titular}</h3>
+              <img src={n.imagen} alt={n.titular} className="w-full h-48 object-cover" />
               <p><b>Categoría:</b> {n.categoria}</p>
               <p className="line-clamp-3">{n.contenido}</p>
-              <p className="mt-2 text-sm text-gray-500">
-                DNI Admin: {n.dni_administrador}
-              </p>
+              <p className="text-sm text-gray-500">DNI Admin: {n.dni_administrador}</p>
             </div>
           ))}
         </div>

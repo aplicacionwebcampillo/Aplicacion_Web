@@ -1,5 +1,5 @@
 Funcionalidades restantes:
 
 * Imágenes
-* Mostrar abonos disponibles
-* Enviar correo de validar pago
+* BUSQUEDA JUGADORES POR NOMBRE
+* ABONO DIGITAL CON FOTO

@@ -33,6 +33,17 @@ export default function UsuarioPage() {
   );
   const dni = localStorage.getItem("dni") || "";
   const [esSocio, setEsSocio] = useState(false);
+  const [abonoMasReciente, setAbonoMasReciente] = useState<null | {
+  temporada: string;
+  precio: number;
+  fecha_inicio: string;
+  fecha_fin: string;
+  descripcion: string;
+  id_abono: number;
+}>(null);
+
+
+
   const [seccion, setSeccion] = useState<"modificar" | "eliminar" | "admin" | "socio" | "Registrarse como socio" | "">("modificar");
   
   const handleRegistroSocio = async () => {
@@ -126,6 +137,30 @@ export default function UsuarioPage() {
     })
     .catch(() => setEsSocio(false));
 }, [dni]);
+
+useEffect(() => {
+  const fetchAbonos = async () => {
+    try {
+      const res = await fetch("http://localhost:8000/abonos/");
+      if (res.ok) {
+        const data = await res.json();
+        if (Array.isArray(data) && data.length > 0) {
+          const masReciente = data.reduce((a, b) =>
+            new Date(a.fecha_inicio) > new Date(b.fecha_inicio) ? a : b
+          );
+          setAbonoMasReciente(masReciente);
+        }
+      } else {
+        console.error("Error al obtener abonos");
+      }
+    } catch (err) {
+      console.error("Error de red al obtener abonos:", err);
+    }
+  };
+
+  fetchAbonos();
+}, []);
+
 
 
   useEffect(() => {
@@ -402,9 +437,10 @@ useEffect(() => {
         )}
         
         {!esSocio &&  seccion === "Registrarse como socio"  && (
-          <div className="bg-celeste text-blanco px-6 py-10 rounded-[1rem] font-poetsen font-bold w-full max-w-[40rem] shadow-lg space-y-4">
+          <div className="text-blanco px-6 py-10 rounded-[1rem] font-poetsen font-bold w-full max-w-[40rem] shadow-lg space-y-4">
+          <div className="bg-celeste px-6 py-10 rounded-[1rem]">
             <h2 className="text-2xl font-semibold text-red-600 text-center">Registrarse como socio</h2>
-            <p className="text-center">Para disfrutar de los beneficos de socios se tiene que realizar el pago en efectivo. ¿Deseas continuar?</p>
+            <p className="text-center text-negro_texto">Para disfrutar de los beneficos de socios se tiene que realizar el pago en efectivo. ¿Deseas continuar?</p>
             <div className="flex justify-center">
             <button
               onClick={handleRegistroSocio}
@@ -413,6 +449,26 @@ useEffect(() => {
               Confirmar Registro
             </button>
             </div>
+		</div>
+            
+            <div className="bg-celeste px-6 py-10 rounded-[1rem]">
+  <h3 className="text-xl text-center">Abono Actual</h3>
+  {abonoMasReciente ? (
+    <div className="bg-white text-negro_texto p-4 rounded-lg shadow space-y-1">
+      <p><strong>Temporada:</strong> {abonoMasReciente.temporada}</p>
+      <p><strong>Precio:</strong> {abonoMasReciente.precio}€</p>
+      <p><strong>Inicio:</strong> {abonoMasReciente.fecha_inicio}</p>
+      <p><strong>Fin:</strong> {abonoMasReciente.fecha_fin}</p>
+      <p ><strong>Descripción:</strong> </p>
+      <div className="text-justify flex justify-center text-negro_texto font-poetsen" dangerouslySetInnerHTML={{ __html: abonoMasReciente.descripcion}} />
+    </div>
+  ) : (
+    <p className="text-center">Cargando abono más reciente...</p>
+  )}
+</div>
+
+
+
           </div>
         )}
         

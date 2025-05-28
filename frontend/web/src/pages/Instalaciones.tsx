@@ -65,8 +65,8 @@ export default function Instalaciones() {
 
         <p className="mb-6 text-gray-700 leading-relaxed text-justify">
           Gracias al apoyo del Ayuntamiento y la inversión realizada, las
-          instalaciones cuentan con césped natural de alta calidad, gradas para
-          espectadores y vestuarios modernos que cumplen con los requisitos
+          instalaciones cuentan con césped de alta calidad (Dimensiones: 100x58m), gradas para
+          espectadores (Aforo permitido: 270 personas) y vestuarios modernos que cumplen con los requisitos
           deportivos.
         </p>
 

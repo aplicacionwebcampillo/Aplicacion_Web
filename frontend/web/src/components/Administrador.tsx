@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useSubirImagen } from "../hooks/useSubirImagen";
 
 interface Administrador {
   dni: string;
@@ -19,6 +20,9 @@ export default function Administrador() {
   const [dni, setDni] = useState("");
   const [admin, setAdmin] = useState<Administrador | null>(null);
   const [admins, setAdmins] = useState<Administrador[]>([]);
+
+  // Hook para subir imagen
+  const { subirImagen, loading: cargandoImagen, error: errorImagen } = useSubirImagen();
 
   useEffect(() => {
     if (modo === "listar") {
@@ -111,27 +115,43 @@ export default function Administrador() {
     "cargo",
     "permisos",
     "estado",
-    "foto_perfil",
   ];
+
+  // Manejo cambio de imagen (subir)
+  const handleImagenChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    try {
+      const url = await subirImagen(file);
+      if (url) {
+        setAdmin((prev) => (prev ? { ...prev, foto_perfil: url } : { foto_perfil: url } as Administrador));
+      } else {
+        alert("Error al subir la imagen");
+      }
+    } catch (error) {
+      alert("Error al subir la imagen");
+      console.error(error);
+    }
+  };
 
   return (
     <div className="bg-celeste text-blanco px-6 py-10 rounded-[1rem] font-poetsen font-bold w-full max-w-[40rem] shadow-lg space-y-4">
       <div className="flex flex-wrap justify-center gap-3 mb-6 ">
         {["crear", "listar", "buscar", "editar", "eliminar"].map((modoBtn) => (
-          <div className="flex justify-center">
-          <button
-            key={modoBtn}
-            onClick={() => {
-              setModo(modoBtn as any);
-              setAdmin(null);
-              setDni("");
-            }}
-            className={`px-4 py-2 rounded-full border-2 font-bold transition-colors duration-200 bg-blanco text-azul border-azul bg-blanco text-azul border-azul hover:bg-azul hover:text-blanco ${
-              modo === modoBtn ? "bg-blue-500 text-white" : "bg-white text-black"
-            }`}
-          >
-            {modoBtn.toUpperCase()}
-          </button>
+          <div className="flex justify-center" key={modoBtn}>
+            <button
+              onClick={() => {
+                setModo(modoBtn as any);
+                setAdmin(null);
+                setDni("");
+              }}
+              className={`px-4 py-2 rounded-full border-2 font-bold transition-colors duration-200 bg-blanco text-azul border-azul hover:bg-azul hover:text-blanco ${
+                modo === modoBtn ? "bg-blue-500 text-white" : "bg-white text-black"
+              }`}
+            >
+              {modoBtn.toUpperCase()}
+            </button>
           </div>
         ))}
       </div>
@@ -148,27 +168,33 @@ export default function Administrador() {
 
       {modo === "buscar" && (
         <>
-        <div className="flex justify-center">
-          <button onClick={obtenerAdmin} className="px-4 py-2 rounded-full border-2 font-bold transition-colors duration-200 bg-blanco text-azul border-azul bg-blanco text-azul border-azul hover:bg-azul hover:text-blanco">
-            Obtener
-          </button>
+          <div className="flex justify-center">
+            <button
+              onClick={obtenerAdmin}
+              className="px-4 py-2 rounded-full border-2 font-bold transition-colors duration-200 bg-blanco text-azul border-azul hover:bg-azul hover:text-blanco"
+            >
+              Obtener
+            </button>
           </div>
           {admin && (
-  <div className="mt-6 p-4 bg-blanco text-negro rounded-[1rem] shadow-md space-y-2">
-    <p><strong>DNI:</strong> {admin.dni}</p>
-    <p><strong>Cargo:</strong> {admin.cargo}</p>
-    <p><strong>Permisos:</strong> {admin.permisos}</p>
-    <p><strong>Estado:</strong> {admin.estado}</p>
-    {admin.foto_perfil && (
-      <img
-        src={admin.foto_perfil}
-        alt="Foto de perfil"
-        className="w-24 h-24 rounded-full mt-4"
-      />
-    )}
-  </div>
-)}
-
+            <div className="mt-6 p-4 bg-blanco text-negro rounded-[1rem] shadow-md space-y-2">
+              <p>
+                <strong>DNI:</strong> {admin.dni}
+              </p>
+              <p>
+                <strong>Cargo:</strong> {admin.cargo}
+              </p>
+              <p>
+                <strong>Permisos:</strong> {admin.permisos}
+              </p>
+              <p>
+                <strong>Estado:</strong> {admin.estado}
+              </p>
+              {admin.foto_perfil && (
+                <img src={admin.foto_perfil} alt="Foto de perfil" className="w-24 h-24 rounded-full mt-4" />
+              )}
+            </div>
+          )}
         </>
       )}
 
@@ -181,44 +207,84 @@ export default function Administrador() {
               placeholder={campo}
               className="rounded-[1rem] font-poetsen w-[90%] rounded-xl border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-cyan-500"
               value={(admin as any)?.[campo] || ""}
-              onChange={(e) =>
-                setAdmin((prev) => ({ ...prev, [campo]: e.target.value }))
-              }
+              onChange={(e) => setAdmin((prev) => ({ ...prev, [campo]: e.target.value }))}
             />
           ))}
+          {/* Input file para foto de perfil */}
+          <div className="flex flex-col items-center w-[90%] mx-auto">
+            <label className="block font-semibold mb-2">Foto de Perfil</label>
+            <input
+              type="file"
+              accept="image/*"
+              onChange={handleImagenChange}
+              className="rounded-[1rem] font-poetsen w-full rounded-xl border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-cyan-500"
+            />
+            {cargandoImagen && <p className="mt-2 text-sm text-yellow-400">Subiendo imagen...</p>}
+            {errorImagen && <p className="mt-2 text-sm text-red-600">Error al subir imagen.</p>}
+            {admin?.foto_perfil && (
+              <img src={admin.foto_perfil} alt="Vista previa" className="mt-4 w-24 h-24 object-cover rounded-xl" />
+            )}
+          </div>
+
           <div className="flex justify-center">
-          <button onClick={crearAdmin} className="px-4 py-2 rounded-full border-2 font-bold transition-colors duration-200 bg-blanco text-azul border-azul bg-blanco text-azul border-azul hover:bg-azul hover:text-blanco">
-            Crear Administrador
-          </button>
+            <button
+              onClick={crearAdmin}
+              className="px-4 py-2 rounded-full border-2 font-bold transition-colors duration-200 bg-blanco text-azul border-azul hover:bg-azul hover:text-blanco"
+            >
+              Crear Administrador
+            </button>
           </div>
         </div>
       )}
 
       {modo === "editar" && (
         <>
-        <div className="flex justify-center">
-          <button onClick={obtenerAdmin} className="px-4 py-2 rounded-full border-2 font-bold transition-colors duration-200 bg-blanco text-azul border-azul bg-blanco text-azul border-azul hover:bg-azul hover:text-blanco">
-            Cargar Admin
-          </button>
+          <div className="flex justify-center">
+            <button
+              onClick={obtenerAdmin}
+              className="px-4 py-2 rounded-full border-2 font-bold transition-colors duration-200 bg-blanco text-azul border-azul hover:bg-azul hover:text-blanco"
+            >
+              Cargar Admin
+            </button>
           </div>
           {admin && (
             <div className="space-y-2 mt-2">
-              {["cargo", "permisos", "estado", "foto_perfil"].map((campo) => (
+              {["cargo", "permisos", "estado"].map((campo) => (
                 <input
                   key={campo}
                   type="text"
                   placeholder={campo}
                   value={(admin as any)[campo]}
                   onChange={(e) =>
-                    setAdmin((prev) => prev && { ...prev, [campo]: e.target.value })
+                    setAdmin((prev) => (prev ? { ...prev, [campo]: e.target.value } : null))
                   }
                   className="rounded-[1rem] font-poetsen w-[90%] rounded-xl border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-cyan-500"
                 />
               ))}
+
+              {/* Input file para foto de perfil */}
+              <div className="flex flex-col items-center w-[90%] mx-auto">
+                <label className="block font-semibold mb-2">Foto de Perfil</label>
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={handleImagenChange}
+                  className="rounded-[1rem] font-poetsen w-full rounded-xl border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-cyan-500"
+                />
+                {cargandoImagen && <p className="mt-2 text-sm text-yellow-400">Subiendo imagen...</p>}
+                {errorImagen && <p className="mt-2 text-sm text-red-600">Error al subir imagen.</p>}
+                {admin.foto_perfil && (
+                  <img src={admin.foto_perfil} alt="Vista previa" className="mt-4 w-24 h-24 object-cover rounded-xl" />
+                )}
+              </div>
+
               <div className="flex justify-center">
-              <button onClick={actualizarAdmin} className="px-4 py-2 rounded-full border-2 font-bold transition-colors duration-200 bg-blanco text-azul border-azul bg-blanco text-azul border-azul hover:bg-azul hover:text-blanco">
-                Guardar Cambios
-              </button>
+                <button
+                  onClick={actualizarAdmin}
+                  className="px-4 py-2 rounded-full border-2 font-bold transition-colors duration-200 bg-blanco text-azul border-azul hover:bg-azul hover:text-blanco"
+                >
+                  Guardar Cambios
+                </button>
               </div>
             </div>
           )}
@@ -226,22 +292,27 @@ export default function Administrador() {
       )}
 
       {modo === "eliminar" && (
-      <div className="flex justify-center">
-        <button onClick={eliminarAdmin} className="px-4 py-2 rounded-full border-2 font-bold transition-colors duration-200 bg-blanco text-azul border-azul bg-blanco text-azul border-azul hover:bg-azul hover:text-blanco">
-          Eliminar Administrador
-        </button>
+        <div className="flex justify-center">
+          <button
+            onClick={eliminarAdmin}
+            className="px-4 py-2 rounded-full border-2 font-bold transition-colors duration-200 bg-blanco text-azul border-azul hover:bg-azul hover:text-blanco"
+          >
+            Eliminar Administrador
+          </button>
         </div>
-        
       )}
 
       {modo === "listar" && (
         <div className="mt-4 space-y-2">
           {admins.map((a) => (
-            <div key={a.dni} className="bg-blanco text-negro px-6 py-10 rounded-[1rem] font-poetsen font-bold shadow-lg space-y-4">
+            <div
+              key={a.dni}
+              className="bg-blanco text-negro px-6 py-10 rounded-[1rem] font-poetsen font-bold shadow-lg space-y-4"
+            >
               <strong>{a.dni}</strong> - {a.cargo}
               <div>Permisos: {a.permisos}</div>
               <div>Estado: {a.estado}</div>
-              <img src={a.foto_perfil} alt="Perfil" className="h-16 w-16 object-cover mt-1" />
+              <img src={a.foto_perfil} alt="Perfil" className="h-16 w-16 object-cover mt-1 rounded-full" />
             </div>
           ))}
         </div>

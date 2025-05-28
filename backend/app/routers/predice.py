@@ -6,6 +6,7 @@ from app.crud import predice as predice_crud
 from typing import List
 from app.models import Usuario
 from app.utils.emails_utils import enviar_correos
+from app.utils.emails_utils import enviar_correo
 import asyncio
 
 router = APIRouter(prefix="/predice", tags=["Predice"])
@@ -61,6 +62,16 @@ def validar_pago_predice(
     resultado_visitante: str,
     db: Session = Depends(get_db)
 ):
+    usuario = db.query(Usuario).filter(Usuario.dni == dni).first()
+    if not usuario:
+        raise HTTPException(status_code=404, detail="Socio no encontrado")
+    
+    asyncio.run(enviar_correo(
+        cliente_email=usuario.email,
+        asunto_cliente="Pago completado",
+        cuerpo_cliente=f"Hola {usuario.nombre}, gracias por realizar el pago de la predicción del partido del Campillo del Río CF."
+    ))
+    
     return predice_crud.validar_pago_predice(
         db,
         dni,

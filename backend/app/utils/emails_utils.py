@@ -38,4 +38,17 @@ async def enviar_correos(cliente_email: str, asunto_cliente: str, cuerpo_cliente
 
     await fm.send_message(msg_cliente)
     await fm.send_message(msg_admin)
+    
+
+async def enviar_correo(cliente_email: str, asunto_cliente: str, cuerpo_cliente: str):
+    fm = FastMail(conf)
+
+    msg_cliente = MessageSchema(
+        subject=asunto_cliente,
+        recipients=[cliente_email],
+        body=cuerpo_cliente,
+        subtype="plain"
+    )
+
+    await fm.send_message(msg_cliente)
 

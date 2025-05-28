@@ -9,6 +9,7 @@ from app.models import Pedido
 from app.models import pedido_producto
 from app.models import Producto
 from app.utils.emails_utils import enviar_correos
+from app.utils.emails_utils import enviar_correo
 
 import asyncio
 
@@ -83,6 +84,16 @@ def listar_compras(db: Session = Depends(get_db)):
     
 @router.put("/validar_pago/{dni}")
 def validar_pago_compra(dni: str, db: Session = Depends(get_db)):
+    usuario = db.query(Usuario).filter(Usuario.dni == dni).first()
+    if not usuario:
+        raise HTTPException(status_code=404, detail="Socio no encontrado")
+    
+    asyncio.run(enviar_correo(
+        cliente_email=usuario.email,
+        asunto_cliente="Pago completado",
+        cuerpo_cliente=f"Hola {usuario.nombre}, gracias por realizar el pago de la compra en la tienda oficial del Campillo del Río CF."
+    ))
+    
     return crud.validar_pago_compra(db, dni)
 
 @router.get("/{dni}/{id_pedido}", response_model=CompraResponse)

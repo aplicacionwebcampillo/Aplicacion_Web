@@ -21,15 +21,18 @@ const IMAGENES_POR_PAGINA = FILAS_POR_PAGINA * COLUMNAS;
 const ClubAntiguo = () => {
  // Galería: reemplaza las rutas por las de tus imágenes reales
   const images = [
-    "/images/PorDefecto.png",
-    "/images/PorDefecto.png",
-    "/images/PorDefecto.png",
-    "/images/PorDefecto.png",
-    "/images/PorDefecto.png",
-    "/images/PorDefecto.png",
-    "/images/PorDefecto.png",
-    "/images/PorDefecto.png",
-    
+    "/images/ClubAntiguo1.jpeg",
+    "/images/ClubAntiguo2.jpeg",
+    "/images/ClubAntiguo3.jpeg",
+    "/images/ClubAntiguo4.jpg",
+    "/images/ClubAntiguo5.jpg",
+    "/images/ClubAntiguo6.jpg",
+    "/images/ClubAntiguo7.jpg",
+    "/images/ClubAntiguo8.jpg",
+    "/images/ClubAntiguo9.jpg",
+    "/images/ClubAntiguo10.jpg",
+    "/images/ClubAntiguo11.jpg",
+    "/images/ClubAntiguo12.jpg",
   ];
 
   const [paginaActual, setPaginaActual] = useState(1);

@@ -6,11 +6,14 @@ import app.crud.socio_abono as crud
 from typing import List
 from app import crud
 from app.models.socio import Socio
+from app.models.usuario import Usuario
 from app.models.socio_abono import SocioAbono
 from app.models.abono import Abono
 from sqlalchemy.orm import joinedload
 from app.crud.abono import get_abono
 import app.crud.socio_abono as crud
+from app.utils.emails_utils import enviar_correo
+import asyncio
 
 
 router = APIRouter(prefix="/socio_abonos", tags=["Socios Abonos"])
@@ -21,8 +24,18 @@ def crear_socio_abono(socio_abono: SocioAbonoCreate, db: Session = Depends(get_d
 
 @router.put("/validar_pago/{dni}")
 def validar_pago_socio_abono(dni: str, db: Session = Depends(get_db)):
+    usuario = db.query(Usuario).filter(Usuario.dni == dni).first()
+    if not usuario:
+        raise HTTPException(status_code=404, detail="Socio no encontrado")
+    
+    asyncio.run(enviar_correo(
+        cliente_email=usuario.email,
+        asunto_cliente="Pago completado",
+        cuerpo_cliente=f"Hola {usuario.nombre}, gracias por realizar el pago como socio del Campillo del Río CF."
+    ))
+    
     return crud.validar_pago_socio_abono(db, dni)
-
+    
 @router.get("/{dni}/{id_abono}", response_model=SocioAbonoResponse)
 def obtener_socio_abono(dni: str, id_abono: int, db: Session = Depends(get_db)):
     socio_abono = crud.get_socio_abono(db, dni, id_abono)

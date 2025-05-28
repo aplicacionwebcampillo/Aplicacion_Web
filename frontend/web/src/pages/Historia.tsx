@@ -21,15 +21,17 @@ const IMAGENES_POR_PAGINA = FILAS_POR_PAGINA * COLUMNAS;
 export default function Historia() {
   // Galería: reemplaza las rutas por las de tus imágenes reales
   const images = [
-    "/images/PorDefecto.png",
-    "/images/PorDefecto.png",
-    "/images/PorDefecto.png",
-    "/images/PorDefecto.png",
-    "/images/PorDefecto.png",
-    "/images/PorDefecto.png",
-    "/images/PorDefecto.png",
-    "/images/PorDefecto.png",
-    
+    "/images/PrimeraDirectiva.jpeg",
+    "/images/PrimeraDirectiva2.jpeg",
+    "/images/ActualDirectiva.jpeg",
+    "/images/PresentacionAño1.jpeg",
+    "/images/PresentacionAño2.jpeg",
+    "/images/PresentacionAño3.jpeg",
+    "/images/PresentacionAño4.jpeg",
+    "/images/Equipo0.jpg",
+    "/images/Equipo.jpg",
+    "/images/Equipo2.jpg",
+    "/images/Equipo3.jpg",
   ];
 
   const [paginaActual, setPaginaActual] = useState(1);

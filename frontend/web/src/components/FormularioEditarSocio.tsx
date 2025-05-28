@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useSubirImagen } from "../hooks/useSubirImagen"; // ajusta el path si hace falta
 
 export default function FormularioEditarSocio() {
   const [tipoMembresia, setTipoMembresia] = useState("");
@@ -8,6 +9,9 @@ export default function FormularioEditarSocio() {
 
   const dni = localStorage.getItem("dni");
   const token = localStorage.getItem("token");
+
+  // Hook para subir imagen
+  const { subirImagen, loading: cargandoImagen, error: errorImagen } = useSubirImagen();
 
   useEffect(() => {
     if (!dni || !token) return;
@@ -33,6 +37,23 @@ export default function FormularioEditarSocio() {
 
     fetchSocio();
   }, [dni, token]);
+
+  const handleImagenChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    try {
+      const url = await subirImagen(file);
+      if (url) {
+        setFotoPerfil(url);
+      } else {
+        alert("Error al subir la imagen");
+      }
+    } catch (error) {
+      alert("Error al subir la imagen");
+      console.error(error);
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -66,7 +87,10 @@ export default function FormularioEditarSocio() {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="bg-celeste text-blanco px-6 py-10 rounded-[1rem] font-poetsen font-bold w-full max-w-[40rem] shadow-lg space-y-4">
+    <form
+      onSubmit={handleSubmit}
+      className="bg-celeste text-blanco px-6 py-10 rounded-[1rem] font-poetsen font-bold w-full max-w-[40rem] shadow-lg space-y-4"
+    >
       <h2 className="text-xl font-bold mb-4 text-center">Modificar Datos del Socio</h2>
 
       <div className="flex justify-center">
@@ -89,28 +113,36 @@ export default function FormularioEditarSocio() {
         />
       </div>
 
-      <div className="flex justify-center">
-        <label className="block font-semibold min-w-[10rem]">URL de Foto de Perfil</label>
+      <div className="flex flex-col items-center w-[90%] mx-auto">
+        <label className="block font-semibold mb-2">Foto de Perfil</label>
         <input
-          type="text"
-          value={fotoPerfil}
-          onChange={(e) => setFotoPerfil(e.target.value)}
-          className="rounded-[1rem] font-poetsen w-[90%] rounded-xl border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-cyan-500"
+          type="file"
+          accept="image/*"
+          onChange={handleImagenChange}
+          className="rounded-[1rem] font-poetsen w-full rounded-xl border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-cyan-500"
         />
-      </div>
-      
-      <div className="flex justify-center">
-      <button
-        type="submit"
-        className="px-4 py-2 rounded-full border-2 font-bold transition-colors duration-200 bg-blanco text-azul border-azul bg-blanco text-azul border-azul hover:bg-azul hover:text-blanco"
-      >
-        Guardar Cambios
-      </button>
+        {cargandoImagen && <p className="mt-2 text-sm text-yellow-400">Subiendo imagen...</p>}
+        {errorImagen && <p className="mt-2 text-sm text-red-600">Error al subir imagen.</p>}
 
-      {mensaje && (
-        <p className="mt-2 text-sm text-center text-emerald-600">{mensaje}</p>
-      )}
+        {fotoPerfil && (
+          <img
+            src={fotoPerfil}
+            alt="Vista previa"
+            className="mt-4 w-24 h-24 object-cover rounded-xl"
+          />
+        )}
       </div>
+
+      <div className="flex justify-center">
+        <button
+          type="submit"
+          className="px-4 py-2 rounded-full border-2 font-bold transition-colors duration-200 bg-blanco text-azul border-azul hover:bg-azul hover:text-blanco"
+        >
+          Guardar Cambios
+        </button>
+      </div>
+
+      {mensaje && <p className="mt-2 text-sm text-center text-emerald-600">{mensaje}</p>}
     </form>
   );
 }
