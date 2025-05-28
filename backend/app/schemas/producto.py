@@ -25,4 +25,7 @@ class ProductoResponse(BaseModel):
     precio: float
     stock: int
     imagen: str
+    
+    class Config:
+        orm_mode = True
 

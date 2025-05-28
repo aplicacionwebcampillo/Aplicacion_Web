@@ -1,10 +1,5 @@
 Funcionalidades restantes:
 
 * Imágenes
-
-* Aviso legal
-* Botón/método para pasar de usuario a socio o administrador
-* Enviar correo de compra/predice ...
-
-* Buscar información del antiguo club
-
+* Mostrar abonos disponibles
+* Enviar correo de validar pago

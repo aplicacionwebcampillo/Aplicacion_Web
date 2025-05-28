@@ -4,6 +4,10 @@ from app.database import get_db
 from app.schemas.socio import SocioCreate, SocioResponse, SocioUpdate
 import app.crud.socio as crud
 from typing import List
+from app.utils.emails_utils import enviar_correos
+import asyncio
+
+
 
 router = APIRouter(prefix="/socios", tags=["Socios"])
 
@@ -12,6 +16,15 @@ def crear_socio(socio: SocioCreate, db: Session = Depends(get_db)):
     db_socio = crud.get_socio(db, socio.dni)
     if db_socio:
         raise HTTPException(status_code=400, detail="Socio ya registrado")
+    
+    asyncio.run(enviar_correos(
+        cliente_email=socio.email,
+        asunto_cliente="Registro completado - Gracias por ser socio",
+        cuerpo_cliente=f"Hola {socio.nombre}, gracias por registrarte como socio del Campillo del Río CF.",
+        asunto_admin="Nuevo socio registrado",
+        cuerpo_admin=f"Se ha registrado un nuevo socio: {socio.nombre} ({socio.email})"
+    ))
+
     return crud.create_socio(db, socio)
 
 @router.get("/{dni}", response_model=SocioResponse)

@@ -3,7 +3,7 @@ from app.models.pedido import Pedido
 from app.models.producto import Producto
 from app.schemas.pedido import PedidoCreate, PedidoUpdate
 from collections import Counter
-from sqlalchemy import insert, delete
+from sqlalchemy import insert, delete, update
 from app.models.pedido_producto import pedido_producto
 
 def create_pedido(db: Session, pedido: PedidoCreate):
@@ -24,6 +24,13 @@ def create_pedido(db: Session, pedido: PedidoCreate):
             cantidad=cantidad
         )
         db.execute(stmt)
+        
+        update_stmt = (
+            update(Producto)
+            .where(Producto.id_producto == producto_id)
+            .values(stock=Producto.stock - cantidad)
+        )
+        db.execute(update_stmt)
 
     db.commit()
     return db_pedido

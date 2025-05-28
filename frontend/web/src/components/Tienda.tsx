@@ -68,7 +68,7 @@ export default function TiendaMain() {
         <p> </p>	
         <Link
           to="/carrito"
-          className="px-6 py-2 rounded-full font-bold border-2 transition-all bg-blanco text-azul border-azul hover:bg-azul hover:text-blanco"
+          className="no-underline px-6 py-2 rounded-full font-bold border-2 transition-all bg-blanco text-azul border-azul hover:bg-azul hover:text-blanco"
         >
           Ver carrito ({carrito.length}) 
         </Link>     

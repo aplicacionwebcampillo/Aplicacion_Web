@@ -31,8 +31,102 @@ export default function UsuarioPage() {
   }>(
     null
   );
+  const dni = localStorage.getItem("dni") || "";
+  const [esSocio, setEsSocio] = useState(false);
+  const [seccion, setSeccion] = useState<"modificar" | "eliminar" | "admin" | "socio" | "Registrarse como socio" | "">("modificar");
   
-  const [seccion, setSeccion] = useState<"modificar" | "eliminar" | "admin" | "socio" | "">("modificar");
+  const handleRegistroSocio = async () => {
+
+  const token = localStorage.getItem("token");
+  if (!token) {
+    alert("Token no encontrado. Por favor inicia sesión.");
+    return;
+  }
+
+  try {
+    // 1. Registrar al socio
+    const resSocio = await fetch("http://localhost:8000/socios/", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({
+        dni: formData.dni,
+        nombre: formData.nombre,
+        apellidos: formData.apellidos,
+        telefono: formData.telefono,
+        fecha_nacimiento: formData.fecha_nacimiento,
+        email: formData.email,
+        contrasena: formData.contrasena,
+        tipo_socio: "abonado",
+        tipo_membresia: "anual",
+        estado: "activo",
+      }),
+    });
+
+    if (!resSocio.ok) {
+      const data = await resSocio.json();
+      alert("Error al registrar socio: " + JSON.stringify(data));
+      return;
+    }
+
+    // 2. Obtener abono más reciente
+    const resAbonos = await fetch("http://localhost:8000/abonos/");
+    const abonos = await resAbonos.json();
+
+    if (!Array.isArray(abonos) || abonos.length === 0) {
+      alert("No hay abonos disponibles.");
+      return;
+    }
+
+    const abonoMasReciente = abonos.reduce((a, b) =>
+      new Date(a.fecha_inicio) > new Date(b.fecha_inicio) ? a : b
+    );
+
+    // 3. Registrar socio_abono
+    const resSocioAbono = await fetch("http://localhost:8000/socio_abonos/", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({
+        dni: formData.dni,
+        id_abono: abonoMasReciente.id_abono,
+        fecha_compra: new Date().toISOString().split("T")[0],
+        pagado: false,
+      }),
+    });
+
+    if (!resSocioAbono.ok) {
+      const data = await resSocioAbono.json();
+      alert("Error al registrar socio_abono: " + JSON.stringify(data));
+      return;
+    }
+
+    alert("¡Registro como socio completado con éxito!");
+    navigate("/socio");
+  } catch (error) {
+    console.error("Error al registrar socio:", error);
+    alert("Error de red al registrar socio.");
+  }
+};
+
+ useEffect(() => {
+  if (!dni) return;
+
+  fetch(`http://localhost:8000/socios/${dni}`)
+    .then(res => {
+      if (res.ok) {
+        setEsSocio(true);
+      } else {
+        setEsSocio(false);
+      }
+    })
+    .catch(() => setEsSocio(false));
+}, [dni]);
+
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -234,6 +328,15 @@ useEffect(() => {
           Zona Administrador
         </button>
         )}
+        
+        {!esSocio  && (
+        <button
+          onClick={() => setSeccion("Registrarse como socio")}
+          className="min-w-[14rem] px-4 py-2 rounded-full border-2 font-bold transition-colors duration-200 bg-blanco text-azul border-azul bg-blanco text-azul border-azul hover:bg-azul hover:text-blanco"
+        >
+          Registrarse como socio
+        </button>
+        )}
 
         <button
           onClick={handleLogout}
@@ -297,6 +400,22 @@ useEffect(() => {
             </div>
           </div>
         )}
+        
+        {!esSocio &&  seccion === "Registrarse como socio"  && (
+          <div className="bg-celeste text-blanco px-6 py-10 rounded-[1rem] font-poetsen font-bold w-full max-w-[40rem] shadow-lg space-y-4">
+            <h2 className="text-2xl font-semibold text-red-600 text-center">Registrarse como socio</h2>
+            <p className="text-center">Para disfrutar de los beneficos de socios se tiene que realizar el pago en efectivo. ¿Deseas continuar?</p>
+            <div className="flex justify-center">
+            <button
+              onClick={handleRegistroSocio}
+              className="px-4 py-2 rounded-full border-2 font-bold transition-colors duration-200 bg-blanco text-azul border-azul bg-blanco text-azul border-azul hover:bg-azul hover:text-blanco"
+            > 
+              Confirmar Registro
+            </button>
+            </div>
+          </div>
+        )}
+        
       </main>
     </div>
   );

@@ -98,7 +98,7 @@ export default function Predicciones() {
             <input name="resultado_local" type="number" value={form.resultado_local} onChange={handleNumero} placeholder="Goles Local" className="rounded-[1rem] font-poetsen w-[90%] rounded-xl border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-cyan-500" />
             <input name="resultado_visitante" type="number" value={form.resultado_visitante} onChange={handleNumero} placeholder="Goles Visitante" className="rounded-[1rem] font-poetsen w-[90%] rounded-xl border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-cyan-500" />
             
-            <label className="md:hidden col-span-2 flex items-center space-x-2">
+            <label className="hidden col-span-2 flex items-center space-x-2">
               <input name="pagado" type="checkbox" checked={form.pagado} onChange={handleChange} />
               <span>¿Pagado?</span>
             </label>

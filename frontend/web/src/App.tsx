@@ -22,6 +22,8 @@ import Instalaciones from './pages/Instalaciones';
 import Header from './components/Header';
 import Footer from './components/Footer';
 import "./index.css";
+import AvisoLegal from './pages/Aviso-Legal';
+import ClubAntiguo from './pages/ClubAntiguo';
 
 export default function App() {
   return (
@@ -50,6 +52,8 @@ export default function App() {
 		<Route path="/palmares" element={<Palmares />} />
 		<Route path="/instalaciones" element={<Instalaciones />} />
 		<Route path="/contacto" element={<Contacto />} />
+		<Route path="/aviso-legal" element={<AvisoLegal />} />
+		<Route path="/club-antiguo" element={<ClubAntiguo />} />
 	      </Routes>
 	    </main>
 	    <Footer />

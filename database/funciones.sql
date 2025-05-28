@@ -191,14 +191,20 @@ LANGUAGE plpgsql
 AS $$
 DECLARE
     v_num_socio VARCHAR(20);
+    v_ultimo_num INTEGER;
 BEGIN
     -- Insertar en tabla Usuario primero
-    INSERT INTO Usuario(dni, nombre, apellidos, telefono, fecha_nacimiento, email, contrasena)
-    VALUES (p_dni, p_nombre, p_apellidos, p_telefono, p_fecha_nacimiento, p_email, p_contrasena);
+    IF NOT EXISTS (SELECT 1 FROM Usuario WHERE dni = p_dni) THEN
+    	INSERT INTO Usuario(dni, nombre, apellidos, telefono, fecha_nacimiento, email, contrasena)
+    	VALUES (p_dni, p_nombre, p_apellidos, p_telefono, p_fecha_nacimiento, p_email, p_contrasena);
+    END IF;
     
-    -- Generar número de socio único (SOC-YYYYMMDD-XXXX)
-    v_num_socio := 'SOC-' || TO_CHAR(CURRENT_DATE, 'YYYYMMDD') || '-' || 
-                  LPAD(FLOOR(RANDOM() * 10000)::TEXT, 4, '0');
+    -- Generar número de socio único
+    SELECT COALESCE(MAX(CAST(SUBSTRING(num_socio FROM 5) AS INTEGER)), 0)
+    INTO v_ultimo_num
+    FROM Socio;
+
+    v_num_socio := 'SOC-' || LPAD((v_ultimo_num + 1)::TEXT, 3, '0');
     
     -- Insertar en tabla Socio
     INSERT INTO Socio(dni, num_socio, tipo_membresia)

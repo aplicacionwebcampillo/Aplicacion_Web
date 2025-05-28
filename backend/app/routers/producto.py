@@ -14,9 +14,12 @@ def crear_producto(producto: ProductoCreate, db: Session = Depends(get_db)):
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
 
+
 @router.get("/", response_model=List[ProductoResponse])
 def listar_productos(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
-    return crud.get_productos(db, skip, limit)
+    productos_orm = crud.get_productos(db, skip, limit)
+    return [ProductoResponse.from_orm(producto) for producto in productos_orm]
+
 
 @router.get("/{nombre}", response_model=ProductoResponse)
 def obtener_producto(nombre: str, db: Session = Depends(get_db)):

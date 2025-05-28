@@ -43,6 +43,55 @@ export default function Socios() {
       console.error("Error al obtener socio:", err);
     }
   };
+  
+  const crearSocioAbono = async () => {
+  try {
+    // 1. Obtener todos los abonos
+    const abonoRes = await fetch(`http://localhost:8000/abonos/`);
+    if (!abonoRes.ok) throw new Error("Error al obtener abonos");
+
+    const abonos = await abonoRes.json();
+
+    if (!abonos.length) {
+      alert("No hay abonos disponibles.");
+      return;
+    }
+
+    // 2. Buscar el abono con la fecha de inicio más reciente
+    const abonoMasReciente = abonos.reduce((a, b) =>
+      new Date(a.fecha_inicio) > new Date(b.fecha_inicio) ? a : b
+    );
+
+    // 3. Construir el cuerpo del socio_abono
+    const fechaHoy = new Date().toISOString().split("T")[0];
+
+    const datosSocioAbono = {
+      dni: socio.dni,
+      id_abono: abonoMasReciente.id_abono,
+      fecha_compra: fechaHoy,
+      pagado: false,
+    };
+
+    // 4. Hacer POST a socio_abonos/
+    const res = await fetch(`http://localhost:8000/socio_abonos/`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(datosSocioAbono),
+    });
+
+    if (res.ok) {
+      alert("Socio abono creado correctamente.");
+      setSocio(null);
+      setModo("listar");
+    } else {
+      alert("Error al crear socio abono.");
+    }
+  } catch (err) {
+    console.error("Error al crear socio abono:", err);
+    alert("Ocurrió un error al crear el socio abono.");
+  }
+};
+
 
   const crearSocio = async () => {
     try {
@@ -52,6 +101,7 @@ export default function Socios() {
         body: JSON.stringify(socio),
       });
       if (res.ok) {
+        await crearSocioAbono();
         alert("Socio creado correctamente.");
         setSocio(null);
         setModo("listar");
@@ -85,20 +135,50 @@ export default function Socios() {
   };
 
   const eliminarSocio = async () => {
-    try {
-      const res = await fetch(`http://localhost:8000/socios/${dni}`, {
+  try {
+
+    // Obtener abonos del socio
+    const resAbonos = await fetch(`http://localhost:8000/socio_abonos/?dni=${dni}`);
+    if (!resAbonos.ok) {
+      alert("Error al obtener abonos del socio");
+      return;
+    }
+    const abonos = await resAbonos.json();
+
+    // Filtrar abonos únicos por id_abono
+    const uniqueAbonos = Array.from(new Set(abonos.map((a: any) => a.id_abono))).map((id) =>
+      abonos.find((a: any) => a.id_abono === id)
+    );
+
+    // Borrar cada abono uno por uno
+    for (const abono of uniqueAbonos) {
+      const resDeleteAbono = await fetch(`http://localhost:8000/socio_abonos/${dni}/${abono.id_abono}`, {
         method: "DELETE",
       });
-      if (res.ok) {
-        alert("Socio eliminado.");
-        setModo("listar");
-      } else {
-        alert("Error al eliminar socio.");
+      if (!resDeleteAbono.ok) {
+        alert(`Error al eliminar el abono ID ${abono.id_abono}`);
+        return; // Para no seguir si hay error
       }
-    } catch (err) {
-      console.error("Error al eliminar socio:", err);
     }
-  };
+
+    // Borrar socio
+    const resDeleteSocio = await fetch(`http://localhost:8000/socios/${dni}`, {
+      method: "DELETE",
+    });
+    if (resDeleteSocio.ok) {
+      alert("Socio eliminado.");
+      setModo("listar");
+    } else {
+      alert("Error al eliminar socio.");
+    }
+  } catch (err) {
+    console.error("Error al eliminar socio:", err);
+    alert("Error en la operación");
+  }
+};
+
+
+
 
   const camposCrear = [
     "dni",
@@ -182,7 +262,7 @@ export default function Socios() {
               key={campo}
               type={campo === "fecha_nacimiento" ? "date" : "text"}
               placeholder={campo}
-              className="rounded-[1rem] font-poetsen w-[90%] rounded-xl border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-cyan-500"
+              className={campo === "num_socio" ? "hidden" : "rounded-[1rem] font-poetsen w-[90%] rounded-xl border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-cyan-500"}
               value={(socio as any)?.[campo] || ""}
               onChange={(e) =>
                 setSocio((prev) => ({ ...prev, [campo]: e.target.value }))

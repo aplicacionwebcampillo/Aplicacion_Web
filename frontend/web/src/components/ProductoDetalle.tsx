@@ -76,7 +76,7 @@ export default function ProductoDetalle() {
           <p className="text-lg mb-4 text-negro">{producto.descripcion}</p>
           <p className="text-2xl text-azul mb-2">{producto.precio} €</p>
           <p className="mb-4">
-            {producto.stock > 0 ? `Stock disponible: ${producto.stock}` : "Agotado"}
+            {producto.stock > 0 ? `Stock disponible` : "Agotado"}
           </p>
 
           {/* Selector de talla */}
@@ -88,7 +88,7 @@ export default function ProductoDetalle() {
               id="talla"
               value={tallaSeleccionada}
               onChange={(e) => setTallaSeleccionada(e.target.value)}
-              className="rounded px-2 py-1"
+              className="rounded-[1rem] font-poetsen rounded-xl border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-cyan-500"
             >
               <option value="4">4</option>
               <option value="6">6</option>

@@ -5,7 +5,12 @@ from fastapi import HTTPException
 from app.models.usuario import Usuario
 
 def create_compra(db: Session, compra: CompraCreate):
-    db_compra = Compra(**compra.dict())
+    db_compra = Compra(
+        dni=compra.dni,
+        id_pedido=compra.id_pedido,
+        fecha_compra=compra.fecha_compra,
+        pagado=compra.pagado
+    )
     db.add(db_compra)
     db.commit()
     db.refresh(db_compra)

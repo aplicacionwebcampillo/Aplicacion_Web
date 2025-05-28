@@ -22,4 +22,5 @@ class ClasificacionUpdate(BaseModel):
 class ClasificacionResponse(ClasificacionBase):
     class Config:
         from_attributes = True 
+        orm_mode = True
 

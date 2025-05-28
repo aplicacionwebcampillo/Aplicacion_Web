@@ -7,7 +7,7 @@ from app.models.socio import Socio
 from fastapi import HTTPException
 
 def create_prediccion(db: Session, prediccion: PrediceCreate) -> Predice:
-    db_predice = Predice(**prediccion.model_dump())
+    db_predice = Predice(**prediccion.dict())
     db.add(db_predice)
     db.commit()
     db.refresh(db_predice)

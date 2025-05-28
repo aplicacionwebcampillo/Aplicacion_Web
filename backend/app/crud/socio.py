@@ -44,11 +44,8 @@ def update_socio(db: Session, dni: str, socio_update: SocioUpdate):
 
 def delete_socio(db: Session, dni: str):
     socio = db.query(Socio).filter(Socio.dni == dni).first()
-    usuario = db.query(Usuario).filter(Usuario.dni == dni).first()
     if socio:
         db.delete(socio)
-    if usuario:
-        db.delete(usuario)
     db.commit()
     return True
 

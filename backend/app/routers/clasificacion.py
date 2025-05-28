@@ -14,8 +14,14 @@ def crear_clasificacion(clasificacion: ClasificacionCreate, db: Session = Depend
 
 
 @router.get("/", response_model=List[ClasificacionResponse])
-def obtener_clasificaciones(nombre_competicion: str = None, temporada_competicion: str = None, db: Session = Depends(get_db)):
-    return clasificacion_crud.get_clasificaciones(db, nombre_competicion, temporada_competicion)
+def obtener_clasificaciones(
+    nombre_competicion: str = None, 
+    temporada_competicion: str = None, 
+    db: Session = Depends(get_db)
+):
+    clasificaciones_orm = clasificacion_crud.get_clasificaciones(db, nombre_competicion, temporada_competicion)
+    return [ClasificacionResponse.from_orm(c) for c in clasificaciones_orm]
+
 
 
 @router.get("/{nombre_competicion}/{temporada_competicion}/{equipo}", response_model=ClasificacionResponse)
