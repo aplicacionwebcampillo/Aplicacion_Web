@@ -128,7 +128,7 @@ export default function Historia() {
           </div>
 
           {/* Paginación */}
-          {width >= 640 && totalPaginas > 1 && (
+          {totalPaginas > 1 && (
             <div className="flex justify-center items-center gap-6 mt-10">
               <button
                 onClick={() => cambiarPagina("anterior")}

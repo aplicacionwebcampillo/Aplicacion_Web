@@ -51,7 +51,7 @@ export default function NoticiaIndividual() {
         <img
           src={noticia.imagen || "/images/PorDefecto.png"}
           alt={noticia.titular}
-          className="h-[30rem] w-auto object-cover"
+          className="h-[20rem] md:h-[30rem] w-auto object-cover"
         />
       </div>
       <h1></h1>

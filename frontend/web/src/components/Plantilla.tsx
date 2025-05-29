@@ -53,11 +53,16 @@ export default function Plantilla() {
   const jugadoresFiltrados = equipoSeleccionado
     ? jugadores.filter((j) => j.id_equipo === equipoSeleccionado)
     : jugadores;
+    
+  const jugadoresOrdenados = [...jugadoresFiltrados].sort(
+  (a, b) => Number(a.dorsal) - Number(b.dorsal)
+);
 
-  const totalPaginas = Math.ceil(jugadoresFiltrados.length / JUGADORES_POR_PAGINA);
+
+  const totalPaginas = Math.ceil(jugadoresOrdenados.length / JUGADORES_POR_PAGINA);
 
   // Recortar jugadores de la página actual
-  const jugadoresPagina = jugadoresFiltrados.slice(
+  const jugadoresPagina = jugadoresOrdenados.slice(
     (paginaActual - 1) * JUGADORES_POR_PAGINA,
     paginaActual * JUGADORES_POR_PAGINA
   );
@@ -112,7 +117,7 @@ export default function Plantilla() {
       <div className="grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
   {jugadoresPagina.map((jugador) => (
     <Link
-      to={`/jugadores/${jugador.id_jugador}`}
+      to={`/jugadores/${jugador.nombre}`}
       key={jugador.id_jugador}
       className="min-w-[19rem] bg-white text-black shadow rounded-lg p-4 flex-shrink-0 bg-blanco rounded-[1rem] flex flex-col items-center hover:shadow-lg transition-shadow duration-300 no-underline hover:border-3 hover:border-azul"
     >

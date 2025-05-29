@@ -60,11 +60,15 @@ export default function NoticiasMain() {
   };
   
   const width = useWindowWidth();
+  
+  const noticiasOrdenadas = [...noticiasFiltradas].sort(
+  (b, a) => Number(a.id_noticia) - Number(b.id_noticia)
+);
 
-  const totalPaginas = Math.ceil(noticiasFiltradas.length / NOTICIAS_POR_PAGINA);
+  const totalPaginas = Math.ceil(noticiasOrdenadas.length / NOTICIAS_POR_PAGINA);
 
   // Recortar noticias de la página actual
-  const noticiasPagina = noticiasFiltradas.slice(
+  const noticiasPagina = noticiasOrdenadas.slice(
     (paginaActual - 1) * NOTICIAS_POR_PAGINA,
     paginaActual * NOTICIAS_POR_PAGINA
   );
@@ -130,7 +134,7 @@ export default function NoticiasMain() {
         <img
           src={noticia.imagen || "/images/PorDefecto.png"}
           alt={noticia.titular}
-          className="h-[15rem] w-auto object-cover"
+          className="h-[15rem] w-auto object-cover rounded-[1rem]"
         />
       </div>
       <div className="p-4 text-center w-full">

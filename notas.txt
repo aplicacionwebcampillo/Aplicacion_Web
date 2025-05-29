@@ -1,3 +1,4 @@
 Funcionalidades restantes:
 
-* Organizar Imágenes
+* Organizar Imágenes: Noticias, Productos, Patrocinadores, Jugadores
+* Ajustar tamaño imagenes de historia

@@ -34,8 +34,8 @@ export default function Patrocinadores() {
               className="h-[15rem] w-auto object-cover"
             />
             {/* Nombre sobre el logo, solo visible en md+ */}
-            <div className="absolute inset-0 bg-negro bg-opacity-70 font-bold font-poetsen flex items-center justify-center opacity-0 group-hover:opacity-30 transition-opacity hidden md:flex">
-                <span className="text-center px-2">{patro.nombre}</span>
+            <div className="rounded-[1rem] absolute inset-0 bg-negro bg-opacity-70 font-bold font-poetsen flex items-center justify-center opacity-0 group-opacity-70 hover:opacity-80 transition-opacity hidden md:flex">
+                <span className="text-center text-blanco px-2">{patro.nombre}</span>
             </div>
           </div>
         ))}

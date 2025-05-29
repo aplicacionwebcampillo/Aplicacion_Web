@@ -69,6 +69,7 @@ const ClubAntiguo = () => {
           El Torreblascopedro Club de Fútbol fue fundado en 1984 y participó en competiciones regionales hasta 1988. Durante su existencia, compitió en la Segunda Regional de Jaén, obteniendo su mejor posición en la temporada 1987-88, donde finalizó en el 8º lugar. El club tenía su sede en Torreblascopedro, Jaén. 
         </p>
         
+        <div className="overflow-x-auto">
         <table className="min-w-full table-auto border-[0.2rem] border-azul bg-blanco text-negro_texto rounded-[1rem]">
           <thead className="text-negro">
             <tr>
@@ -136,6 +137,7 @@ const ClubAntiguo = () => {
             </tr>
           </tbody>
         </table>
+        </div>
         
       </section>
 
@@ -144,7 +146,7 @@ const ClubAntiguo = () => {
         <p>
           El Campillo del Río Club de Fútbol se estableció en 2004 y compitió hasta 2006. Durante su corta trayectoria, participó en la Primera Provincial de Jaén, alcanzando su mejor clasificación en la temporada 2005-06 con un 6º puesto. El club estaba ubicado en Campillo del Río, una pedanía de Torreblascopedro, Jaén. 
         </p>
-        
+        <div className="overflow-x-auto">
         <table className="min-w-full table-auto border-[0.2rem] border-azul bg-blanco text-negro_texto rounded-[1rem]">
           <thead className="text-negro">
             <tr>
@@ -204,7 +206,7 @@ const ClubAntiguo = () => {
             </tr>
           </tbody>
         </table>
-
+        </div>
       </section>
       
       {/* Galería */}
@@ -226,7 +228,7 @@ const ClubAntiguo = () => {
           </div>
 
           {/* Paginación */}
-          {width >= 640 && totalPaginas > 1 && (
+          {totalPaginas > 1 && (
             <div className="flex justify-center items-center gap-6 mt-10">
               <button
                 onClick={() => cambiarPagina("anterior")}

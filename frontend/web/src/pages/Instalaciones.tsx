@@ -88,7 +88,7 @@ export default function Instalaciones() {
           </div>
 
           {/* Paginación */}
-          {width >= 640 && totalPaginas > 1 && (
+          {totalPaginas > 1 && (
             <div className="flex justify-center items-center gap-6 mt-8">
               <button
                 onClick={() => cambiarPagina("anterior")}
