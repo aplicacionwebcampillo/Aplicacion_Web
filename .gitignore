@@ -1,6 +1,7 @@
 *.log
 .env
 venv/
+venv-test/
 __pycache__/
 *.pyc
 node_modules/
