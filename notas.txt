@@ -1,4 +1,13 @@
-Funcionalidades restantes:
+URL BD Interna
+postgresql://admin_bd:swgahQWq1sW7zkhV2LnUUb1gyd8L9yrQ@dpg-d0s75hs9c44c73crr5v0-a/aplicacion_web
+URL BD Externa
+postgresql://admin_bd:swgahQWq1sW7zkhV2LnUUb1gyd8L9yrQ@dpg-d0s75hs9c44c73crr5v0-a.frankfurt-postgres.render.com/aplicacion_web
 
-* Organizar Imágenes: Noticias, Productos, Patrocinadores, Jugadores
-* Ajustar tamaño imagenes de historia
+
+psql "postgresql://admin_bd:swgahQWq1sW7zkhV2LnUUb1gyd8L9yrQ@dpg-d0s75hs9c44c73crr5v0-a.frankfurt-postgres.render.com/aplicacion_web" -f schema.sql
+
+psql "postgresql://admin_bd:swgahQWq1sW7zkhV2LnUUb1gyd8L9yrQ@dpg-d0s75hs9c44c73crr5v0-a.frankfurt-postgres.render.com/aplicacion_web" -f data.sql
+
+psql "postgresql://admin_bd:swgahQWq1sW7zkhV2LnUUb1gyd8L9yrQ@dpg-d0s75hs9c44c73crr5v0-a.frankfurt-postgres.render.com/aplicacion_web"
+
+
