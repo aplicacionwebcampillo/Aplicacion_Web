@@ -28,7 +28,7 @@ export default function Registro() {
     setError(null);
     setSuccess(false);
     try {
-      await axios.post("http://localhost:8000/usuarios/", formData);
+      await axios.post("https://aplicacion-web-m5oa.onrender.com/usuarios/", formData);
       setSuccess(true);
       setTimeout(() => navigate("/login"), 1500); // Redirige después de éxito
     } catch (err: any) {

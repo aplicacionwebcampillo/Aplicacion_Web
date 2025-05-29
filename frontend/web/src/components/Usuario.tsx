@@ -19,7 +19,7 @@ export default function Usuario() {
   // Listar todos los usuarios al cargar
   useEffect(() => {
     if (modo === "listar") {
-      fetch("http://localhost:8000/usuarios/usuarios/")
+      fetch("https://aplicacion-web-m5oa.onrender.com/usuarios/usuarios/")
         .then((res) => res.json())
         .then(setUsuarios)
         .catch((err) => console.error("Error al listar usuarios:", err));
@@ -29,7 +29,7 @@ export default function Usuario() {
   // Obtener un usuario por DNI
   const obtenerUsuario = async () => {
     try {
-      const res = await fetch(`http://localhost:8000/usuarios/${dni}`);
+      const res = await fetch(`https://aplicacion-web-m5oa.onrender.com/usuarios/${dni}`);
       if (res.ok) {
         const data = await res.json();
         setUsuario(data);
@@ -45,7 +45,7 @@ export default function Usuario() {
   // Actualizar usuario
   const actualizarUsuario = async () => {
     try {
-      const res = await fetch(`http://localhost:8000/usuarios/${dni}`, {
+      const res = await fetch(`https://aplicacion-web-m5oa.onrender.com/usuarios/${dni}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(usuario),
@@ -65,7 +65,7 @@ export default function Usuario() {
   // Eliminar usuario
   const eliminarUsuario = async () => {
     try {
-      const res = await fetch(`http://localhost:8000/usuarios/${dni}`, {
+      const res = await fetch(`https://aplicacion-web-m5oa.onrender.com/usuarios/${dni}`, {
         method: "DELETE",
       });
       if (res.ok) {

@@ -18,7 +18,8 @@ export default function Predicciones() {
   const [mensaje, setMensaje] = useState<string | null>(null);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-    const { name, value, type, checked } = e.target;
+    const target = e.target as HTMLInputElement;
+    const { name, value, type, checked } = target;
     setForm((prev) => ({
       ...prev,
       [name]: type === "checkbox" ? checked : value,
@@ -36,7 +37,7 @@ export default function Predicciones() {
   const handleSubmit = async () => {
     if (!token || !dni) return;
 
-    const baseUrl = "http://localhost:8000/predice";
+    const baseUrl = "https://aplicacion-web-m5oa.onrender.com/predice";
     const endpoint =
       modo === "crear"
         ? baseUrl

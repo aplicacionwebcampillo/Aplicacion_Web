@@ -23,7 +23,7 @@ export default function Clasificacion() {
     const temporada_competicion = "Temporada 2024-2025";
 
     fetch(
-      `http://localhost:8000/clasificaciones?nombre_competicion=${encodeURIComponent(
+      `https://aplicacion-web-m5oa.onrender.com/clasificaciones?nombre_competicion=${encodeURIComponent(
         nombre_competicion
       )}&temporada_competicion=${encodeURIComponent(temporada_competicion)}`
     )

@@ -34,7 +34,7 @@ export default function Patrocinadores() {
 
   useEffect(() => {
     if (modo === "listar") {
-      fetch("http://localhost:8000/patrocinadores/")
+      fetch("https://aplicacion-web-m5oa.onrender.com/patrocinadores/")
         .then((res) => res.json())
         .then(setPatrocinadores)
         .catch((e) => console.error("Error listando patrocinadores:", e));
@@ -44,7 +44,7 @@ export default function Patrocinadores() {
   const obtenerPatrocinador = async () => {
     try {
       const res = await fetch(
-        `http://localhost:8000/patrocinadores/${encodeURIComponent(nombreBuscado)}`
+        `https://aplicacion-web-m5oa.onrender.com/patrocinadores/${encodeURIComponent(nombreBuscado)}`
       );
       if (res.ok) {
         const data = await res.json();
@@ -59,7 +59,7 @@ export default function Patrocinadores() {
 
   const crearPatrocinador = async () => {
     try {
-      const res = await fetch("http://localhost:8000/patrocinadores/", {
+      const res = await fetch("https://aplicacion-web-m5oa.onrender.com/patrocinadores/", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(patrocinador),
@@ -88,7 +88,7 @@ export default function Patrocinadores() {
   const actualizarPatrocinador = async () => {
     try {
       const res = await fetch(
-        `http://localhost:8000/patrocinadores/${encodeURIComponent(nombreBuscado)}`,
+        `https://aplicacion-web-m5oa.onrender.com/patrocinadores/${encodeURIComponent(nombreBuscado)}`,
         {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
@@ -108,7 +108,7 @@ export default function Patrocinadores() {
   const eliminarPatrocinador = async () => {
     try {
       const res = await fetch(
-        `http://localhost:8000/patrocinadores/${encodeURIComponent(nombreBuscado)}`,
+        `https://aplicacion-web-m5oa.onrender.com/patrocinadores/${encodeURIComponent(nombreBuscado)}`,
         {
           method: "DELETE",
         }

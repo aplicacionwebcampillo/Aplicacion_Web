@@ -46,7 +46,7 @@ export default function AdministradorPage() {
 
     const fetchAdministrador = async () => {
       try {
-        const res = await fetch(`http://localhost:8000/administradores/${dni}`, {
+        const res = await fetch(`https://aplicacion-web-m5oa.onrender.com/administradores/${dni}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         if (res.ok) {

@@ -18,7 +18,7 @@ export default function FormularioEditarSocio() {
 
     const fetchSocio = async () => {
       try {
-        const res = await fetch(`http://localhost:8000/socios/${dni}`, {
+        const res = await fetch(`https://aplicacion-web-m5oa.onrender.com/socios/${dni}`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -61,7 +61,7 @@ export default function FormularioEditarSocio() {
     if (!dni || !token) return;
 
     try {
-      const res = await fetch(`http://localhost:8000/socios/${dni}`, {
+      const res = await fetch(`https://aplicacion-web-m5oa.onrender.com/socios/${dni}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",

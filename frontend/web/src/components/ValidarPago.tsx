@@ -33,7 +33,7 @@ export default function ValidarPago() {
 
     try {
       if (modo === "compra") {
-        url = `http://localhost:8000/compras/validar_pago/${encodeURIComponent(
+        url = `https://aplicacion-web-m5oa.onrender.com/compras/validar_pago/${encodeURIComponent(
           dni
         )}`;
       } else if (modo === "predice") {
@@ -42,11 +42,11 @@ export default function ValidarPago() {
           if (val) params.append(key, val);
         });
         query = params.toString();
-        url = `http://localhost:8000/predice/validar_pago/${encodeURIComponent(
+        url = `https://aplicacion-web-m5oa.onrender.com/predice/validar_pago/${encodeURIComponent(
           dni
         )}?${query}`;
       } else if (modo === "socio_abono") {
-        url = `http://localhost:8000/socio_abonos/validar_pago/${encodeURIComponent(
+        url = `https://aplicacion-web-m5oa.onrender.com/socio_abonos/validar_pago/${encodeURIComponent(
           dni
         )}`;
       }

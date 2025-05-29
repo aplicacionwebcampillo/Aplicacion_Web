@@ -27,7 +27,7 @@ export default function Productos() {
 
   useEffect(() => {
     if (modo === "listar") {
-      fetch("http://localhost:8000/productos/")
+      fetch("https://aplicacion-web-m5oa.onrender.com/productos/")
         .then((res) => res.json())
         .then(setProductos)
         .catch((err) => console.error("Error al listar productos:", err));
@@ -60,7 +60,7 @@ export default function Productos() {
 
   const obtenerProducto = async () => {
     try {
-      const res = await fetch(`http://localhost:8000/productos/${nombre}`);
+      const res = await fetch(`https://aplicacion-web-m5oa.onrender.com/productos/${nombre}`);
       if (res.ok) {
         const data = await res.json();
         setProducto(data);
@@ -74,7 +74,7 @@ export default function Productos() {
 
   const crearProducto = async () => {
     try {
-      const res = await fetch(`http://localhost:8000/productos/`, {
+      const res = await fetch(`https://aplicacion-web-m5oa.onrender.com/productos/`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(producto),
@@ -99,7 +99,7 @@ export default function Productos() {
 
   const actualizarProducto = async () => {
     try {
-      const res = await fetch(`http://localhost:8000/productos/${nombre}`, {
+      const res = await fetch(`https://aplicacion-web-m5oa.onrender.com/productos/${nombre}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(producto),
@@ -116,7 +116,7 @@ export default function Productos() {
 
   const eliminarProducto = async () => {
     try {
-      const res = await fetch(`http://localhost:8000/productos/${nombre}`, {
+      const res = await fetch(`https://aplicacion-web-m5oa.onrender.com/productos/${nombre}`, {
         method: "DELETE",
       });
       if (res.ok) {

@@ -1,6 +1,8 @@
 import { useCarrito } from "../context/CarritoContext";
 import { useAuth } from "../context/useAuth";
 import { useState } from "react";
+import type { ProductoEnCarrito } from '../context/CarritoContext';
+
 
 export default function Carrito() {
   const { carrito, vaciarCarrito, actualizarCantidad, quitarDelCarrito } = useCarrito();
@@ -9,18 +11,20 @@ export default function Carrito() {
   const [codigoDescuento, setCodigoDescuento] = useState("");
   const [descuento, setDescuento] = useState(0);
 
-  const totalSinDescuento = carrito.reduce(
-    (acc, item) => acc + item.producto.precio * item.cantidad,
-    0
-  );
+  carrito.reduce((acc: number, item: ProductoEnCarrito) => acc + item.producto.precio * item.cantidad, 0)
+  
+  const totalSinDescuento = carrito.reduce((acc: number, item: ProductoEnCarrito) =>
+  acc + item.producto.precio * item.cantidad, 0
+);
 
-  const totalConDescuento = (totalSinDescuento * (1 - descuento)).toFixed(2);
+
+  const totalConDescuento = Number((totalSinDescuento * (1 - descuento)).toFixed(2));
 
   const aplicarDescuento = async () => {
     try {
       const token = localStorage.getItem("token");
 
-      const response = await fetch("http://localhost:8000/carrito/descuento", {
+      const response = await fetch("https://aplicacion-web-m5oa.onrender.com/carrito/descuento", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -66,7 +70,7 @@ export default function Carrito() {
         )
       };
 
-      const resPedido = await fetch("http://localhost:8000/pedidos/", {
+      const resPedido = await fetch("https://aplicacion-web-m5oa.onrender.com/pedidos/", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -94,7 +98,7 @@ export default function Carrito() {
         }))
       };
 
-      const resCompra = await fetch("http://localhost:8000/compras/", {
+      const resCompra = await fetch("https://aplicacion-web-m5oa.onrender.com/compras/", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

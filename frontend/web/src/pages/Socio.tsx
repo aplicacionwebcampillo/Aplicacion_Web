@@ -39,7 +39,7 @@ export default function SocioPage() {
 
     const fetchSocio = async () => {
       try {
-        const res = await fetch(`http://localhost:8000/socios/${dni}`, {
+        const res = await fetch(`https://aplicacion-web-m5oa.onrender.com/socios/${dni}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         if (res.ok) {

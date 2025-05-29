@@ -14,7 +14,7 @@ export default function Login() {
 
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-  const [error, setError] = useState<string | null>(null);
+  const [, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
   // Si ya hay token, redirigir automáticamente
@@ -39,7 +39,7 @@ export default function Login() {
       params.append("client_id", "");
       params.append("client_secret", "");
 
-      const response = await fetch("http://localhost:8000/auth/login", {
+      const response = await fetch("https://aplicacion-web-m5oa.onrender.com/auth/login", {
         method: "POST",
         headers: {
           "Content-Type": "application/x-www-form-urlencoded",
@@ -76,15 +76,15 @@ export default function Login() {
   }
 
   // Función para cerrar sesión: limpiar token y recargar login
-  function handleLogout() {
-    localStorage.removeItem("token");
-    localStorage.removeItem("dni");
-    setUsername("");
-    setPassword("");
-    setError(null);
-    window.location.reload();
+  //function handleLogout() {
+    //localStorage.removeItem("token");
+    //localStorage.removeItem("dni");
+    //setUsername("");
+    //setPassword("");
+    //setError(null);
+    //window.location.reload();
     //navigate("/login");
-  }
+  //}
 
   return (
     <main className="flex justify-center items-center h-full p-[3rem]">

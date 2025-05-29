@@ -1,4 +1,6 @@
-import { createContext, useContext, useState, ReactNode } from "react";
+import type { ReactNode } from "react";
+import { createContext, useState, useContext } from "react";
+
 
 export interface Producto {
   id_producto: number;
@@ -9,11 +11,12 @@ export interface Producto {
   imagen: string;
 }
 
-export interface ProductoEnCarrito {
+export type ProductoEnCarrito = {
   producto: Producto;
-  talla: string;
   cantidad: number;
-}
+  talla: string;
+};
+
 
 interface CarritoContextType {
   carrito: ProductoEnCarrito[];
@@ -40,7 +43,7 @@ export function CarritoProvider({ children }: { children: ReactNode }) {
     }
 
     try {
-      await fetch("http://localhost:8000/carrito/agregar", {
+      await fetch("https://aplicacion-web-m5oa.onrender.com/carrito/agregar", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -65,7 +68,7 @@ export function CarritoProvider({ children }: { children: ReactNode }) {
   const actualizarCantidad = async (id_producto: number, talla: string, cantidad: number) => {
     const token = localStorage.getItem("token");
     try {
-      await fetch(`http://localhost:8000/carrito/actualizar?id_producto=${id_producto}&cantidad=${cantidad}`, {
+      await fetch(`https://aplicacion-web-m5oa.onrender.com/carrito/actualizar?id_producto=${id_producto}&cantidad=${cantidad}`, {
         method: "PUT",
         headers: {
           Authorization: `Bearer ${token}`,

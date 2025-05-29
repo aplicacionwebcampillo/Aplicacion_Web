@@ -21,7 +21,7 @@ export default function NoticiaIndividual() {
     if (!titular) return;
 
     setLoading(true);
-    fetch(`http://localhost:8000/noticias/${encodeURIComponent(titular)}`)
+    fetch(`https://aplicacion-web-m5oa.onrender.com/noticias/${encodeURIComponent(titular)}`)
       .then(res => {
         if (!res.ok) throw new Error("Noticia no encontrada");
         return res.json();

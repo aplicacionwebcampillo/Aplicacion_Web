@@ -22,7 +22,7 @@ export default function Equipos() {
 
   useEffect(() => {
     if (modo === "listar") {
-      fetch("http://localhost:8000/equipos/")
+      fetch("https://aplicacion-web-m5oa.onrender.com/equipos/")
         .then((res) => res.json())
         .then(setEquipos)
         .catch((e) => console.error("Error listando equipos:", e));
@@ -33,7 +33,7 @@ export default function Equipos() {
     if (!equipoIdBuscado) return alert("Ingresa un ID válido");
     try {
       const res = await fetch(
-        `http://localhost:8000/equipos/${encodeURIComponent(equipoIdBuscado)}`
+        `https://aplicacion-web-m5oa.onrender.com/equipos/${encodeURIComponent(equipoIdBuscado)}`
       );
       if (res.ok) {
         const data = await res.json();
@@ -48,7 +48,7 @@ export default function Equipos() {
 
   const crearEquipo = async () => {
     try {
-      const res = await fetch("http://localhost:8000/equipos/", {
+      const res = await fetch("https://aplicacion-web-m5oa.onrender.com/equipos/", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(equipo),
@@ -69,7 +69,7 @@ export default function Equipos() {
     if (!equipoIdBuscado) return alert("Ingresa un ID válido");
     try {
       const res = await fetch(
-        `http://localhost:8000/equipos/${encodeURIComponent(equipoIdBuscado)}`,
+        `https://aplicacion-web-m5oa.onrender.com/equipos/${encodeURIComponent(equipoIdBuscado)}`,
         {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
@@ -90,7 +90,7 @@ export default function Equipos() {
     if (!equipoIdBuscado) return alert("Ingresa un ID válido");
     try {
       const res = await fetch(
-        `http://localhost:8000/equipos/${encodeURIComponent(equipoIdBuscado)}`,
+        `https://aplicacion-web-m5oa.onrender.com/equipos/${encodeURIComponent(equipoIdBuscado)}`,
         { method: "DELETE" }
       );
       if (res.ok) {

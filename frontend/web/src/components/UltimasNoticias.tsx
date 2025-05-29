@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 
 interface Noticia {
+  id_noticia: string;
   titular: string;
   imagen: string;
   contenido: string;
@@ -14,7 +15,7 @@ export default function UltimasNoticias() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch("http://localhost:8000/noticias?skip=0&limit=10") // Ajusta la URL si es necesario
+    fetch("https://aplicacion-web-m5oa.onrender.com/noticias/?skip=0&limit=100")
       .then((res) => res.json())
       .then((data) => {
         setNoticias(data);

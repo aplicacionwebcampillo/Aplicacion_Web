@@ -35,7 +35,7 @@ export default function Jugadores() {
 
   useEffect(() => {
     if (modo === "listar") {
-      fetch("http://localhost:8000/jugadores/")
+      fetch("https://aplicacion-web-m5oa.onrender.com/jugadores/")
         .then((res) => res.json())
         .then(setJugadores)
         .catch((e) => console.error("Error listando jugadores:", e));
@@ -46,7 +46,7 @@ export default function Jugadores() {
     if (!jugadorNombreBuscado) return alert("Ingresa un nombre válido");
     try {
       const res = await fetch(
-        `http://localhost:8000/jugadores/${encodeURIComponent(jugadorNombreBuscado)}`
+        `https://aplicacion-web-m5oa.onrender.com/jugadores/${encodeURIComponent(jugadorNombreBuscado)}`
       );
       if (res.ok) {
         const data = await res.json();
@@ -61,7 +61,7 @@ export default function Jugadores() {
 
   const crearJugador = async () => {
     try {
-      const res = await fetch("http://localhost:8000/jugadores/", {
+      const res = await fetch("https://aplicacion-web-m5oa.onrender.com/jugadores/", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(jugador),
@@ -90,7 +90,7 @@ export default function Jugadores() {
     if (!jugadorNombreBuscado) return alert("Ingresa un nombre válido");
     try {
       const res = await fetch(
-        `http://localhost:8000/jugadores/${encodeURIComponent(jugadorNombreBuscado)}`,
+        `https://aplicacion-web-m5oa.onrender.com/jugadores/${encodeURIComponent(jugadorNombreBuscado)}`,
         {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
@@ -111,7 +111,7 @@ export default function Jugadores() {
     if (!jugadorNombreBuscado) return alert("Ingresa un nombre válido");
     try {
       const res = await fetch(
-        `http://localhost:8000/jugadores/${encodeURIComponent(jugadorNombreBuscado)}`,
+        `https://aplicacion-web-m5oa.onrender.com/jugadores/${encodeURIComponent(jugadorNombreBuscado)}`,
         { method: "DELETE" }
       );
       if (res.ok) {

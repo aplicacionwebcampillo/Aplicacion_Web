@@ -66,7 +66,7 @@ export default function TodosPartidos() {
 
         const fetches = competicionesAConsultar.map((competicion) =>
           fetch(
-            `http://localhost:8000/partidos/?nombre_competicion=${encodeURIComponent(
+            `https://aplicacion-web-m5oa.onrender.com/partidos/?nombre_competicion=${encodeURIComponent(
               competicion
             )}&temporada_competicion=${encodeURIComponent(temporada_competicion)}`
           ).then((res) => res.json() as Promise<Partido[]>)

@@ -31,7 +31,7 @@ export default function CesionesAbono() {
     if (modo === "ver" && token) {
       const fetchCesiones = async () => {
         try {
-          const res = await fetch(`http://localhost:8000/cesiones?skip=0&limit=100`, {
+          const res = await fetch(`https://aplicacion-web-m5oa.onrender.com/cesiones?skip=0&limit=100`, {
             headers: {
               Authorization: `Bearer ${token}`,
             },
@@ -52,7 +52,7 @@ export default function CesionesAbono() {
       const fetchBono = async () => {
   try {
     const res = await fetch(
-      `http://localhost:8000/socio_abonos?skip=0&limit=100`,
+      `https://aplicacion-web-m5oa.onrender.com/socio_abonos?skip=0&limit=100`,
       {
         headers: { Authorization: `Bearer ${token}` },
       }
@@ -95,7 +95,7 @@ export default function CesionesAbono() {
       Authorization: `Bearer ${token}`,
     };
 
-    let endpoint = `http://localhost:8000/cesiones`;
+    let endpoint = `https://aplicacion-web-m5oa.onrender.com/cesiones`;
     let options: RequestInit = {};
     let successMsg = "";
 

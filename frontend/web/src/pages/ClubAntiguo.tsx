@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { useState, useEffect } from "react";
+
 
 function useWindowWidth() {
   const [width, setWidth] = useState<number | null>(null);
@@ -42,10 +42,10 @@ const ClubAntiguo = () => {
   const totalPaginas = Math.ceil(images.length / IMAGENES_POR_PAGINA);
 
   // Recortar images de la página actual
-  const imagesPagina = images.slice(
-    (paginaActual - 1) * IMAGENES_POR_PAGINA,
-    paginaActual * IMAGENES_POR_PAGINA
-  );
+  //const imagesPagina = images.slice(
+    //(paginaActual - 1) * IMAGENES_POR_PAGINA,
+   // paginaActual * IMAGENES_POR_PAGINA
+  //);
   
 
   const cambiarPagina = (direccion: "anterior" | "siguiente") => {

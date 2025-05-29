@@ -22,7 +22,7 @@ export default function JugadorDetalle() {
     if (!id) return;
 
     setLoading(true);
-    fetch(`http://localhost:8000/jugadores/${id}`)
+    fetch(`https://aplicacion-web-m5oa.onrender.com/jugadores/${id}`)
       .then((res) => {
         if (!res.ok) throw new Error("Jugador no encontrado");
         return res.json();

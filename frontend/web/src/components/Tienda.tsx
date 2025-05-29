@@ -35,7 +35,7 @@ export default function TiendaMain() {
   const { carrito } = useCarrito();
 
   useEffect(() => {
-    fetch("http://localhost:8000/productos/?skip=0&limit=100")
+    fetch("https://aplicacion-web-m5oa.onrender.com/productos/?skip=0&limit=100")
       .then((res) => res.json())
       .then((data) => setProductos(data))
       .catch((err) => console.error("Error al cargar productos:", err));

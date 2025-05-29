@@ -23,7 +23,7 @@ export default function ProductoDetalle() {
   const [tallaSeleccionada, setTallaSeleccionada] = useState("M"); 
 
   useEffect(() => {
-    fetch(`http://localhost:8000/productos/${nombre}`)
+    fetch(`https://aplicacion-web-m5oa.onrender.com/productos/${nombre}`)
       .then((res) => res.json())
       .then((data) => setProducto(data))
       .catch((err) => console.error("Error al cargar producto:", err));

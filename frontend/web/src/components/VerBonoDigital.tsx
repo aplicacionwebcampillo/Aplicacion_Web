@@ -7,7 +7,7 @@ interface BonoDigital {
   temporada: string;
   fecha_inicio: string;
   fecha_fin: string;
-  perfil_url?: string | null;
+  foto_perfil?: string | null;
 }
 
 export default function VerBonoDigital() {
@@ -25,7 +25,7 @@ export default function VerBonoDigital() {
 
       try {
         const res = await fetch(
-          `http://localhost:8000/socio_abonos/socio/${dni}/abono_digital`,
+          `https://aplicacion-web-m5oa.onrender.com/socio_abonos/socio/${dni}/abono_digital`,
           {
             headers: {
               Authorization: `Bearer ${token}`,

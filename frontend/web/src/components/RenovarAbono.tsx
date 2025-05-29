@@ -20,7 +20,7 @@ export default function RenovarAbono() {
   useEffect(() => {
     const fetchAbonos = async () => {
       try {
-        const res = await fetch("http://localhost:8000/abonos/");
+        const res = await fetch("https://aplicacion-web-m5oa.onrender.com/abonos/");
         if (res.ok) {
           const data = await res.json();
           setAbonos(data);
@@ -43,7 +43,7 @@ export default function RenovarAbono() {
     }
 
     try {
-      const res = await fetch(`http://localhost:8000/socio_abonos/renovar/${dni}/${idSeleccionado}`, {
+      const res = await fetch(`https://aplicacion-web-m5oa.onrender.com/socio_abonos/renovar/${dni}/${idSeleccionado}`, {
         method: "POST",
         headers: {
           Authorization: `Bearer ${token}`,

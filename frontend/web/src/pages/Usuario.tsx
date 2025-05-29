@@ -1,6 +1,14 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 
+export type TipoAdministrador = {
+  dni: string;
+  cargo: string;
+  permisos: string;
+  foto_perfil?: string;
+  estado?: 'activo' | 'inactivo';
+};
+
 type Usuario = {
   dni: string;
   nombre: string;
@@ -22,25 +30,24 @@ export default function UsuarioPage() {
     email: "",
     contrasena: "",
   });
-  
-  const [adminData, setAdminData] = useState<Administrador | null>(null);
+
+  const [adminData, setAdminData] = useState<TipoAdministrador | null>(null);
+
   const [socioData, setSocioData] = useState<null | {
     tipo_membresia: string;
     estado: string;
     foto_perfil: string;
-  }>(
-    null
-  );
+  }>(null);
   const dni = localStorage.getItem("dni") || "";
   const [esSocio, setEsSocio] = useState(false);
   const [abonoMasReciente, setAbonoMasReciente] = useState<null | {
-  temporada: string;
-  precio: number;
-  fecha_inicio: string;
-  fecha_fin: string;
-  descripcion: string;
-  id_abono: number;
-}>(null);
+    temporada: string;
+    precio: number;
+    fecha_inicio: string;
+    fecha_fin: string;
+    descripcion: string;
+    id_abono: number;
+  }>(null);
 
 
 
@@ -56,7 +63,7 @@ export default function UsuarioPage() {
 
   try {
     // 1. Registrar al socio
-    const resSocio = await fetch("http://localhost:8000/socios/", {
+    const resSocio = await fetch("https://aplicacion-web-m5oa.onrender.com/socios/", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -83,7 +90,7 @@ export default function UsuarioPage() {
     }
 
     // 2. Obtener abono más reciente
-    const resAbonos = await fetch("http://localhost:8000/abonos/");
+    const resAbonos = await fetch("https://aplicacion-web-m5oa.onrender.com/abonos/");
     const abonos = await resAbonos.json();
 
     if (!Array.isArray(abonos) || abonos.length === 0) {
@@ -96,7 +103,7 @@ export default function UsuarioPage() {
     );
 
     // 3. Registrar socio_abono
-    const resSocioAbono = await fetch("http://localhost:8000/socio_abonos/", {
+    const resSocioAbono = await fetch("https://aplicacion-web-m5oa.onrender.com/socio_abonos/", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -127,7 +134,7 @@ export default function UsuarioPage() {
  useEffect(() => {
   if (!dni) return;
 
-  fetch(`http://localhost:8000/socios/${dni}`)
+  fetch(`https://aplicacion-web-m5oa.onrender.com/socios/${dni}`)
     .then(res => {
       if (res.ok) {
         setEsSocio(true);
@@ -141,7 +148,7 @@ export default function UsuarioPage() {
 useEffect(() => {
   const fetchAbonos = async () => {
     try {
-      const res = await fetch("http://localhost:8000/abonos/");
+      const res = await fetch("https://aplicacion-web-m5oa.onrender.com/abonos/");
       if (res.ok) {
         const data = await res.json();
         if (Array.isArray(data) && data.length > 0) {
@@ -174,7 +181,7 @@ useEffect(() => {
 
     const fetchUsuario = async () => {
       try {
-        const res = await fetch(`http://localhost:8000/usuarios/${dni}`, {
+        const res = await fetch(`https://aplicacion-web-m5oa.onrender.com/usuarios/${dni}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
 
@@ -222,7 +229,7 @@ useEffect(() => {
     }
 
     try {
-      const res = await fetch(`http://localhost:8000/usuarios/${dni}`, {
+      const res = await fetch(`https://aplicacion-web-m5oa.onrender.com/usuarios/${dni}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -253,7 +260,7 @@ useEffect(() => {
     if (!dni || !token) return;
 
     try {
-      const res = await fetch(`http://localhost:8000/usuarios/${dni}`, {
+      const res = await fetch(`https://aplicacion-web-m5oa.onrender.com/usuarios/${dni}`, {
         method: "DELETE",
         headers: { Authorization: `Bearer ${token}` },
       });
@@ -286,7 +293,7 @@ useEffect(() => {
 
   const fetchSocio = async () => {
     try {
-      const res = await fetch(`http://localhost:8000/socios/${dni}`, {
+      const res = await fetch(`https://aplicacion-web-m5oa.onrender.com/socios/${dni}`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -309,30 +316,30 @@ useEffect(() => {
 }, []);
 
 useEffect(() => {
-  const token = localStorage.getItem("token");
-  const dni = localStorage.getItem("dni");
+    const token = localStorage.getItem("token");
+    const dni = localStorage.getItem("dni");
 
-  if (!token || !dni) return;
+    if (!token || !dni) return;
 
-  const fetchAdmin = async () => {
-    try {
-      const res = await fetch(`http://localhost:8000/administradores/${dni}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+    const fetchAdmin = async () => {
+      try {
+        const res = await fetch(`https://aplicacion-web-m5oa.onrender.com/administradores/${dni}`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
 
-      if (res.ok) {
-        const adminInfo = await res.json();
-        setAdminData(adminInfo);
+        if (res.ok) {
+          const adminInfo = await res.json();
+          setAdminData(adminInfo);
+        }
+      } catch (err) {
+        console.error("Error al obtener admin:", err);
       }
-    } catch (err) {
-      console.error("Error al obtener admin:", err);
-    }
-  };
+    };
 
-  fetchAdmin();
-}, []);
+    fetchAdmin();
+  }, []);
 
   
   return (

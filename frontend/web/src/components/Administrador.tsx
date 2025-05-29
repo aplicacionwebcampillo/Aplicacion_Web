@@ -26,7 +26,7 @@ export default function Administrador() {
 
   useEffect(() => {
     if (modo === "listar") {
-      fetch("http://localhost:8000/administradores/")
+      fetch("https://aplicacion-web-m5oa.onrender.com/administradores/")
         .then((res) => res.json())
         .then(setAdmins)
         .catch((err) => console.error("Error al listar administradores:", err));
@@ -35,7 +35,7 @@ export default function Administrador() {
 
   const obtenerAdmin = async () => {
     try {
-      const res = await fetch(`http://localhost:8000/administradores/${dni}`);
+      const res = await fetch(`https://aplicacion-web-m5oa.onrender.com/administradores/${dni}`);
       if (res.ok) {
         const data = await res.json();
         setAdmin(data);
@@ -49,7 +49,7 @@ export default function Administrador() {
 
   const crearAdmin = async () => {
     try {
-      const res = await fetch(`http://localhost:8000/administradores/`, {
+      const res = await fetch(`https://aplicacion-web-m5oa.onrender.com/administradores/`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(admin),
@@ -68,7 +68,7 @@ export default function Administrador() {
 
   const actualizarAdmin = async () => {
     try {
-      const res = await fetch(`http://localhost:8000/administradores/${dni}`, {
+      const res = await fetch(`https://aplicacion-web-m5oa.onrender.com/administradores/${dni}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -90,7 +90,7 @@ export default function Administrador() {
 
   const eliminarAdmin = async () => {
     try {
-      const res = await fetch(`http://localhost:8000/administradores/${dni}`, {
+      const res = await fetch(`https://aplicacion-web-m5oa.onrender.com/administradores/${dni}`, {
         method: "DELETE",
       });
       if (res.ok) {
@@ -207,7 +207,11 @@ export default function Administrador() {
               placeholder={campo}
               className="rounded-[1rem] font-poetsen w-[90%] rounded-xl border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-cyan-500"
               value={(admin as any)?.[campo] || ""}
-              onChange={(e) => setAdmin((prev) => ({ ...prev, [campo]: e.target.value }))}
+              onChange={(e) => setAdmin(prev => ({
+  ...prev!,
+  [campo]: e.target.value || "",
+}))
+}
             />
           ))}
           {/* Input file para foto de perfil */}

@@ -43,7 +43,7 @@ export default function Plantilla() {
   const width = useWindowWidth();
 
   useEffect(() => {
-    fetch("http://localhost:8000/jugadores/?skip=0&limit=100")
+    fetch("https://aplicacion-web-m5oa.onrender.com/jugadores/?skip=0&limit=100")
       .then((res) => res.json())
       .then((data: Jugador[]) => setJugadores(data))
       .catch((err) => console.error("Error al cargar jugadores:", err));

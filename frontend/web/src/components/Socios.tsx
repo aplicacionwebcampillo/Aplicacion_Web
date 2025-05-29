@@ -16,6 +16,12 @@ interface Socio {
   tipo_socio?: string;
 }
 
+type Abono = {
+  fecha: string;
+  [key: string]: any;
+};
+
+
 export default function Socios() {
   const [modo, setModo] = useState<"crear" | "listar" | "buscar" | "editar" | "eliminar">("listar");
   const [dni, setDni] = useState("");
@@ -24,7 +30,7 @@ export default function Socios() {
 
   useEffect(() => {
     if (modo === "listar") {
-      fetch("http://localhost:8000/socios/")
+      fetch("https://aplicacion-web-m5oa.onrender.com/socios/")
         .then((res) => res.json())
         .then(setSocios)
         .catch((err) => console.error("Error al listar socios:", err));
@@ -33,7 +39,7 @@ export default function Socios() {
 
   const obtenerSocio = async () => {
     try {
-      const res = await fetch(`http://localhost:8000/socios/${dni}`);
+      const res = await fetch(`https://aplicacion-web-m5oa.onrender.com/socios/${dni}`);
       if (res.ok) {
         const data = await res.json();
         setSocio(data);
@@ -45,7 +51,7 @@ export default function Socios() {
     }
   };
   
-  const { subirImagen, loading: cargandoImagen, error: errorImagen } = useSubirImagen();
+  const { subirImagen } = useSubirImagen();
 
   const handleImagenChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -62,7 +68,7 @@ export default function Socios() {
   const crearSocioAbono = async () => {
     try {
       // 1. Obtener todos los abonos
-      const abonoRes = await fetch(`http://localhost:8000/abonos/`);
+      const abonoRes = await fetch(`https://aplicacion-web-m5oa.onrender.com/abonos/`);
       if (!abonoRes.ok) throw new Error("Error al obtener abonos");
 
       const abonos = await abonoRes.json();
@@ -73,9 +79,10 @@ export default function Socios() {
       }
 
       // 2. Buscar el abono con la fecha de inicio más reciente
-      const abonoMasReciente = abonos.reduce((a, b) =>
-        new Date(a.fecha_inicio) > new Date(b.fecha_inicio) ? a : b
-      );
+      const abonoMasReciente = abonos.reduce(
+  (a: Abono, b: Abono) => (new Date(a.fecha) > new Date(b.fecha) ? a : b)
+);
+
 
       // 3. Construir el cuerpo del socio_abono
       const fechaHoy = new Date().toISOString().split("T")[0];
@@ -88,7 +95,7 @@ export default function Socios() {
       };
 
       // 4. Hacer POST a socio_abonos/
-      const res = await fetch(`http://localhost:8000/socio_abonos/`, {
+      const res = await fetch(`https://aplicacion-web-m5oa.onrender.com/socio_abonos/`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(datosSocioAbono),
@@ -102,7 +109,6 @@ export default function Socios() {
         alert("Error al crear socio abono.");
       }
     } catch (err) {
-      console.error("Error al crear socio abono:", err);
       alert("Ocurrió un error al crear el socio abono.");
     }
   };
@@ -114,7 +120,7 @@ export default function Socios() {
         alert("No hay datos para crear socio");
         return;
       }
-      const res = await fetch(`http://localhost:8000/socios/`, {
+      const res = await fetch(`https://aplicacion-web-m5oa.onrender.com/socios/`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(socio),
@@ -128,7 +134,7 @@ export default function Socios() {
         alert("Error al crear socio.");
       }
     } catch (err) {
-      console.error("Error al crear socio:", err);
+      
     }
   };
 
@@ -138,7 +144,7 @@ export default function Socios() {
         alert("No hay datos para actualizar");
         return;
       }
-      const res = await fetch(`http://localhost:8000/socios/${dni}`, {
+      const res = await fetch(`https://aplicacion-web-m5oa.onrender.com/socios/${dni}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -155,14 +161,14 @@ export default function Socios() {
         alert("Error al actualizar socio.");
       }
     } catch (err) {
-      console.error("Error al actualizar socio:", err);
+      
     }
   };
 
   const eliminarSocio = async () => {
     try {
       // Obtener abonos del socio
-      const resAbonos = await fetch(`http://localhost:8000/socio_abonos/?dni=${dni}`);
+      const resAbonos = await fetch(`https://aplicacion-web-m5oa.onrender.com/socio_abonos/?dni=${dni}`);
       if (!resAbonos.ok) {
         alert("Error al obtener abonos del socio");
         return;
@@ -176,7 +182,7 @@ export default function Socios() {
 
       // Borrar cada abono uno por uno
       for (const abono of uniqueAbonos) {
-        const resDeleteAbono = await fetch(`http://localhost:8000/socio_abonos/${dni}/${abono.id_abono}`, {
+        const resDeleteAbono = await fetch(`https://aplicacion-web-m5oa.onrender.com/socio_abonos/${dni}/${abono.id_abono}`, {
           method: "DELETE",
         });
         if (!resDeleteAbono.ok) {
@@ -186,7 +192,7 @@ export default function Socios() {
       }
 
       // Borrar socio
-      const resDeleteSocio = await fetch(`http://localhost:8000/socios/${dni}`, {
+      const resDeleteSocio = await fetch(`https://aplicacion-web-m5oa.onrender.com/socios/${dni}`, {
         method: "DELETE",
       });
       if (resDeleteSocio.ok) {
@@ -287,7 +293,10 @@ export default function Socios() {
               className={campo === "num_socio" ? "hidden" : "rounded-[1rem] font-poetsen w-[90%] rounded-xl border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-cyan-500"}
               value={(socio as any)?.[campo] || ""}
               onChange={(e) =>
-                setSocio((prev) => ({ ...prev, [campo]: e.target.value }))
+                setSocio(prev => ({
+  ...prev!,
+  [campo]: e.target.value || "",
+}))
               }
             />
           ))}

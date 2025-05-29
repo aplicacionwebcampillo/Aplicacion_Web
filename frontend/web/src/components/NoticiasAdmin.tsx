@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useSubirImagen } from "../hooks/useSubirImagen";
 
 interface Noticia {
+  id_noticia: string,
   titular: string;
   imagen: string;
   contenido: string;
@@ -18,6 +19,7 @@ export default function Noticias() {
   const { subirImagen, loading: cargandoImagen, error: errorImagen } = useSubirImagen();
   const [titular, setTitular] = useState("");
   const [noticia, setNoticia] = useState<Noticia>({
+    id_noticia: "",
     titular: "",
     imagen: "",
     contenido: "",
@@ -29,7 +31,7 @@ export default function Noticias() {
 
   useEffect(() => {
     if (modo === "listar") {
-      fetch("http://localhost:8000/noticias/")
+      fetch("https://aplicacion-web-m5oa.onrender.com/noticias/")
         .then((res) => res.json())
         .then(setNoticias)
         .catch((err) => console.error("Error al listar noticias:", err));
@@ -38,7 +40,7 @@ export default function Noticias() {
 
   const obtenerNoticia = async () => {
     try {
-      const res = await fetch(`http://localhost:8000/noticias/${encodeURIComponent(titular)}`);
+      const res = await fetch(`https://aplicacion-web-m5oa.onrender.com/noticias/${encodeURIComponent(titular)}`);
       if (res.ok) {
         const data = await res.json();
         setNoticia(data);
@@ -52,7 +54,7 @@ export default function Noticias() {
 
   const crearNoticia = async () => {
     try {
-      const res = await fetch("http://localhost:8000/noticias/", {
+      const res = await fetch("https://aplicacion-web-m5oa.onrender.com/noticias/", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(noticia),
@@ -60,6 +62,7 @@ export default function Noticias() {
       if (res.ok) {
         alert("Noticia creada correctamente.");
         setNoticia({
+          id_noticia: "",
           titular: "",
           imagen: "",
           contenido: "",
@@ -77,7 +80,7 @@ export default function Noticias() {
 
   const actualizarNoticia = async () => {
     try {
-      const res = await fetch(`http://localhost:8000/noticias/${encodeURIComponent(titular)}`, {
+      const res = await fetch(`https://aplicacion-web-m5oa.onrender.com/noticias/${encodeURIComponent(titular)}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(noticia),
@@ -94,7 +97,7 @@ export default function Noticias() {
 
   const eliminarNoticia = async () => {
     try {
-      const res = await fetch(`http://localhost:8000/noticias/${encodeURIComponent(titular)}`, {
+      const res = await fetch(`https://aplicacion-web-m5oa.onrender.com/noticias/${encodeURIComponent(titular)}`, {
         method: "DELETE",
       });
       if (res.ok) {
@@ -155,6 +158,7 @@ export default function Noticias() {
               onClick={() => {
                 setModo(m as any);
                 setNoticia({
+                  id_noticia: "",
                   titular: "",
                   imagen: "",
                   contenido: "",

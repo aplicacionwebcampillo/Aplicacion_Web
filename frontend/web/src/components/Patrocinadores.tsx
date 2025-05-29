@@ -14,7 +14,7 @@ export default function Patrocinadores() {
   const [patrocinadores, setPatrocinadores] = useState<Patrocinador[]>([]);
 
   useEffect(() => {
-    fetch("http://localhost:8000/patrocinadores/")
+    fetch("https://aplicacion-web-m5oa.onrender.com/patrocinadores/")
       .then((res) => res.json())
       .then((data) => setPatrocinadores(data))
       .catch((err) => console.error("Error al cargar patrocinadores:", err));

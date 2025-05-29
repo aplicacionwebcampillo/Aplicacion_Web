@@ -28,7 +28,7 @@ export default function Abonos() {
 
   useEffect(() => {
     if (modo === "listar") {
-      fetch("http://localhost:8000/abonos/")
+      fetch("https://aplicacion-web-m5oa.onrender.com/abonos/")
         .then((res) => res.json())
         .then(setAbonos)
         .catch((e) => console.error("Error listando abonos:", e));
@@ -39,7 +39,7 @@ export default function Abonos() {
     if (!abonoIdBuscado) return alert("Ingresa un ID válido");
     try {
       const res = await fetch(
-        `http://localhost:8000/abonos/${encodeURIComponent(abonoIdBuscado)}`
+        `https://aplicacion-web-m5oa.onrender.com/abonos/${encodeURIComponent(abonoIdBuscado)}`
       );
       if (res.ok) {
         const data = await res.json();
@@ -54,7 +54,7 @@ export default function Abonos() {
 
   const crearAbono = async () => {
     try {
-      const res = await fetch("http://localhost:8000/abonos/", {
+      const res = await fetch("https://aplicacion-web-m5oa.onrender.com/abonos/", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(abono),
@@ -81,7 +81,7 @@ export default function Abonos() {
     if (!abonoIdBuscado) return alert("Ingresa un ID válido");
     try {
       const res = await fetch(
-        `http://localhost:8000/abonos/${encodeURIComponent(abonoIdBuscado)}`,
+        `https://aplicacion-web-m5oa.onrender.com/abonos/${encodeURIComponent(abonoIdBuscado)}`,
         {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
@@ -102,7 +102,7 @@ export default function Abonos() {
     if (!abonoIdBuscado) return alert("Ingresa un ID válido");
     try {
       const res = await fetch(
-        `http://localhost:8000/abonos/${encodeURIComponent(abonoIdBuscado)}`,
+        `https://aplicacion-web-m5oa.onrender.com/abonos/${encodeURIComponent(abonoIdBuscado)}`,
         { method: "DELETE" }
       );
       if (res.ok) {
