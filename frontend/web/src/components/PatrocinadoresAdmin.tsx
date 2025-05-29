@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useSubirImagen } from "../hooks/useSubirImagen";
 
 interface Patrocinador {
   nombre: string;
@@ -6,8 +7,8 @@ interface Patrocinador {
   email: string;
   telefono: string;
   logo: string;
-  fecha_inicio: string; // formato YYYY-MM-DD
-  fecha_fin: string;    // formato YYYY-MM-DD
+  fecha_inicio: string;
+  fecha_fin: string;
   dni_administrador: string;
 }
 
@@ -29,6 +30,7 @@ export default function Patrocinadores() {
   });
 
   const [patrocinadores, setPatrocinadores] = useState<Patrocinador[]>([]);
+  const { subirImagen, loading: subiendoImagen, error: errorImagen } = useSubirImagen();
 
   useEffect(() => {
     if (modo === "listar") {
@@ -122,39 +124,96 @@ export default function Patrocinadores() {
     }
   };
 
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const url = await subirImagen(file);
+      if (url) {
+        setPatrocinador((prev) => ({ ...prev, logo: url }));
+      } else {
+        alert("Error subiendo imagen");
+      }
+    }
+  };
+
+  const renderInputs = () =>
+    [
+      { label: "Nombre", key: "nombre", type: "text" },
+      { label: "Tipo", key: "tipo", type: "text" },
+      { label: "Email", key: "email", type: "email" },
+      { label: "Teléfono", key: "telefono", type: "text" },
+      { label: "Fecha Inicio", key: "fecha_inicio", type: "date" },
+      { label: "Fecha Fin", key: "fecha_fin", type: "date" },
+      { label: "DNI Administrador", key: "dni_administrador", type: "text" },
+    ].map(({ label, key, type }) => (
+      <input
+        key={key}
+        type={type}
+        placeholder={label}
+        value={patrocinador[key as keyof Patrocinador]}
+        onChange={(e) =>
+          setPatrocinador((prev) => ({ ...prev, [key]: e.target.value }))
+        }
+        className="rounded-[1rem] font-poetsen w-[90%] rounded-xl border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-cyan-500"
+      />
+    ));
+
+  const renderFileInput = () => (
+    <div className="space-y-2">
+      <label className="block font-poetsen">Logo del patrocinador (imagen)</label>
+      <input
+        type="file"
+        accept="image/*"
+        onChange={handleFileChange}
+        className="px-4 py-2 rounded-full border-2 font-bold transition-colors duration-200 border-azul bg-azul text-azul bg-blanco text-azul hover:bg-azul hover:text-blanco
+          file:mr-4 file:py-2 file:px-4
+          file:rounded-full file:border-0
+          file:text-sm file:font-semibold
+          file:bg-cyan-50 file:text-cyan-700
+          hover:file:bg-cyan-100"
+      />
+      {subiendoImagen && <p>Subiendo imagen...</p>}
+      {errorImagen && <p className="text-red-500">Error: {errorImagen}</p>}
+      {patrocinador.logo && (
+        <img
+          src={patrocinador.logo}
+          alt="Vista previa"
+          className="w-full h-40 object-contain mt-2"
+        />
+      )}
+    </div>
+  );
+
   return (
-    <div className="bg-celeste text-blanco px-6 py-10 rounded-[1rem] font-poetsen font-bold w-full max-w-[40rem] shadow-lg space-y-4 ">
-      {/* Menú de opciones */}
+    <div className="bg-celeste text-blanco px-6 py-10 rounded-[1rem] font-poetsen font-bold w-full max-w-[40rem] shadow-lg space-y-4">
       <div className="flex flex-wrap justify-center gap-3 mb-6">
         {["crear", "listar", "buscar", "editar", "eliminar"].map((m) => (
-          <div className="flex justify-center"> 
-          <button
-            key={m}
-            className={`px-4 py-2 rounded-full border-2 font-bold transition-colors duration-200 bg-blanco text-azul border-azul bg-blanco text-azul border-azul hover:bg-azul hover:text-blanco ${
-              modo === m ? "bg-blue-600 text-white" : "bg-white text-black"
-            }`}
-            onClick={() => {
-              setModo(m as any);
-              setPatrocinador({
-                nombre: "",
-                tipo: "",
-                email: "",
-                telefono: "",
-                logo: "",
-                fecha_inicio: "",
-                fecha_fin: "",
-                dni_administrador: "",
-              });
-              setNombreBuscado("");
-            }}
-          >
-            {m.toUpperCase()}
-          </button>
+          <div className="flex justify-center" key={m}>
+            <button
+              className={`px-4 py-2 rounded-full border-2 font-bold transition-colors duration-200 border-azul ${
+                modo === m ? "bg-azul text-blanco" : "bg-blanco text-azul hover:bg-azul hover:text-blanco"
+              }`}
+              onClick={() => {
+                setModo(m as any);
+                setPatrocinador({
+                  nombre: "",
+                  tipo: "",
+                  email: "",
+                  telefono: "",
+                  logo: "",
+                  fecha_inicio: "",
+                  fecha_fin: "",
+                  dni_administrador: "",
+                });
+                setNombreBuscado("");
+              }}
+            >
+              {m.toUpperCase()}
+            </button>
           </div>
         ))}
       </div>
 
-      {/* Input para nombre buscado */}
       {(modo === "buscar" || modo === "editar" || modo === "eliminar") && (
         <input
           type="text"
@@ -165,16 +224,15 @@ export default function Patrocinadores() {
         />
       )}
 
-      {/* Buscar patrocinador */}
       {modo === "buscar" && (
         <>
-        <div className="flex justify-center"> 
-          <button
-            onClick={obtenerPatrocinador}
-            className="px-4 py-2 rounded-full border-2 font-bold transition-colors duration-200 bg-blanco text-azul border-azul bg-blanco text-azul border-azul hover:bg-azul hover:text-blanco"
-          >
-            Obtener Patrocinador
-          </button>
+          <div className="flex justify-center">
+            <button
+              onClick={obtenerPatrocinador}
+              className="px-4 py-2 rounded-full border-2 font-bold transition-colors duration-200 bg-blanco text-azul border-azul hover:bg-azul hover:text-blanco"
+            >
+              Obtener Patrocinador
+            </button>
           </div>
           {patrocinador.nombre && (
             <div className="bg-blanco text-negro px-6 py-10 rounded-[1rem] font-poetsen font-bold shadow-lg space-y-4">
@@ -194,110 +252,60 @@ export default function Patrocinadores() {
         </>
       )}
 
-      {/* Crear patrocinador */}
       {modo === "crear" && (
         <div className="space-y-2 max-w-md">
-          {[
-            { label: "Nombre", key: "nombre", type: "text" },
-            { label: "Tipo", key: "tipo", type: "text" },
-            { label: "Email", key: "email", type: "email" },
-            { label: "Teléfono", key: "telefono", type: "text" },
-            { label: "Logo (URL)", key: "logo", type: "text" },
-            { label: "Fecha Inicio", key: "fecha_inicio", type: "date" },
-            { label: "Fecha Fin", key: "fecha_fin", type: "date" },
-            { label: "DNI Administrador", key: "dni_administrador", type: "text" },
-          ].map(({ label, key, type }) => (
-            <input
-              key={key}
-              type={type}
-              placeholder={label}
-              value={patrocinador[key as keyof Patrocinador]}
-              onChange={(e) =>
-                setPatrocinador((prev) => ({
-                  ...prev,
-                  [key]: e.target.value,
-                }))
-              }
-              className="rounded-[1rem] font-poetsen w-[90%] rounded-xl border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-cyan-500"
-            />
-          ))}
-          <div className="flex justify-center"> 
-          <button
-            onClick={crearPatrocinador}
-            className="px-4 py-2 rounded-full border-2 font-bold transition-colors duration-200 bg-blanco text-azul border-azul bg-blanco text-azul border-azul hover:bg-azul hover:text-blanco"
-          >
-            Crear Patrocinador
-          </button>
+          {renderInputs()}
+          {renderFileInput()}
+          <div className="flex justify-center">
+            <button
+              onClick={crearPatrocinador}
+              className="px-4 py-2 rounded-full border-2 font-bold transition-colors duration-200 bg-blanco text-azul border-azul hover:bg-azul hover:text-blanco"
+            >
+              Crear Patrocinador
+            </button>
           </div>
         </div>
       )}
 
-      {/* Editar patrocinador */}
       {modo === "editar" && (
         <>
-        <div className="flex justify-center"> 
-          <button
-            onClick={obtenerPatrocinador}
-            className="px-4 py-2 rounded-full border-2 font-bold transition-colors duration-200 bg-blanco text-azul border-azul bg-blanco text-azul border-azul hover:bg-azul hover:text-blanco"
-          >
-            Cargar Patrocinador
-          </button>
+          <div className="flex justify-center">
+            <button
+              onClick={obtenerPatrocinador}
+              className="px-4 py-2 rounded-full border-2 font-bold transition-colors duration-200 bg-blanco text-azul border-azul hover:bg-azul hover:text-blanco"
+            >
+              Cargar Patrocinador
+            </button>
           </div>
           {patrocinador.nombre && (
             <div className="space-y-2 max-w-md mt-2">
-              {[
-                { label: "Nombre", key: "nombre", type: "text" },
-                { label: "Tipo", key: "tipo", type: "text" },
-                { label: "Email", key: "email", type: "email" },
-                { label: "Teléfono", key: "telefono", type: "text" },
-                { label: "Logo (URL)", key: "logo", type: "text" },
-                { label: "Fecha Inicio", key: "fecha_inicio", type: "date" },
-                { label: "Fecha Fin", key: "fecha_fin", type: "date" },
-                { label: "DNI Administrador", key: "dni_administrador", type: "text" },
-              ].map(({ label, key, type }) => (
-                <input
-                  key={key}
-                  type={type}
-                  placeholder={label}
-                  value={patrocinador[key as keyof Patrocinador]}
-                  onChange={(e) =>
-                    setPatrocinador((prev) => ({
-                      ...prev,
-                      [key]: e.target.value,
-                    }))
-                  }
-                  className="brounded-[1rem] font-poetsen w-[90%] rounded-xl border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-cyan-500"
-                />
-              ))}
-              <div className="flex justify-center"> 
-              <button
-                onClick={actualizarPatrocinador}
-                className="px-4 py-2 rounded-full border-2 font-bold transition-colors duration-200 bg-blanco text-azul border-azul bg-blanco text-azul border-azul hover:bg-azul hover:text-blanco"
-              >
-                Guardar Cambios
-              </button>
+              {renderInputs()}
+              {renderFileInput()}
+              <div className="flex justify-center">
+                <button
+                  onClick={actualizarPatrocinador}
+                  className="px-4 py-2 rounded-full border-2 font-bold transition-colors duration-200 bg-blanco text-azul border-azul hover:bg-azul hover:text-blanco"
+                >
+                  Guardar Cambios
+                </button>
               </div>
             </div>
           )}
         </>
       )}
 
-      {/* Eliminar patrocinador */}
       {modo === "eliminar" && (
-        <>
-        <div className="flex justify-center"> 
+        <div className="flex justify-center">
           <button
             onClick={eliminarPatrocinador}
             disabled={!nombreBuscado}
-            className="px-4 py-2 rounded-full border-2 font-bold transition-colors duration-200 bg-blanco text-azul border-azul bg-blanco text-azul border-azul hover:bg-azul hover:text-blanco"
+            className="px-4 py-2 rounded-full border-2 font-bold transition-colors duration-200 bg-blanco text-azul border-azul hover:bg-azul hover:text-blanco"
           >
             Eliminar Patrocinador
           </button>
-          </div>
-        </>
+        </div>
       )}
 
-      {/* Listar patrocinadores */}
       {modo === "listar" && (
         <div className="mt-4 space-y-2">
           {patrocinadores.map((p) => (
@@ -323,3 +331,4 @@ export default function Patrocinadores() {
     </div>
   );
 }
+

@@ -1,5 +1,3 @@
 Funcionalidades restantes:
 
-* Imágenes
-* BUSQUEDA JUGADORES POR NOMBRE
-* ABONO DIGITAL CON FOTO
+* Organizar Imágenes

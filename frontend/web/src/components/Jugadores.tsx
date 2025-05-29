@@ -1,9 +1,10 @@
 import { useState, useEffect } from "react";
+import { useSubirImagen } from "../hooks/useSubirImagen";
 
 interface Jugador {
   nombre: string;
   posicion: string;
-  fecha_nacimiento: string; // YYYY-MM-DD
+  fecha_nacimiento: string;
   foto: string;
   biografia: string;
   dorsal: number;
@@ -16,7 +17,7 @@ export default function Jugadores() {
     "crear" | "listar" | "buscar" | "editar" | "eliminar"
   >("listar");
 
-  const [jugadorIdBuscado, setJugadorIdBuscado] = useState<string>("");
+  const [jugadorNombreBuscado, setJugadorNombreBuscado] = useState<string>("");
 
   const [jugador, setJugador] = useState<Jugador>({
     nombre: "",
@@ -30,6 +31,8 @@ export default function Jugadores() {
 
   const [jugadores, setJugadores] = useState<Jugador[]>([]);
 
+  const { subirImagen, loading: imagenCargando, error: errorImagen } = useSubirImagen();
+
   useEffect(() => {
     if (modo === "listar") {
       fetch("http://localhost:8000/jugadores/")
@@ -40,10 +43,10 @@ export default function Jugadores() {
   }, [modo]);
 
   const obtenerJugador = async () => {
-    if (!jugadorIdBuscado) return alert("Ingresa un ID válido");
+    if (!jugadorNombreBuscado) return alert("Ingresa un nombre válido");
     try {
       const res = await fetch(
-        `http://localhost:8000/jugadores/${encodeURIComponent(jugadorIdBuscado)}`
+        `http://localhost:8000/jugadores/${encodeURIComponent(jugadorNombreBuscado)}`
       );
       if (res.ok) {
         const data = await res.json();
@@ -84,10 +87,10 @@ export default function Jugadores() {
   };
 
   const actualizarJugador = async () => {
-    if (!jugadorIdBuscado) return alert("Ingresa un ID válido");
+    if (!jugadorNombreBuscado) return alert("Ingresa un nombre válido");
     try {
       const res = await fetch(
-        `http://localhost:8000/jugadores/${encodeURIComponent(jugadorIdBuscado)}`,
+        `http://localhost:8000/jugadores/${encodeURIComponent(jugadorNombreBuscado)}`,
         {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
@@ -105,10 +108,10 @@ export default function Jugadores() {
   };
 
   const eliminarJugador = async () => {
-    if (!jugadorIdBuscado) return alert("Ingresa un ID válido");
+    if (!jugadorNombreBuscado) return alert("Ingresa un nombre válido");
     try {
       const res = await fetch(
-        `http://localhost:8000/jugadores/${encodeURIComponent(jugadorIdBuscado)}`,
+        `http://localhost:8000/jugadores/${encodeURIComponent(jugadorNombreBuscado)}`,
         { method: "DELETE" }
       );
       if (res.ok) {
@@ -122,143 +125,94 @@ export default function Jugadores() {
     }
   };
 
+  const manejarSubidaImagen = async (file: File) => {
+    const url = await subirImagen(file);
+    if (url) {
+      setJugador((prev) => ({ ...prev, foto: url }));
+    } else {
+      alert("Error al subir imagen");
+    }
+  };
+
   return (
     <div className="bg-celeste text-blanco px-6 py-10 rounded-[1rem] font-poetsen font-bold w-full max-w-[40rem] shadow-lg space-y-4">
       {/* Menú */}
       <div className="flex flex-wrap justify-center gap-3 mb-6">
         {["crear", "listar", "buscar", "editar", "eliminar"].map((m) => (
-        <div className="flex justify-center"> 
-          <button
-            key={m}
-            className={`px-4 py-2 rounded-full border-2 font-bold transition-colors duration-200 bg-blanco text-azul border-azul bg-blanco text-azul border-azul hover:bg-azul hover:text-blanco ${
-              modo === m ? "bg-blue-600 text-white" : "bg-white text-black"
-            }`}
-            onClick={() => {
-              setModo(m as any);
-              setJugador({
-                nombre: "",
-                posicion: "",
-                fecha_nacimiento: "",
-                foto: "",
-                biografia: "",
-                dorsal: 0,
-                id_equipo: 0,
-              });
-              setJugadorIdBuscado("");
-            }}
-          >
-            {m.toUpperCase()}
-          </button>
+          <div key={m} className="flex justify-center">
+            <button
+              className={`px-4 py-2 rounded-full border-2 font-bold transition-colors duration-200 ${
+                modo === m ? "bg-blue-600 text-white" : "bg-white text-black"
+              }`}
+              onClick={() => {
+                setModo(m as any);
+                setJugador({
+                  nombre: "",
+                  posicion: "",
+                  fecha_nacimiento: "",
+                  foto: "",
+                  biografia: "",
+                  dorsal: 0,
+                  id_equipo: 0,
+                });
+                setJugadorNombreBuscado("");
+              }}
+            >
+              {m.toUpperCase()}
+            </button>
           </div>
         ))}
       </div>
 
-      {/* Input para ID jugador en modos buscar, editar, eliminar */}
+      {/* Input para nombre jugador */}
       {(modo === "buscar" || modo === "editar" || modo === "eliminar") && (
         <input
-          type="number"
-          placeholder="ID del jugador"
-          value={jugadorIdBuscado}
-          onChange={(e) => setJugadorIdBuscado(e.target.value)}
-          className="rounded-[1rem] font-poetsen w-[90%] rounded-xl border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-cyan-500 "
+          type="text"
+          placeholder="Nombre del jugador"
+          value={jugadorNombreBuscado}
+          onChange={(e) => setJugadorNombreBuscado(e.target.value)}
+          className="rounded-[1rem] w-[90%] border px-3 py-2"
         />
       )}
 
-      {/* Botón para obtener jugador (buscar, editar) */}
-     {(modo === "editar") && (
-  <>
-    <div className="flex justify-center"> 
-      <button
-        onClick={obtenerJugador}
-        className="px-4 py-2 rounded-full border-2 font-bold transition-colors duration-200 bg-blanco text-azul border-azul hover:bg-azul hover:text-blanco"
-      >
-        Cargar Jugador
-      </button>
-    </div>
-
-    </>
-)}
-	     {(modo === "buscar") && (
-  <>
-    <div className="flex justify-center"> 
-      <button
-        onClick={obtenerJugador}
-        className="px-4 py-2 rounded-full border-2 font-bold transition-colors duration-200 bg-blanco text-azul border-azul hover:bg-azul hover:text-blanco"
-      >
-        Buscar Jugador
-      </button>
-    </div>
-
-    {jugador && (
-      <div className="mt-6 p-4 bg-blanco text-negro rounded-[1rem] shadow-md space-y-2">
-        <p><strong>Nombre:</strong> {jugador.nombre}</p>
-        <p><strong>Posición:</strong> {jugador.posicion}</p>
-        <p><strong>Fecha de nacimiento:</strong> {jugador.fecha_nacimiento}</p>
-        <p><strong>Dorsal:</strong> {jugador.dorsal}</p>
-        <p><strong>ID Equipo:</strong> {jugador.id_equipo}</p>
-        <p><strong>Biografía:</strong> {jugador.biografia}</p>
-        {jugador.foto && (
-          <img
-            src={jugador.foto}
-            alt={`Foto de ${jugador.nombre}`}
-            className="w-24 h-24 rounded-xl mt-4 object-cover"
-          />
-        )}
-      </div>
-    )}
-  </>
-)}
-
-      {/* Formulario para crear */}
-      {modo === "crear" && (
-        <div className="space-y-2 max-w-md">
-          {[
-            { label: "Nombre", key: "nombre", type: "text" },
-            { label: "Posición", key: "posicion", type: "text" },
-            { label: "Fecha de nacimiento", key: "fecha_nacimiento", type: "date" },
-            { label: "Foto (URL)", key: "foto", type: "text" },
-            { label: "Biografía", key: "biografia", type: "text" },
-            { label: "Dorsal", key: "dorsal", type: "number" },
-            { label: "ID Equipo", key: "id_equipo", type: "number" },
-          ].map(({ label, key, type }) => (
-            <input
-              key={key}
-              type={type}
-              placeholder={label}
-              value={
-                key === "dorsal" || key === "id_equipo"
-                  ? jugador[key as keyof Jugador]?.toString()
-                  : jugador[key as keyof Jugador]
-              }
-              onChange={(e) => {
-                const val = type === "number" ? Number(e.target.value) : e.target.value;
-                setJugador((prev) => ({
-                  ...prev,
-                  [key]: val,
-                }));
-              }}
-              className="rounded-[1rem] font-poetsen w-[90%] rounded-xl border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-cyan-500 "
-            />
-          ))}
-          <div className="flex justify-center"> 
+      {/* Botón cargar jugador */}
+      {(modo === "editar" || modo === "buscar") && (
+        <div className="flex justify-center">
           <button
-            onClick={crearJugador}
-            className="px-4 py-2 rounded-full border-2 font-bold transition-colors duration-200 bg-blanco text-azul border-azul bg-blanco text-azul border-azul hover:bg-azul hover:text-blanco"
+            onClick={obtenerJugador}
+            className="px-4 py-2 rounded-full border-2 bg-blanco text-azul hover:bg-azul hover:text-blanco"
           >
-            Crear Jugador
+            {modo === "buscar" ? "Buscar Jugador" : "Cargar Jugador"}
           </button>
-          </div>
         </div>
       )}
 
-      {/* Formulario para editar */}
-      {modo === "editar" && jugador.id_jugador && (
+      {/* Resultado de búsqueda */}
+      {modo === "buscar" && jugador.nombre && (
+        <div className="mt-6 p-4 bg-blanco text-negro rounded-[1rem] shadow-md space-y-2">
+          <p><strong>Nombre:</strong> {jugador.nombre}</p>
+          <p><strong>Posición:</strong> {jugador.posicion}</p>
+          <p><strong>Fecha de nacimiento:</strong> {jugador.fecha_nacimiento}</p>
+          <p><strong>Dorsal:</strong> {jugador.dorsal}</p>
+          <p><strong>ID Equipo:</strong> {jugador.id_equipo}</p>
+          <p><strong>Biografía:</strong> {jugador.biografia}</p>
+          {jugador.foto && (
+            <img
+              src={jugador.foto}
+              alt={`Foto de ${jugador.nombre}`}
+              className="w-24 h-24 rounded-xl mt-4 object-cover"
+            />
+          )}
+        </div>
+      )}
+
+      {/* Crear o editar formulario */}
+      {(modo === "crear" || (modo === "editar" && jugador.nombre)) && (
         <div className="space-y-2 max-w-md mt-2">
           {[
             { label: "Nombre", key: "nombre", type: "text" },
             { label: "Posición", key: "posicion", type: "text" },
             { label: "Fecha de nacimiento", key: "fecha_nacimiento", type: "date" },
-            { label: "Foto (URL)", key: "foto", type: "text" },
             { label: "Biografía", key: "biografia", type: "text" },
             { label: "Dorsal", key: "dorsal", type: "number" },
             { label: "ID Equipo", key: "id_equipo", type: "number" },
@@ -279,31 +233,54 @@ export default function Jugadores() {
                   [key]: val,
                 }));
               }}
-              className="rounded-[1rem] font-poetsen w-[90%] rounded-xl border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-cyan-500 "
+              className="rounded-[1rem] w-[90%] border px-3 py-2"
             />
           ))}
-          <div className="flex justify-center"> 
-          <button
-            onClick={actualizarJugador}
-            className="px-4 py-2 rounded-full border-2 font-bold transition-colors duration-200 bg-blanco text-azul border-azul bg-blanco text-azul border-azul hover:bg-azul hover:text-blanco"
-          >
-            Guardar Cambios
-          </button>
+
+          {/* Input de archivo */}
+          <div className="space-y-1">
+            <label>Foto del jugador</label>
+            <input
+              type="file"
+              accept="image/*"
+              onChange={(e) => {
+                const file = e.target.files?.[0];
+                if (file) manejarSubidaImagen(file);
+              }}
+              className="block w-[90%] text-sm"
+            />
+            {imagenCargando && <p className="text-yellow-400">Subiendo imagen...</p>}
+            {errorImagen && <p className="text-red-600">{errorImagen}</p>}
+            {jugador.foto && (
+              <img
+                src={jugador.foto}
+                alt="Foto subida"
+                className="w-24 h-24 mt-2 object-cover rounded-xl"
+              />
+            )}
           </div>
 
+          <div className="flex justify-center">
+            <button
+              onClick={modo === "crear" ? crearJugador : actualizarJugador}
+              className="px-4 py-2 rounded-full border-2 bg-blanco text-azul hover:bg-azul hover:text-blanco"
+            >
+              {modo === "crear" ? "Crear Jugador" : "Guardar Cambios"}
+            </button>
+          </div>
         </div>
       )}
 
       {/* Botón eliminar */}
       {modo === "eliminar" && (
-      <div className="flex justify-center"> 
-        <button
-          onClick={eliminarJugador}
-          disabled={!jugadorIdBuscado}
-          className="px-4 py-2 rounded-full border-2 font-bold transition-colors duration-200 bg-blanco text-azul border-azul bg-blanco text-azul border-azul hover:bg-azul hover:text-blanco"
-        >
-          Eliminar Jugador
-        </button>
+        <div className="flex justify-center">
+          <button
+            onClick={eliminarJugador}
+            disabled={!jugadorNombreBuscado}
+            className="px-4 py-2 rounded-full border-2 bg-blanco text-azul hover:bg-azul hover:text-blanco"
+          >
+            Eliminar Jugador
+          </button>
         </div>
       )}
 
@@ -312,8 +289,8 @@ export default function Jugadores() {
         <div className="mt-4 space-y-2">
           {jugadores.map((j) => (
             <div
-              key={j.id_jugador}
-              className="bg-blanco text-negro px-6 py-10 rounded-[1rem] font-poetsen font-bold shadow-lg space-y-4"
+              key={j.nombre}
+              className="bg-blanco text-negro px-6 py-10 rounded-[1rem] shadow-lg space-y-4"
             >
               <h3 className="font-bold text-lg">{j.nombre}</h3>
               <img

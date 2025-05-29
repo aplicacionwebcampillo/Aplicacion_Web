@@ -23,16 +23,15 @@ def create_jugador(db: Session, jugador: JugadorCreate):
         db.rollback()  
         raise Exception("Error al crear el jugador, es posible que el equipo no exista.")
 
-def get_jugador(db: Session, jugador_id: int):
-    # Buscar el jugador por su id
-    return db.query(Jugador).filter(Jugador.id_jugador == jugador_id).first()
+def get_jugador(db: Session, jugador_nombre: str):
+    return db.query(Jugador).filter(Jugador.nombre == jugador_nombre).first()
 
 def get_jugadores(db: Session, skip: int = 0, limit: int = 100):
     # Obtener los jugadores con paginación (skip, limit)
     return db.query(Jugador).offset(skip).limit(limit).all()
 
-def update_jugador(db: Session, jugador_id: int, jugador_update: JugadorUpdate):
-    db_jugador = db.query(Jugador).filter(Jugador.id_jugador == jugador_id).first()
+def update_jugador(db: Session, jugador_nombre: str, jugador_update: JugadorUpdate):
+    db_jugador = db.query(Jugador).filter(Jugador.nombre == jugador_nombre).first()
     if db_jugador is None:
         return None
 
@@ -54,8 +53,8 @@ def update_jugador(db: Session, jugador_id: int, jugador_update: JugadorUpdate):
     return db_jugador
 
 
-def delete_jugador(db: Session, jugador_id: int):
-    db_jugador = db.query(Jugador).filter(Jugador.id_jugador == jugador_id).first()
+def delete_jugador(db: Session, jugador_nombre: str):
+    db_jugador = db.query(Jugador).filter(Jugador.nombre == jugador_nombre).first()
     if db_jugador is None:
         return None 
 
