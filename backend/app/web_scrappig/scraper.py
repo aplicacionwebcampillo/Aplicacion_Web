@@ -78,7 +78,7 @@ async def scrape_competiciones(codigo_club: str):
         await page.goto(url, wait_until='networkidle')
         await page.wait_for_load_state("networkidle")
         
-        await page.click('a[href*="NFG_VisCompeticiones_Club?cod_primaria=1000123&codclub=28701965&codtemporada="]') # Ficha de Competición
+        await page.click('a[href*="NFG_VisCompeticiones_Club?cod_primaria=1000123&codclub=28701965&codtemporada="]', timeout=60000) # Ficha de Competición
         await page.wait_for_load_state("networkidle")
         
         content = await page.content()
@@ -137,7 +137,7 @@ async def scrape_clasificacion(codigo_club: str):
         await page.goto(url, wait_until='networkidle')
         await page.wait_for_load_state("networkidle")
         
-        await page.click('a[href*="NFG_VisCompeticiones_Club?cod_primaria=1000123&codclub=28701965&codtemporada="]') # Ficha de Competición
+        await page.click('a[href*="NFG_VisCompeticiones_Club?cod_primaria=1000123&codclub=28701965&codtemporada="]', timeout=60000) # Ficha de Competición
         await page.wait_for_load_state("networkidle")
         
         content = await page.content()
@@ -372,14 +372,18 @@ async def abrir_pagina_club(page, codigo_club: str):
     await page.goto(url, wait_until='networkidle')
     await page.wait_for_load_state("networkidle")
 
-    await page.click('a[href*="NFG_VisCompeticiones_Club?cod_primaria=1000123&codclub=28701965&codtemporada="]')
+    await page.click('a[href*="NFG_VisCompeticiones_Club?cod_primaria=1000123&codclub=28701965&codtemporada="]', timeout=60000)
     await page.wait_for_load_state("networkidle")
 
 
 async def scrape_partidos(codigo_club: str):
     async with async_playwright() as p:
         browser = await p.firefox.launch(headless=True)
-        context = await browser.new_context(java_script_enabled=False)
+        context = await browser.new_context(
+            java_script_enabled=True,
+            user_agent="Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:102.0) Gecko/20100101 Firefox/102.0",
+            viewport={"width": 1280, "height": 800}
+        )
         page = await context.new_page()
 
         try:
