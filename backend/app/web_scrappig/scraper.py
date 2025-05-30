@@ -86,7 +86,7 @@ async def scrape_competiciones(codigo_club: str):
 
         session = SessionLocal()
         now = datetime.now()
-        url_api = "http://127.0.0.1:8000/competiciones/"
+        url_api = "https://aplicacion-web-m5oa.onrender.com/competiciones/"
         
         for table in soup.select(".table-bordered"):
             rows = table.select("tbody tr")
@@ -145,7 +145,7 @@ async def scrape_clasificacion(codigo_club: str):
 
         session = SessionLocal()
         now = datetime.now()
-        url_api = "http://127.0.0.1:8000/competiciones/"
+        url_api = "https://aplicacion-web-m5oa.onrender.com/competiciones/"
         
         for table in soup.select(".table-bordered"):
             rows = table.select("tbody tr")
@@ -193,11 +193,11 @@ async def scrape_clasificacion(codigo_club: str):
                                         "puntos": puntos
                                     }
 
-                                    url_get = f"http://127.0.0.1:8000/clasificaciones/{nombre_competicion}/{temporada}/{equipo}"
+                                    url_get = f"https://aplicacion-web-m5oa.onrender.com/clasificaciones/{nombre_competicion}/{temporada}/{equipo}"
                                     response = requests.get(url_get)
 
                                     if response.status_code == 404:
-                                        res = requests.post("http://127.0.0.1:8000/clasificaciones/", json=data)
+                                        res = requests.post("https://aplicacion-web-m5oa.onrender.com/clasificaciones/", json=data)
                                         print(f"Creada: {res.status_code} {data}")
                                     else:
                                         res = requests.put(url_get, json={"posicion": posicion, "puntos": puntos})
@@ -217,7 +217,7 @@ async def scrape_clasificacion(codigo_club: str):
         
 #**********************************************************************************************
 async def guardar_o_actualizar_partido(data):
-    url_base = "http://127.0.0.1:8000"
+    url_base = "https://aplicacion-web-m5oa.onrender.com"
     local = data["local"]
     visitante = data["visitante"]
     nombre = data["nombre_competicion"]
