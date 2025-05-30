@@ -5,5 +5,5 @@ set -o errexit
 pip install -r requirements.txt
 
 # Instalar navegadores (como Firefox) y sus dependencias
-python -m playwright install --with-deps
+python -m playwright install
 
