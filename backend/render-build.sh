@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
 set -o errexit
 
-# Instalar dependencias
+# Instalar dependencias de Python
 pip install -r requirements.txt
 
-# Instalar navegadores (como Firefox) y sus dependencias
-python -m playwright install
+# Instalar navegadores de Playwright en una ruta persistente
+PLAYWRIGHT_BROWSERS_PATH=0 python -m playwright install
 
