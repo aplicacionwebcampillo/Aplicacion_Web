@@ -6,10 +6,15 @@ export default defineConfig({
   base: '/',
   plugins: [react()],
   build: {
-    outDir: 'dist'
-  },
-  server: {
-    port: 3000
+    outDir: 'dist',
+    emptyOutDir: true,
+    rollupOptions: {
+      output: {
+        entryFileNames: `[name].js`,
+        chunkFileNames: `[name].js`,
+        assetFileNames: `[name].[ext]`
+      }
+    }
   }
 })
 
