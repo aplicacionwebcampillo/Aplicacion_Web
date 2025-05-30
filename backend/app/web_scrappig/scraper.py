@@ -69,7 +69,15 @@ def limpiar_texto(texto):
 #***********************************************************************************************
 async def scrape_competiciones(codigo_club: str):
     async with async_playwright() as p:       
-        browser = await p.firefox.launch(headless=True)
+        browser = await p.firefox.launch(
+    headless=True,
+    args=[
+        '--disable-gpu',
+        '--disable-dev-shm-usage',
+        '--no-sandbox'
+    ],
+    timeout=60000
+)
         context = await browser.new_context(java_script_enabled=False)
         page = await context.new_page()
 
@@ -128,7 +136,15 @@ async def scrape_competiciones(codigo_club: str):
 #**********************************************************************************************        
 async def scrape_clasificacion(codigo_club: str):
     async with async_playwright() as p:       
-        browser = await p.firefox.launch(headless=True)
+        browser = await p.firefox.launch(
+    headless=True,
+    args=[
+        '--disable-gpu',
+        '--disable-dev-shm-usage',
+        '--no-sandbox'
+    ],
+    timeout=60000
+)
         context = await browser.new_context(java_script_enabled=False)
         page = await context.new_page()
 
@@ -378,7 +394,15 @@ async def abrir_pagina_club(page, codigo_club: str):
 
 async def scrape_partidos(codigo_club: str):
     async with async_playwright() as p:
-        browser = await p.firefox.launch(headless=True)
+        browser = await p.firefox.launch(
+    headless=True,
+    args=[
+        '--disable-gpu',
+        '--disable-dev-shm-usage',
+        '--no-sandbox'
+    ],
+    timeout=60000
+)
         context = await browser.new_context(java_script_enabled=False)
         page = await context.new_page()
 
