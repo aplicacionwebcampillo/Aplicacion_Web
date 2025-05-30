@@ -1,4 +1,4 @@
-import { HashRouter as Router, Routes, Route } from 'react-router-dom';
+import { Routes, Route } from 'react-router-dom';
 import Navbar from './components/Navbar';
 import Login from './pages/Login';
 import Logout from './pages/Logout';
@@ -27,7 +27,6 @@ import ClubAntiguo from './pages/ClubAntiguo';
 
 export default function App() {
   return (
-	<Router>
 	  <div className="flex flex-col min-h-screen">
 	    <Header />
 	    <Navbar />
@@ -58,7 +57,6 @@ export default function App() {
 	    </main>
 	    <Footer />
 	  </div>
-	</Router>
   );
 }
 

@@ -6,9 +6,11 @@ import { CarritoProvider } from "./context/CarritoContext";
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
+   <HashRouter>
     <CarritoProvider>
       <App />
     </CarritoProvider>
+   </HashRouter>
   </React.StrictMode>,
 );
 
