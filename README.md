@@ -1,6 +1,6 @@
 Campillo del Río CF - Aplicación Web (TFG)
 
-Este repositorio contiene el Trabajo de Fin de Grado (TFG) del alumno Gabriel Vico Arboledas, presentado en la Universidad de Granada. El proyecto consiste en el desarrollo completo de una aplicación web creada desde cero, que ofrece funcionalidades para la gestión y visualización de información del club Campillo del Río CF.\n
+Este repositorio contiene el Trabajo de Fin de Grado (TFG) del alumno Gabriel Vico Arboledas, presentado en la Universidad de Granada. El proyecto consiste en el desarrollo completo de una aplicación web creada desde cero, que ofrece funcionalidades para la gestión y visualización de información del club Campillo del Río CF.
 🌐 Sitio Web
 
 La aplicación está disponible públicamente en el siguiente dominio:
