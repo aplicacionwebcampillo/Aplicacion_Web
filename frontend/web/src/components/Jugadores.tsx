@@ -142,7 +142,7 @@ export default function Jugadores() {
           <div key={m} className="flex justify-center">
             <button
               className={`px-4 py-2 rounded-full border-2 font-bold transition-colors duration-200 ${
-                modo === m ? "bg-blue-600 text-white" : "bg-white text-black"
+                modo === m ? "bg-azul text-blanco border-azul" : "bg-blanco text-azul border-azul"
               }`}
               onClick={() => {
                 setModo(m as any);
@@ -180,7 +180,7 @@ export default function Jugadores() {
         <div className="flex justify-center">
           <button
             onClick={obtenerJugador}
-            className="px-4 py-2 rounded-full border-2 bg-blanco text-azul hover:bg-azul hover:text-blanco"
+            className="px-4 py-2 rounded-full border-2 bg-blanco text-azul border-azul hover:bg-azul hover:text-blanco"
           >
             {modo === "buscar" ? "Buscar Jugador" : "Cargar Jugador"}
           </button>
@@ -263,7 +263,7 @@ export default function Jugadores() {
           <div className="flex justify-center">
             <button
               onClick={modo === "crear" ? crearJugador : actualizarJugador}
-              className="px-4 py-2 rounded-full border-2 bg-blanco text-azul hover:bg-azul hover:text-blanco"
+              className="px-4 py-2 rounded-full border-2 bg-blanco text-azul border-azul hover:bg-azul hover:text-blanco"
             >
               {modo === "crear" ? "Crear Jugador" : "Guardar Cambios"}
             </button>
@@ -277,7 +277,7 @@ export default function Jugadores() {
           <button
             onClick={eliminarJugador}
             disabled={!jugadorNombreBuscado}
-            className="px-4 py-2 rounded-full border-2 bg-blanco text-azul hover:bg-azul hover:text-blanco"
+            className="px-4 py-2 rounded-full border-2 bg-blanco text-azul border-azul hover:bg-azul hover:text-blanco"
           >
             Eliminar Jugador
           </button>

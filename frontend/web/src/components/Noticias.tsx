@@ -63,8 +63,9 @@ export default function NoticiasMain() {
   const width = useWindowWidth();
   
   const noticiasOrdenadas = [...noticiasFiltradas].sort(
-  (b, a) => Number(a.id_noticia) - Number(b.id_noticia)
+  (a, b) => Number(a.id_noticia || 0) - Number(b.id_noticia || 0)
 );
+
 
   const totalPaginas = Math.ceil(noticiasOrdenadas.length / NOTICIAS_POR_PAGINA);
 
@@ -156,7 +157,7 @@ export default function NoticiasMain() {
             className={`text-2xl px-3 py-1 rounded-full border ${
               paginaActual === 1
                 ? "text-gray-400 border-gray-300 cursor-not-allowed"
-                : "text-rojo border-rojo bg-blanco hover:bg-rojo hover:text-blanco"
+                : "text-azul border-azul bg-blanco hover:bg-azul hover:text-blanco"
             }`}
           >
             ←
@@ -168,7 +169,7 @@ export default function NoticiasMain() {
             className={`text-2xl px-3 py-1 rounded-full border ${
               paginaActual === totalPaginas
                 ? "text-gray-400 border-gray-300 cursor-not-allowed"
-                : "text-rojo border-rojo bg-blanco hover:bg-rojo hover:text-blanco"
+                : "text-azul border-azul bg-blanco hover:bg-azul hover:text-blanco"
             }`}
           >
             →

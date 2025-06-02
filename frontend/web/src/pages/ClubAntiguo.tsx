@@ -21,7 +21,6 @@ const IMAGENES_POR_PAGINA = FILAS_POR_PAGINA * COLUMNAS;
 const ClubAntiguo = () => {
  // Galería: reemplaza las rutas por las de tus imágenes reales
   const images = [
-    "/images/ClubAntiguo1.jpeg",
     "/images/ClubAntiguo2.jpeg",
     "/images/ClubAntiguo3.jpeg",
     "/images/ClubAntiguo4.jpg",
@@ -33,6 +32,7 @@ const ClubAntiguo = () => {
     "/images/ClubAntiguo10.jpg",
     "/images/ClubAntiguo11.jpg",
     "/images/ClubAntiguo12.jpg",
+    //"/images/ClubAntiguo1.jpeg",
   ];
 
   const [paginaActual, setPaginaActual] = useState(1);
@@ -222,7 +222,7 @@ const ClubAntiguo = () => {
                 key={index}
                 src={src}
                 alt={`Imagen ${startIndex + index + 1}`}
-                className="w-full h-64 object-cover rounded-xl shadow-md"
+                className="w-full max-h-[14rem] object-cover rounded-xl shadow-md"
               />
             ))}
           </div>

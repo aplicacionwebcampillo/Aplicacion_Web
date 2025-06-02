@@ -35,7 +35,10 @@ export default function SocioPage() {
   const token = localStorage.getItem("token") || "";
 
   useEffect(() => {
-    if (!token || !dni) return;
+    if (!token || !dni) {
+      navigate("/login");
+      return;
+    }
 
     const fetchSocio = async () => {
       try {
@@ -94,6 +97,8 @@ export default function SocioPage() {
         
       </aside>
       )}
+      
+      
 
       {/* Contenido derecho */}
       <main className="flex-1 p-6 flex justify-center items-start">

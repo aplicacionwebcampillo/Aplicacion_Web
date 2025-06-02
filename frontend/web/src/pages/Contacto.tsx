@@ -90,7 +90,7 @@ export default function Contacto() {
           <div className="flex justify-center mt-[1rem]">
             <button
               type="submit"
-              className="px-4 py-2 rounded-full border-2 font-semibold transition-all bg-blanco text-rojo border-rojo hover:bg-rojo hover:text-blanco"
+              className="px-4 py-2 rounded-full border-2 font-semibold transition-all bg-blanco text-azul border-azul hover:bg-azul hover:text-blanco"
             >
               Enviar
             </button>

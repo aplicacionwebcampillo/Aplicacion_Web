@@ -127,7 +127,7 @@ export default function Login() {
               <button
                 type="submit"
                 disabled={loading}
-                className="px-4 py-2 rounded-full border-2 font-bold transition-colors duration-200 bg-blanco text-blanco border-rojo bg-blanco text-rojo border-rojo hover:bg-rojo hover:text-blanco"
+                className="px-4 py-2 rounded-full border-2 font-bold transition-colors duration-200 bg-blanco text-azul border-azul bg-blanco text-azul border-azul hover:bg-azul hover:text-blanco"
               >
                 {loading ? "Iniciando..." : "Iniciar sesión"}
               </button>
@@ -140,7 +140,7 @@ export default function Login() {
             <button
               type="button"
               onClick={() => navigate("/registro")}
-              className="px-4 py-2 rounded-full border-2 font-bold transition-colors duration-200 bg-blanco text-blanco border-rojo bg-blanco text-rojo border-rojo hover:bg-rojo hover:text-blanco"
+              className="px-4 py-2 rounded-full border-2 font-bold transition-colors duration-200 bg-blanco text-azul border-azul bg-blanco text-azul border-azul hover:bg-azul hover:text-blanco"
             >
               Regístrate aquí
             </button>

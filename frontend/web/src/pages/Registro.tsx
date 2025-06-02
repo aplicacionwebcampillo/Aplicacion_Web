@@ -76,7 +76,7 @@ export default function Registro() {
 	<div className="flex items-center justify-center bg-gray-100 px-4">
         <button
           type="submit"
-          className="px-4 py-2 rounded-full border-2 font-bold transition-colors duration-200 bg-blanco text-blanco border-rojo bg-blanco text-rojo border-rojo hover:bg-rojo hover:text-blanco"
+          className="px-4 py-2 rounded-full border-2 font-bold transition-colors duration-200 bg-blanco text-azul border-azul bg-blanco text-azul border-azul hover:bg-azul hover:text-blanco"
         >
           Registrarse
         </button>
@@ -88,7 +88,7 @@ export default function Registro() {
                 <button
                   type="button"
                   onClick={() => navigate("/login")}
-                  className="px-4 py-2 rounded-full border-2 font-bold transition-colors duration-200 bg-blanco text-blanco border-rojo bg-blanco text-rojo border-rojo hover:bg-rojo hover:text-blanco"
+                  className="px-4 py-2 rounded-full border-2 font-bold transition-colors duration-200 bg-blanco text-azul border-azul bg-blanco text-azul border-azul hover:bg-azul hover:text-blanco"
                 >
                   Iniciar Sesión
                 </button>

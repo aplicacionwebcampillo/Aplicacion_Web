@@ -42,7 +42,10 @@ export default function AdministradorPage() {
   const token = localStorage.getItem("token") || "";
 
   useEffect(() => {
-    if (!token || !dni) return;
+    if (!token || !dni) {
+      navigate("/login");
+      return;
+    }
 
     const fetchAdministrador = async () => {
       try {
@@ -65,6 +68,7 @@ export default function AdministradorPage() {
 
     fetchAdministrador();
   }, [dni, token]);
+  
 
   const botones = [
     { id: "usuarios", label: "Usuarios" },

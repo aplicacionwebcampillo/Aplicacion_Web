@@ -116,7 +116,7 @@ export default function TodosPartidos() {
       <h2 className="text-2xl font-bold mb-6 text-center">Calendario</h2>
 
       {/* Botones categoría */}
-      <div className="flex justify-center gap-4 mb-6">
+      <div className="flex flex-wrap justify-center gap-3 mb-6">
         {(["Todos", "Senior", "Femenino", "Juvenil"] as const).map((cat) => (
           <button
             key={cat}

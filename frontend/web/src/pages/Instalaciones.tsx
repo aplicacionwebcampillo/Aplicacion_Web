@@ -21,14 +21,10 @@ const IMAGENES_POR_PAGINA = FILAS_POR_PAGINA * COLUMNAS;
 export default function Instalaciones() {
   // Rutas de imágenes de las instalaciones
   const images = [
-    "/images/PorDefecto.png",
-    "/images/PorDefecto.png",
-    "/images/PorDefecto.png",
-    "/images/PorDefecto.png",
-    "/images/PorDefecto.png",
-    "/images/PorDefecto.png",
-    "/images/PorDefecto.png",
-    "/images/PorDefecto.png",
+    "/images/Instalaciones1.jpeg",
+    "/images/Instalaciones2.jpeg",
+    "/images/Instalaciones3.jpeg",
+    "/images/Instalaciones4.jpeg",
     
   ];
 
@@ -60,11 +56,11 @@ export default function Instalaciones() {
           Instalaciones Deportivas
         </h1>
 
-        <p className="mb-6 text-gray-700 leading-relaxed text-justify">
+        <p className="mb-6 text-negro_texto leading-relaxed text-justify">
           El <strong>Campo Municipal de Campillo del Río</strong> es el epicentro del fútbol en nuestra localidad. Tras años sin fútbol federado, este espacio ha sido reformado y acondicionado para recibir tanto al equipo sénior como a los equipos femeninos y juveniles que representan con orgullo a nuestro pueblo.
         </p>
 
-        <p className="mb-6 text-gray-700 leading-relaxed text-justify">
+        <p className="mb-6 text-negro_texto leading-relaxed text-justify">
           Gracias al apoyo del Ayuntamiento y la inversión realizada, las
           instalaciones cuentan con césped de alta calidad (Dimensiones: 100x58m), gradas para
           espectadores (Aforo permitido: 270 personas) y vestuarios modernos que cumplen con los requisitos

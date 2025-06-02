@@ -33,8 +33,8 @@ app = FastAPI(
 
 app.add_middleware(
     CORSMiddleware,
-    #allow_origins=["https://campillodelriocf.es"],
-    allow_origins=["*"],
+    allow_origins=["https://campillodelriocf.es"],
+    #allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

@@ -123,7 +123,7 @@ export default function Historia() {
                 key={index}
                 src={src}
                 alt={`Imagen ${startIndex + index + 1}`}
-                className="w-full h-64 object-cover rounded-xl shadow-md"
+                className="w-full max-h-[17rem] object-cover rounded-xl shadow-md"
               />
             ))}
           </div>
