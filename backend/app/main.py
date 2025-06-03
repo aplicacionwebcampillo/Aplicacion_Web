@@ -23,6 +23,7 @@ from app.routers.abono import router as abono_router
 from app.routers.carrito import router as carrito_router
 from app.routers.auth import router as auth_router
 from app.routers.clasificacion import router as clasificacion_router
+from app.routers.scraper_router import router as scraper_router
 
 
 app = FastAPI(
@@ -61,4 +62,4 @@ app.include_router(abono_router)
 app.include_router(carrito_router)
 app.include_router(auth_router)
 app.include_router(clasificacion_router)
-
+app.include_router(scraper_router.router)

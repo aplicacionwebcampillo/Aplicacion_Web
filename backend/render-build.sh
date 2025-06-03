@@ -1,5 +1,4 @@
 #!/usr/bin/env bash
-
-echo "Instalando navegadores de Playwright..."
+echo "Instalando Playwright..."
 playwright install --with-deps
 

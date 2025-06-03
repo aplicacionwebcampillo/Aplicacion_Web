@@ -1,5 +1,4 @@
-cronJobs:
-  - name: daily-scraper
+cron:
+  - name: web_scraper_cron
+    path: /run-scraper
     schedule: "0 3 * * *"  # Ejecutar a las 3:00 AM UTC todos los días
-    command: python3 app/web_scrappig/main.py
-
