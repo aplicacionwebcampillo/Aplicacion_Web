@@ -80,7 +80,7 @@ async def scrape_competiciones(codigo_club: str):
 )
         context = await browser.new_context(java_script_enabled=False)
         page = await context.new_page()
-
+        page.set_default_timeout(120000)
 
         url = f"https://www.rfaf.es/pnfg/NPcd/NFG_VerClub?cod_primaria=1000118&codigo_club={codigo_club}"
         await page.goto(url, wait_until='networkidle')
