@@ -430,7 +430,7 @@ useEffect(() => {
         <button
           type="button"
           onClick={() => setShowPassword(prev => !prev)}
-          className="absolute right-3 top-1/2 -translate-y-1/2 text-lg text-gray-600 hover:text-cyan-700"
+          className="absolute right-3 top-1/2 -translate-y-1/2 w-full text-lg text-gray-600 hover:text-cyan-700"
           tabIndex={-1}
         >
           {showPassword ? "🔓" : "🔒"}
