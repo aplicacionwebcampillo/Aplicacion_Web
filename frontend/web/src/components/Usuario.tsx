@@ -15,6 +15,8 @@ export default function Usuario() {
   const [dni, setDni] = useState("");
   const [usuario, setUsuario] = useState<Usuario | null>(null);
   const [modo, setModo] = useState<"buscar" | "editar" | "eliminar" | "listar">("listar");
+  const [showPassword, setShowPassword] = useState(false);
+
 
   // Listar todos los usuarios al cargar
   useEffect(() => {
@@ -131,27 +133,35 @@ export default function Usuario() {
             Cargar Usuario
           </button>
           </div>
-          {usuario && (
-            <div className="space-y-2 mt-2">
-              {["nombre", "apellidos", "telefono", "fecha_nacimiento", "email", "contrasena"].map((field) => (
-                <input
-                  key={field}
-                  type={field === "fecha_nacimiento" ? "date" : "text"}
-                  placeholder={field}
-                  value={(usuario as any)[field] || ""}
-                  onChange={(e) =>
-                    setUsuario((prev) => prev && { ...prev, [field]: e.target.value })
-                  }
-                  className="rounded-[1rem] font-poetsen w-[90%] rounded-xl border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-cyan-500"
-                />
-              ))}
-              <div className="flex justify-center">
-              <button onClick={actualizarUsuario} className="px-4 py-2 rounded-full border-2 font-bold transition-colors duration-200 bg-blanco text-azul border-azul bg-blanco text-azul border-azul hover:bg-azul hover:text-blanco">
-                Guardar Cambios
-              </button>
-              </div>
-            </div>
-          )}
+          {["nombre", "apellidos", "telefono", "fecha_nacimiento", "email", "contrasena"].map((field) => {
+  const isPassword = field === "contrasena";
+  const isDate = field === "fecha_nacimiento";
+
+  return (
+    <div key={field} className={isPassword ? "relative w-[90%]" : ""}>
+      <input
+        type={isDate ? "date" : isPassword && !showPassword ? "password" : "text"}
+        placeholder={field}
+        value={(usuario as any)[field] || ""}
+        onChange={(e) =>
+          setUsuario((prev) => prev && { ...prev, [field]: e.target.value })
+        }
+        className="rounded-[1rem] font-poetsen w-[90%] rounded-xl border border-gray-300 px-3 py-2 pr-10 focus:outline-none focus:ring-2 focus:ring-cyan-500"
+      />
+      {isPassword && (
+        <button
+          type="button"
+          onClick={() => setShowPassword((prev) => !prev)}
+          className="absolute right-3 top-1/2 -translate-y-1/2 text-lg text-gray-600 hover:text-cyan-700"
+          tabIndex={-1}
+        >
+          {showPassword ? "🔓" : "🔒"}
+        </button>
+      )}
+    </div>
+  );
+})}
+
         </>
       )}
 

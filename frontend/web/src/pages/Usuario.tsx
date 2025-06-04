@@ -39,6 +39,7 @@ export default function UsuarioPage() {
     foto_perfil: string;
   }>(null);
   const dni = localStorage.getItem("dni") || "";
+  const [showPassword, setShowPassword] = useState(false);
   const [esSocio, setEsSocio] = useState(false);
   const [abonoMasReciente, setAbonoMasReciente] = useState<null | {
     temporada: string;
@@ -403,20 +404,42 @@ useEffect(() => {
             className="bg-celeste text-blanco px-6 py-10 rounded-[1rem] font-poetsen font-bold w-full max-w-[40rem] shadow-lg space-y-4"
           >
             <h2 className="text-2xl font-semibold mb-4 text-center">Modificar Usuario</h2>
-            {["nombre", "apellidos", "telefono", "fecha_nacimiento", "email", "contrasena"].map((campo) => (
-              <div key={campo} className="flex justify-center">
-                <input
-                  name={campo}
-                  type={campo === "fecha_nacimiento" ? "date" : campo === "email" ? "email" : campo === "contrasena" ? "password" : "text"}
-                  value={formData[campo as keyof typeof formData]}
-                  onChange={handleChange}
-                  placeholder={
-                    campo === "contrasena" ? "Nueva Contraseña" : campo.charAt(0).toUpperCase() + campo.slice(1)
-                  }
-                  className="rounded-[1rem] font-poetsen w-[90%] rounded-xl border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-cyan-500"
-                />
-              </div>
-            ))}
+            {["nombre", "apellidos", "telefono", "fecha_nacimiento", "email", "contrasena"].map((campo) => {
+  const isPassword = campo === "contrasena";
+  const isDate = campo === "fecha_nacimiento";
+  const isEmail = campo === "email";
+
+  return (
+    <div key={campo} className="flex justify-center relative w-[90%]">
+      <input
+        name={campo}
+        type={
+          isDate ? "date" :
+          isEmail ? "email" :
+          isPassword ? (showPassword ? "text" : "password") :
+          "text"
+        }
+        value={formData[campo as keyof typeof formData]}
+        onChange={handleChange}
+        placeholder={
+          isPassword ? "Nueva Contraseña" : campo.charAt(0).toUpperCase() + campo.slice(1)
+        }
+        className="rounded-[1rem] font-poetsen w-full rounded-xl border border-gray-300 px-3 py-2 pr-10 focus:outline-none focus:ring-2 focus:ring-cyan-500"
+      />
+      {isPassword && (
+        <button
+          type="button"
+          onClick={() => setShowPassword(prev => !prev)}
+          className="absolute right-3 top-1/2 -translate-y-1/2 text-lg text-gray-600 hover:text-cyan-700"
+          tabIndex={-1}
+        >
+          {showPassword ? "🔓" : "🔒"}
+        </button>
+      )}
+    </div>
+  );
+})}
+
             <div className="flex justify-center">
               <button
                 type="submit"
