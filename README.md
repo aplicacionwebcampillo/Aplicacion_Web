@@ -55,4 +55,8 @@ Grado en Ingeniería Informática
 
 ## 📝 Licencia
 
-Este proyecto está bajo una licencia de uso académico. Para cualquier uso o consulta adicional, contactar con el autor.
+© 2025 [Gabriel Vico Arboledas]. Este proyecto ha sido desarrollado como Trabajo de Fin de Grado en Ingeniería Informática (UGR).
+
+- El código fuente está licenciado bajo la Licencia MIT.
+- La documentación y otros contenidos están bajo una licencia Creative Commons CC BY-NC-SA 4.0.
+

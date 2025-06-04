@@ -20,6 +20,18 @@ export default function Footer() {
         </p>
         
         <p>
+          <a href="/politica-privacidad" className="no-underline text-blanco  hover:text-azul transition-colors ">
+            Política de Privacidad
+          </a>
+        </p>
+        
+        <p>
+          <a href="/politica-cookies" className="no-underline text-blanco  hover:text-azul transition-colors ">
+            Política de Cookies
+          </a>
+        </p>
+        
+        <p>
           <a href="contacto" className="no-underline text-blanco  hover:text-azul transition-colors ">
             Contacto
           </a>

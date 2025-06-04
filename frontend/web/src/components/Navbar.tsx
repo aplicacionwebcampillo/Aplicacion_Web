@@ -52,11 +52,11 @@ export default function Navbar() {
           md:flex md:justify-between md:items-center md:w-full p-0
         `}
       >
-        <ul className="list-none flex flex-col md:flex-row md:justify-between w-full justify-center items-center list-none p-0 m-0 md:pl-[10rem] pr-[10rem] ">
+        <ul className="list-none flex flex-col md:flex-row md:justify-between md:w-full justify-center items-center list-none p-0 m-0 md:pl-[10rem] md:pr-[10rem] ">
           {menuItems.map((item) => (
             <li
               key={item.label}
-              className="w-full md:w-auto text-center font-bold font-poetsen relative group"
+              className="w-auto text-center font-bold font-poetsen relative group"
               onMouseEnter={() => item.submenu && setOpenSubmenu(item.label)}
               onMouseLeave={() => item.submenu && setOpenSubmenu(null)}
             >

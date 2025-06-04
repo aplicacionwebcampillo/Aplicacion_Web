@@ -23,11 +23,15 @@ import Header from './components/Header';
 import Footer from './components/Footer';
 import "./index.css";
 import AvisoLegal from './pages/Aviso-Legal';
+import PolíticaPrivacidad from './pages/PoliticaPrivacidad';
+import PoliticaCookies from './pages/PoliticaCookies';
+import AvisoCookies from "./components/Cookies";
 import ClubAntiguo from './pages/ClubAntiguo';
 
 export default function App() {
   return (
 	  <div className="flex flex-col min-h-screen">
+	    <AvisoCookies />
 	    <Header />
 	    <Navbar />
 	    <main className="flex-grow text-justify">
@@ -52,6 +56,8 @@ export default function App() {
 		<Route path="/instalaciones" element={<Instalaciones />} />
 		<Route path="/contacto" element={<Contacto />} />
 		<Route path="/aviso-legal" element={<AvisoLegal />} />
+		<Route path="/politica-privacidad" element={<PolíticaPrivacidad />} />
+		<Route path="/politica-cookies" element={<PoliticaCookies />} />
 		<Route path="/club-antiguo" element={<ClubAntiguo />} />
 	      </Routes>
 	    </main>

@@ -1,0 +1,17 @@
+Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International (CC BY-NC-SA 4.0)
+
+Este trabajo (documentación, memoria y contenido no relacionado directamente con el código)
+está licenciado bajo la licencia Creative Commons BY-NC-SA 4.0.
+
+Puede copiarse, redistribuirse y adaptarse bajo las siguientes condiciones:
+
+- **Atribución**: Debes dar crédito de forma adecuada al autor.
+- **No comercial**: No puedes usar el material con fines comerciales.
+- **Compartir igual**: Si remezclas, transformas o construyes a partir del material,
+  debes distribuir tu contribución bajo la misma licencia.
+
+Licencia completa: https://creativecommons.org/licenses/by-nc-sa/4.0/deed.es
+
+Autor: [Gabriel Vico Arboledas]
+Año: 2025
+

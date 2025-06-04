@@ -17,6 +17,7 @@ export default function Registro() {
 
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<boolean>(false);
+  const [aceptaPolitica, setAceptaPolitica] = useState(false);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -72,14 +73,51 @@ export default function Registro() {
             </div>
           ))}
         </div>
+        
+        <div className="flex items-center space-x-2">
+  <input
+    type="checkbox"
+    id="aceptaPolitica"
+    checked={aceptaPolitica}
+    onChange={(e) => setAceptaPolitica(e.target.checked)}
+    required
+  />
+  <label htmlFor="aceptaPolitica" className="text-sm">
+    Acepto la{" "}
+    <a
+      href="/politica-privacidad"
+      target="_blank"
+      rel="noopener noreferrer"
+      className="no-underline text-blanco hover:text-azul"
+    >
+      política de privacidad
+    </a>
+  </label>
+</div>
+
+
+<p className="text-xs text-gray-200 mt-2">
+  Responsable: CD Campillo del Río CF. Finalidad: gestión de inscripciones. 
+  Derechos: acceso, rectificación y supresión. Más info en la{" "}
+  <a href="/politica-privacidad" target="_blank" className="no-underline text-blanco">
+    Política de Privacidad
+  </a>.
+</p>
+
 	
 	<div className="flex items-center justify-center bg-gray-100 px-4">
         <button
-          type="submit"
-          className="px-4 py-2 rounded-full border-2 font-bold transition-colors duration-200 bg-blanco text-azul border-azul bg-blanco text-azul border-azul hover:bg-azul hover:text-blanco"
-        >
-          Registrarse
-        </button>
+  type="submit"
+  disabled={!aceptaPolitica}
+  className={`px-4 py-2 rounded-full border-2 font-bold transition-colors duration-200 ${
+    aceptaPolitica
+      ? "bg-blanco text-azul border-azul hover:bg-azul hover:text-blanco"
+      : "bg-gray-300 text-gray-500 border-gray-300 cursor-not-allowed"
+  }`}
+>
+  Registrarse
+</button>
+
         </div>
 
         <div className="mt-6 text-center">
