@@ -64,7 +64,7 @@ export default function Navbar() {
                 <>
                   <button
                     onClick={() => toggleSubmenu(item.label)}
-                    className="py-2 text-[1.4rem] font-poetsen font-bold text-lg no-underline text-blanco hover:text-azul border-none shadow-none focus:outline-none focus:shadow-none bg-celeste border-celeste"
+                    className="py-2 text-[1rem] md:text-[1.4rem] font-poetsen font-bold text-lg no-underline text-blanco hover:text-azul border-none shadow-none focus:outline-none focus:shadow-none bg-celeste border-celeste"
                   >
                     {item.label}
                   </button>
