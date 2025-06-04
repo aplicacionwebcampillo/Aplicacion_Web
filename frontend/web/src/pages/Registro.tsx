@@ -18,6 +18,8 @@ export default function Registro() {
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<boolean>(false);
   const [aceptaPolitica, setAceptaPolitica] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -52,26 +54,48 @@ export default function Registro() {
 
         <div className="space-y-3">
           {[
-            { label: "DNI", name: "dni" },
-            { label: "Nombre", name: "nombre" },
-            { label: "Apellidos", name: "apellidos" },
-            { label: "Teléfono", name: "telefono" },
-            { label: "Fecha de nacimiento", name: "fecha_nacimiento", type: "date" },
-            { label: "Email", name: "email", type: "email" },
-            { label: "Contraseña", name: "contrasena", type: "password" },
-          ].map(({ label, name, type = "text" }) => (
-            <div key={name}>
-              <label className="block text-sm font-medium mb-1">{label}</label>
-              <input
-                type={type}
-                name={name}
-                value={formData[name as keyof typeof formData]}
-                onChange={handleChange}
-                required
-                className="w-[90%] rounded-[1rem] border border-gray-300 rounded px-3 py-2"
-              />
-            </div>
-          ))}
+  { label: "DNI", name: "dni" },
+  { label: "Nombre", name: "nombre" },
+  { label: "Apellidos", name: "apellidos" },
+  { label: "Teléfono", name: "telefono" },
+  { label: "Fecha de nacimiento", name: "fecha_nacimiento", type: "date" },
+  { label: "Email", name: "email", type: "email" },
+  { label: "Contraseña", name: "contrasena", type: "password" },
+].map(({ label, name, type = "text" }) => (
+  <div key={name} className="relative w-[90%]">
+    <label className="block text-sm font-medium mb-1">{label}</label>
+
+    {name === "contrasena" ? (
+      <div className="relative">
+        <input
+          type={showPassword ? "text" : "password"}
+          name={name}
+          value={formData[name as keyof typeof formData]}
+          onChange={handleChange}
+          required
+          className="w-[95%] rounded-[1rem] border border-gray-300 px-3 py-2 pr-10"
+        />
+        <button
+          type="button"
+          onClick={() => setShowPassword((prev) => !prev)}
+          className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 text-sm"
+        >
+          {showPassword ? "🔒" : "🔓"}
+        </button>
+      </div>
+    ) : (
+      <input
+        type={type}
+        name={name}
+        value={formData[name as keyof typeof formData]}
+        onChange={handleChange}
+        required
+        className="w-full rounded-[1rem] border border-gray-300 px-3 py-2"
+      />
+    )}
+  </div>
+))}
+
         </div>
         
         <div className="flex items-center space-x-2">
