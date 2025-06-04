@@ -32,7 +32,7 @@ export default function UsuarioPage() {
   });
 
   const [adminData, setAdminData] = useState<TipoAdministrador | null>(null);
-
+  const [showPassword, setShowPassword] = useState(false);
   const [socioData, setSocioData] = useState<null | {
     tipo_membresia: string;
     estado: string;
@@ -399,33 +399,60 @@ useEffect(() => {
       <main className="flex-1 p-6 flex justify-center items-start">
         {seccion === "modificar" && (
           <form
-            onSubmit={handleActualizar}
-            className="bg-celeste text-blanco px-6 py-10 rounded-[1rem] font-poetsen font-bold w-full max-w-[40rem] shadow-lg space-y-4"
+  onSubmit={handleActualizar}
+  className="bg-celeste text-blanco px-6 py-10 rounded-[1rem] font-poetsen font-bold w-full max-w-[40rem] shadow-lg space-y-4"
+>
+  <h2 className="text-2xl font-semibold mb-4 text-center">Modificar Usuario</h2>
+
+  {["nombre", "apellidos", "telefono", "fecha_nacimiento", "email", "contrasena"].map((campo) => (
+    <div key={campo} className="flex justify-center w-[90%] relative">
+      {campo === "contrasena" ? (
+        <>
+          <input
+            name={campo}
+            type={showPassword ? "text" : "password"}
+            value={formData[campo as keyof typeof formData]}
+            onChange={handleChange}
+            placeholder="Nueva Contraseña"
+            className="rounded-[1rem] font-poetsen w-full border border-gray-300 px-3 py-2 pr-10 focus:outline-none focus:ring-2 focus:ring-cyan-500"
+          />
+          <button
+            type="button"
+            onClick={() => setShowPassword((prev) => !prev)}
+            className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 text-sm"
           >
-            <h2 className="text-2xl font-semibold mb-4 text-center">Modificar Usuario</h2>
-            {["nombre", "apellidos", "telefono", "fecha_nacimiento", "email", "contrasena"].map((campo) => (
-              <div key={campo} className="flex justify-center">
-                <input
-                  name={campo}
-                  type={campo === "fecha_nacimiento" ? "date" : campo === "email" ? "email" : campo === "contrasena" ? "password" : "text"}
-                  value={formData[campo as keyof typeof formData]}
-                  onChange={handleChange}
-                  placeholder={
-                    campo === "contrasena" ? "Nueva Contraseña" : campo.charAt(0).toUpperCase() + campo.slice(1)
-                  }
-                  className="rounded-[1rem] font-poetsen w-[90%] rounded-xl border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-cyan-500"
-                />
-              </div>
-            ))}
-            <div className="flex justify-center">
-              <button
-                type="submit"
-                className="px-4 py-2 rounded-full border-2 font-bold transition-colors duration-200 bg-blanco text-azul border-azul bg-blanco text-azul border-azul hover:bg-azul hover:text-blanco"
-              >
-                Guardar Cambios
-              </button>
-            </div>
-          </form>
+            {showPassword ? "🔒" : "🔓"}
+          </button>
+        </>
+      ) : (
+        <input
+          name={campo}
+          type={
+            campo === "fecha_nacimiento"
+              ? "date"
+              : campo === "email"
+              ? "email"
+              : "text"
+          }
+          value={formData[campo as keyof typeof formData]}
+          onChange={handleChange}
+          placeholder={campo.charAt(0).toUpperCase() + campo.slice(1)}
+          className="rounded-[1rem] font-poetsen w-full border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-cyan-500"
+        />
+      )}
+    </div>
+  ))}
+
+  <div className="flex justify-center">
+    <button
+      type="submit"
+      className="px-4 py-2 rounded-full border-2 font-bold transition-colors duration-200 bg-blanco text-azul border-azul hover:bg-azul hover:text-blanco"
+    >
+      Guardar Cambios
+    </button>
+  </div>
+</form>
+
         )}
 
         {seccion === "eliminar" && (
