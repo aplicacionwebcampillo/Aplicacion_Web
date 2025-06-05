@@ -20,6 +20,8 @@ export default function Administrador() {
   const [dni, setDni] = useState("");
   const [admin, setAdmin] = useState<Administrador | null>(null);
   const [admins, setAdmins] = useState<Administrador[]>([]);
+  const [showPassword, setShowPassword] = useState(false);
+
 
   // Hook para subir imagen
   const { subirImagen, loading: cargandoImagen, error: errorImagen } = useSubirImagen();
@@ -199,47 +201,75 @@ export default function Administrador() {
       )}
 
       {modo === "crear" && (
-        <div className="space-y-2">
-          {camposCrear.map((campo) => (
+  <div className="space-y-2">
+    {camposCrear.map((campo) => (
+      <div key={campo} className="relative flex justify-center w-[90%] mx-auto">
+        {campo === "contrasena" ? (
+          <>
             <input
-              key={campo}
-              type={campo === "fecha_nacimiento" ? "date" : "text"}
+              type={showPassword ? "text" : "password"}
               placeholder={campo}
-              className="rounded-[1rem] font-poetsen w-[90%] rounded-xl border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-cyan-500"
+              className="rounded-[1rem] font-poetsen w-full border border-gray-300 px-3 py-2 pr-10 focus:outline-none focus:ring-2 focus:ring-cyan-500"
               value={(admin as any)?.[campo] || ""}
-              onChange={(e) => setAdmin(prev => ({
-  ...prev!,
-  [campo]: e.target.value || "",
-}))
-}
+              onChange={(e) =>
+                setAdmin((prev) => ({
+                  ...prev!,
+                  [campo]: e.target.value || "",
+                }))
+              }
             />
-          ))}
-          {/* Input file para foto de perfil */}
-          <div className="flex flex-col items-center w-[90%] mx-auto">
-            <label className="block font-semibold mb-2">Foto de Perfil</label>
-            <input
-              type="file"
-              accept="image/*"
-              onChange={handleImagenChange}
-              className="rounded-[1rem] font-poetsen w-full rounded-xl border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-cyan-500"
-            />
-            {cargandoImagen && <p className="mt-2 text-sm text-yellow-400">Subiendo imagen...</p>}
-            {errorImagen && <p className="mt-2 text-sm text-red-600">Error al subir imagen.</p>}
-            {admin?.foto_perfil && (
-              <img src={admin.foto_perfil} alt="Vista previa" className="mt-4 w-24 h-24 object-cover rounded-xl" />
-            )}
-          </div>
-
-          <div className="flex justify-center">
             <button
-              onClick={crearAdmin}
-              className="px-4 py-2 rounded-full border-2 font-bold transition-colors duration-200 bg-blanco text-azul border-azul hover:bg-azul hover:text-blanco"
+              type="button"
+              onClick={() => setShowPassword((prev) => !prev)}
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 text-sm"
             >
-              Crear Administrador
+              {showPassword ? "🔒" : "🔓"}
             </button>
-          </div>
-        </div>
+          </>
+        ) : (
+          <input
+            type={campo === "fecha_nacimiento" ? "date" : campo === "email" ? "email" : "text"}
+            placeholder={campo}
+            className="rounded-[1rem] font-poetsen w-full border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-cyan-500"
+            value={(admin as any)?.[campo] || ""}
+            onChange={(e) =>
+              setAdmin((prev) => ({
+                ...prev!,
+                [campo]: e.target.value || "",
+              }))
+            }
+          />
+        )}
+      </div>
+    ))}
+
+    {/* Input file para foto de perfil */}
+    <div className="flex flex-col items-center w-[90%] mx-auto">
+      <label className="block font-semibold mb-2">Foto de Perfil</label>
+      <input
+        type="file"
+        accept="image/*"
+        onChange={handleImagenChange}
+        className="rounded-[1rem] font-poetsen w-full rounded-xl border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-cyan-500"
+      />
+      {cargandoImagen && <p className="mt-2 text-sm text-yellow-400">Subiendo imagen...</p>}
+      {errorImagen && <p className="mt-2 text-sm text-red-600">Error al subir imagen.</p>}
+      {admin?.foto_perfil && (
+        <img src={admin.foto_perfil} alt="Vista previa" className="mt-4 w-24 h-24 object-cover rounded-xl" />
       )}
+    </div>
+
+    <div className="flex justify-center">
+      <button
+        onClick={crearAdmin}
+        className="px-4 py-2 rounded-full border-2 font-bold transition-colors duration-200 bg-blanco text-azul border-azul hover:bg-azul hover:text-blanco"
+      >
+        Crear Administrador
+      </button>
+    </div>
+  </div>
+)}
+
 
       {modo === "editar" && (
         <>

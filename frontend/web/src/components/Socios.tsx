@@ -27,6 +27,8 @@ export default function Socios() {
   const [dni, setDni] = useState("");
   const [socio, setSocio] = useState<Socio | null>(null);
   const [socios, setSocios] = useState<Socio[]>([]);
+  const [showPassword, setShowPassword] = useState(false);
+
 
   useEffect(() => {
     if (modo === "listar") {
@@ -284,42 +286,72 @@ export default function Socios() {
 
       {/* Crear socio */}
       {modo === "crear" && (
-        <div className="space-y-2">
-          {camposCrear.map((campo) => (
+  <div className="space-y-2">
+    {camposCrear.map((campo) => (
+      campo === "num_socio" ? null : (
+        <div key={campo} className="relative flex justify-center w-[90%] mx-auto">
+          {campo === "contrasena" ? (
+            <>
+              <input
+                type={showPassword ? "text" : "password"}
+                placeholder={campo}
+                className="rounded-[1rem] font-poetsen w-full border border-gray-300 px-3 py-2 pr-10 focus:outline-none focus:ring-2 focus:ring-cyan-500"
+                value={(socio as any)?.[campo] || ""}
+                onChange={(e) =>
+                  setSocio(prev => ({
+                    ...prev!,
+                    [campo]: e.target.value || "",
+                  }))
+                }
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(prev => !prev)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 text-sm"
+              >
+                {showPassword ? "🔒" : "🔓"}
+              </button>
+            </>
+          ) : (
             <input
-              key={campo}
               type={campo === "fecha_nacimiento" ? "date" : "text"}
               placeholder={campo}
-              className={campo === "num_socio" ? "hidden" : "rounded-[1rem] font-poetsen w-[90%] rounded-xl border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-cyan-500"}
+              className="rounded-[1rem] font-poetsen w-full border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-cyan-500"
               value={(socio as any)?.[campo] || ""}
               onChange={(e) =>
                 setSocio(prev => ({
-  ...prev!,
-  [campo]: e.target.value || "",
-}))
+                  ...prev!,
+                  [campo]: e.target.value || "",
+                }))
               }
             />
-          ))}
-          <input
-            type="file"
-            accept="image/*"
-            onChange={handleImagenChange}
-            className="rounded-[1rem] font-poetsen w-[90%] rounded-xl border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-cyan-500"
-          />
-          {socio?.foto_perfil && (
-            <img src={socio.foto_perfil} alt="Vista previa" className="w-24 h-24 object-cover rounded-xl" />
           )}
-
-          <div className="flex justify-center"> 
-            <button
-              onClick={crearSocio}
-              className="px-4 py-2 rounded-full border-2 font-bold transition-colors duration-200 bg-blanco text-azul border-azul hover:bg-azul hover:text-blanco"
-            >
-              Crear Socio
-            </button>
-          </div>
         </div>
-      )}
+      )
+    ))}
+
+    <input
+      type="file"
+      accept="image/*"
+      onChange={handleImagenChange}
+      className="rounded-[1rem] font-poetsen w-[90%] rounded-xl border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-cyan-500"
+    />
+
+    {socio?.foto_perfil && (
+      <img src={socio.foto_perfil} alt="Vista previa" className="w-24 h-24 object-cover rounded-xl" />
+    )}
+
+    <div className="flex justify-center">
+      <button
+        onClick={crearSocio}
+        className="px-4 py-2 rounded-full border-2 font-bold transition-colors duration-200 bg-blanco text-azul border-azul hover:bg-azul hover:text-blanco"
+      >
+        Crear Socio
+      </button>
+    </div>
+  </div>
+)}
+
 
       {/* Editar socio */}
       {modo === "editar" && (

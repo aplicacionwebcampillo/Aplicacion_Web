@@ -64,7 +64,7 @@ export default function Navbar() {
                 <>
                   <button
                     onClick={() => toggleSubmenu(item.label)}
-                    className="py-2 text-[1rem] md:text-[1.4rem] font-poetsen font-bold text-lg no-underline text-blanco hover:text-azul border-none shadow-none focus:outline-none focus:shadow-none bg-celeste border-celeste"
+                    className="py-2 text-[1.4rem] font-poetsen font-bold text-lg no-underline text-blanco hover:text-azul border-none shadow-none focus:outline-none focus:shadow-none bg-celeste border-celeste"
                   >
                     {item.label}
                   </button>
@@ -84,7 +84,7 @@ export default function Navbar() {
                             setOpenSubmenu(null);
                           }}
                           className={({ isActive }) =>
-                            `block px-4 py-2 text-sm font-poetsen text-[1.4rem] ${
+                            `block px-4 py-2 text-sm font-poetsen text-[1rem] md:text-[1.4rem] ${
                               isActive ? 'text-azul' : 'text-blanco'
                             } hover:text-azul hover:bg-celeste md:hover:bg-celeste rounded-[1rem] text-center no-underline`
                           }
