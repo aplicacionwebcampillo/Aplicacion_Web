@@ -18,7 +18,7 @@ export default function AvisoCookies() {
   if (!visible) return null;
 
   return (
-    <div className="fixed bottom-0 left-0 md:w-[77.5%] bg-celeste text-negro_texto p-4 flex items-center rounded-t-[1rem] md:pl-[25rem]">
+    <div className="fixed bottom-0 left-0 z-50 w-full box-border bg-celeste text-negro_texto p-4 flex justify-center items-center rounded-t-[1rem]">
       <p className="text-sm">
         Usamos cookies técnicas para mejorar tu experiencia. Puedes leer más en nuestra{" "}
         <a href="/politica-cookies" className="no-underline text-negro_texto">Política de Cookies</a>.
