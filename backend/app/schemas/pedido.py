@@ -24,6 +24,3 @@ class PedidoResponse(BaseModel):
 
     class Config:
         orm_mode = True
-
-
-
