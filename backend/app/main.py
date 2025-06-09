@@ -35,6 +35,7 @@ app = FastAPI(
 origins = [
     "https://campillodelriocf.es",
     "https://aplicacion-web-service.onrender.com",
+    "https://aplicacion-web-m5oa.onrender.com",
     "http://localhost:5173",
 ]
 
