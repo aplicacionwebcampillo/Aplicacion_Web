@@ -16,24 +16,22 @@ def create_pedido(db: Session, pedido: PedidoCreate):
     db.refresh(db_pedido)
 
     productos_contados = Counter(pedido.productos_ids)
-
     for producto_id, cantidad in productos_contados.items():
-        stmt = insert(pedido_producto).values(
+        pedido_producto = PedidoProducto(
             pedido_id=db_pedido.id_pedido,
             producto_id=producto_id,
             cantidad=cantidad
         )
-        db.execute(stmt)
-        
-        update_stmt = (
-            update(Producto)
-            .where(Producto.id_producto == producto_id)
-            .values(stock=Producto.stock - cantidad)
-        )
-        db.execute(update_stmt)
+        db.add(pedido_producto)
+
+        producto = db.query(Producto).filter(Producto.id_producto == producto_id).first()
+        if producto:
+            producto.stock -= cantidad
 
     db.commit()
+    db.refresh(db_pedido)
     return db_pedido
+
 
 def get_pedido(db: Session, id_pedido: int):
     return db.query(Pedido).filter(Pedido.id_pedido == id_pedido).first()

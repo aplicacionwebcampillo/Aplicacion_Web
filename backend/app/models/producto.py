@@ -14,5 +14,4 @@ class Producto(Base):
     imagen = Column(String(255), nullable=False)
     
     pedidos = relationship('Pedido', secondary='pedido_producto', back_populates='productos')
-
-
+    pedido_productos = relationship("PedidoProducto", back_populates="producto")

@@ -43,15 +43,13 @@ def serialize_pedido(pedido):
         "descuento": pedido.descuento,
         "precio_total": pedido.precio_total,
         "productos": [{
-            "id_producto": p.id_producto,
-            "nombre": p.nombre,
-            "descripcion": p.descripcion,
-            "precio": float(p.precio),
-            "stock": p.stock,
-            "imagen": p.imagen
-        } for p in pedido.productos]
+            "id_producto": pp.producto.id_producto,
+            "nombre": pp.producto.nombre,
+            "descripcion": pp.producto.descripcion,
+            "precio": float(pp.producto.precio),
+            "stock": pp.producto.stock,
+            "imagen": pp.producto.imagen,
+            "cantidad": pp.cantidad
+        } for pp in pedido.pedido_productos]
     }
-
-
-
 

@@ -1,12 +1,15 @@
-from sqlalchemy import Column, Integer, Float, Table, ForeignKey, Table
+from sqlalchemy import Column, Integer, ForeignKey
 from sqlalchemy.orm import relationship
 from app.database import Base
 
-pedido_producto = Table(
-    'pedido_producto',
-    Base.metadata,
-    Column("pedido_id", Integer, ForeignKey("pedido.id_pedido")),
-    Column("producto_id", Integer, ForeignKey("producto.id_producto")),
-    Column("id", Integer, primary_key=True),
-    Column("cantidad", Integer)
-)
+class PedidoProducto(Base):
+    __tablename__ = "pedido_producto"
+
+    id = Column(Integer, primary_key=True, index=True)  # O podrías usar llave compuesta pedido_id+producto_id
+    pedido_id = Column(Integer, ForeignKey("pedido.id_pedido"))
+    producto_id = Column(Integer, ForeignKey("producto.id_producto"))
+    cantidad = Column(Integer, nullable=False)
+
+    pedido = relationship("Pedido", back_populates="pedido_productos")
+    producto = relationship("Producto")
+

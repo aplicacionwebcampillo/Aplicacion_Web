@@ -12,3 +12,4 @@ class Pedido(Base):
 
     productos = relationship('Producto', secondary='pedido_producto', back_populates='pedidos')
     compras = relationship("Compra", back_populates="pedido")
+    pedido_productos = relationship("PedidoProducto", back_populates="pedido", cascade="all, delete-orphan")
