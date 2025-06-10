@@ -63,6 +63,7 @@ export default function Carrito() {
         precio_total: totalConDescuento,
         productos_ids: carrito.flatMap(item =>
           Array(item.cantidad).fill(item.producto.id_producto)
+        )
       };
 
       const resPedido = await fetch("https://aplicacion-web-m5oa.onrender.com/pedidos/", {
