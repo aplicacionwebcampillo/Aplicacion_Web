@@ -68,13 +68,13 @@ def actualizar_cantidad(db: Session, user_id: int, id_producto: int, cantidad: i
 def aplicar_descuento(db: Session, user_id: int, datos: AplicarDescuento):
     carrito = _get_carrito_usuario(user_id)
 
-    usuario = db.query(Usuario).filter(Usuario.dni == user_id).first()
+    usuario = db.query(Usuario).filter(Usuario.dni == str(user_id)).first()
 
     if not usuario:
         raise HTTPException(status_code=404, detail="Usuario no encontrado")
 
-    socio = db.query(Socio).filter(Socio.dni == user_id).first()
-    admin = db.query(Administrador).filter(Administrador.dni == user_id).first()
+    socio = db.query(Socio).filter(Socio.dni == str(user_id)).first()
+    admin = db.query(Administrador).filter(Administrador.dni == str(user_id)).first()
 
     if datos.codigo.upper() == "SOCIO" and socio:
         carrito["descuento"] = 0.15

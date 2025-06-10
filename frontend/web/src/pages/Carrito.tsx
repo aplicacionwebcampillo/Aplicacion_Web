@@ -17,36 +17,41 @@ export default function Carrito() {
   const totalConDescuento = Number((totalSinDescuento * (1 - descuento)).toFixed(2));
 
   const aplicarDescuento = async () => {
-    try {
-      const token = localStorage.getItem("token");
+  try {
+    const token = localStorage.getItem("token");
+    if (!token) throw new Error("No hay sesión activa");
 
-      const response = await fetch("https://aplicacion-web-m5oa.onrender.com/carrito/descuento", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${token}`,
-        },
-        body: JSON.stringify({ codigo: codigoDescuento }),
-      });
+    const response = await fetch("https://aplicacion-web-m5oa.onrender.com/carrito/descuento", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${token}`,
+      },
+      body: JSON.stringify({ codigo: codigoDescuento }),
+    });
 
-      if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.detail || "Error al aplicar descuento");
-      }
-
-      if (codigoDescuento.toUpperCase() === "SOCIO") {
-        setDescuento(0.15);
-        setMensaje("Descuento de socio aplicado.");
-      } else if (codigoDescuento.toUpperCase() === "ADMIN") {
-        setDescuento(0.25);
-        setMensaje("Descuento de administrador aplicado.");
-      }
-
-    } catch (error) {
-      setMensaje("Código inválido o no autorizado.");
-      setDescuento(0);
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.detail || "Error al aplicar descuento");
     }
-  };
+
+    const result = await response.json();
+    setMensaje(result.mensaje || "Descuento aplicado correctamente");
+    
+    // Actualiza el estado del descuento obteniendo el carrito nuevamente
+    const carritoResponse = await fetch("https://aplicacion-web-m5oa.onrender.com/carrito/", {
+      headers: {
+        "Authorization": `Bearer ${token}`,
+      },
+    });
+    const carritoData = await carritoResponse.json();
+    setDescuento(carritoData.descuento);
+
+  } catch (error) {
+    setMensaje(error instanceof Error ? error.message : "Error desconocido");
+    setDescuento(0);
+  }
+};
 
   const crearCompra = async () => {
     if (!usuario) {
