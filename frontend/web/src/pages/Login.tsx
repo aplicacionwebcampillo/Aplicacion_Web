@@ -23,7 +23,7 @@ export default function Login() {
   useEffect(() => {
     const token = localStorage.getItem("token");
     if (token) {
-      navigate("/"); // o a la página principal que quieras
+      navigate("/");
     }
   }, [navigate]);
 

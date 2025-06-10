@@ -3,7 +3,6 @@ import { useAuth } from "../context/useAuth";
 import { useState } from "react";
 import type { ProductoEnCarrito } from '../context/CarritoContext';
 
-
 export default function Carrito() {
   const { carrito, vaciarCarrito, actualizarCantidad, quitarDelCarrito } = useCarrito();
   const { usuario } = useAuth();
@@ -11,12 +10,9 @@ export default function Carrito() {
   const [codigoDescuento, setCodigoDescuento] = useState("");
   const [descuento, setDescuento] = useState(0);
 
-  carrito.reduce((acc: number, item: ProductoEnCarrito) => acc + item.producto.precio * item.cantidad, 0)
-  
   const totalSinDescuento = carrito.reduce((acc: number, item: ProductoEnCarrito) =>
-  acc + item.producto.precio * item.cantidad, 0
-);
-
+    acc + item.producto.precio * item.cantidad, 0
+  );
 
   const totalConDescuento = Number((totalSinDescuento * (1 - descuento)).toFixed(2));
 
@@ -67,14 +63,13 @@ export default function Carrito() {
         precio_total: totalConDescuento,
         productos_ids: carrito.flatMap(item =>
           Array(item.cantidad).fill(item.producto.id_producto)
-        )
       };
 
       const resPedido = await fetch("https://aplicacion-web-m5oa.onrender.com/pedidos/", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: Bearer ${token},
+          "Authorization": `Bearer ${token}`,
         },
         body: JSON.stringify(pedidoPayload),
       });
@@ -102,7 +97,7 @@ export default function Carrito() {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: Bearer ${token},
+          "Authorization": `Bearer ${token}`,
         },
         body: JSON.stringify(compraPayload),
       });
@@ -131,7 +126,7 @@ export default function Carrito() {
             <ul className="space-y-2 text-negro_texto">
               {carrito.map((item, i) => (
                 <li
-                  key={${item.producto.id_producto}-${item.talla}-${i}}
+                  key={`${item.producto.id_producto}-${item.talla}-${i}`}
                   className="border-b py-2"
                 >
                   <div className="text-negro_texto flex justify-between items-center">
