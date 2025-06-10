@@ -20,7 +20,11 @@ export default function Carrito() {
 
   const totalConDescuento = Number((totalSinDescuento * (1 - descuento)).toFixed(2));
 
-  const response = await fetch("https://aplicacion-web-m5oa.onrender.com/carrito/descuento", {
+  const aplicarDescuento = async () => {
+    try {
+      const token = localStorage.getItem("token");
+
+      const response = await fetch("https://aplicacion-web-m5oa.onrender.com/carrito/descuento", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -47,7 +51,6 @@ export default function Carrito() {
       setDescuento(0);
     }
   };
-};
 
   const crearCompra = async () => {
     if (!usuario) {
@@ -71,7 +74,7 @@ export default function Carrito() {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
+          Authorization: Bearer ${token},
         },
         body: JSON.stringify(pedidoPayload),
       });
@@ -99,7 +102,7 @@ export default function Carrito() {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
+          Authorization: Bearer ${token},
         },
         body: JSON.stringify(compraPayload),
       });
@@ -128,7 +131,7 @@ export default function Carrito() {
             <ul className="space-y-2 text-negro_texto">
               {carrito.map((item, i) => (
                 <li
-                  key={`${item.producto.id_producto}-${item.talla}-${i}`}
+                  key={${item.producto.id_producto}-${item.talla}-${i}}
                   className="border-b py-2"
                 >
                   <div className="text-negro_texto flex justify-between items-center">
@@ -208,4 +211,3 @@ export default function Carrito() {
     </main>
   );
 }
-
