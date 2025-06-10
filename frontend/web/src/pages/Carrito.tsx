@@ -20,36 +20,33 @@ export default function Carrito() {
 
   const totalConDescuento = Number((totalSinDescuento * (1 - descuento)).toFixed(2));
 
-  const aplicarDescuento = async () => {
-  try {
-    const token = localStorage.getItem("token");
+  const response = await fetch("https://aplicacion-web-m5oa.onrender.com/carrito/descuento", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`,
+        },
+        body: JSON.stringify({ codigo: codigoDescuento }),
+      });
 
-    const response = await fetch("https://aplicacion-web-m5oa.onrender.com/carrito/descuento", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": `Bearer ${token}`,
-      },
-      body: JSON.stringify({ codigo: codigoDescuento }),
-    });
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.detail || "Error al aplicar descuento");
+      }
 
-    if (!response.ok) {
-      const error = await response.json();
-      throw new Error(error.detail || "Error al aplicar descuento");
+      if (codigoDescuento.toUpperCase() === "SOCIO") {
+        setDescuento(0.15);
+        setMensaje("Descuento de socio aplicado.");
+      } else if (codigoDescuento.toUpperCase() === "ADMIN") {
+        setDescuento(0.25);
+        setMensaje("Descuento de administrador aplicado.");
+      }
+
+    } catch (error) {
+      setMensaje("Código inválido o no autorizado.");
+      setDescuento(0);
     }
-
-    const data = await response.json();
-    if (data.descuento) {
-      setDescuento(data.descuento);
-      setMensaje(data.mensaje || "Descuento aplicado correctamente");
-    } else {
-      throw new Error("No se recibió un descuento válido");
-    }
-
-  } catch (error) {
-    setMensaje(error.message || "Código inválido o no autorizado.");
-    setDescuento(0);
-  }
+  };
 };
 
   const crearCompra = async () => {
