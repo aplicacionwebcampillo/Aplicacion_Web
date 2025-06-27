@@ -88,6 +88,9 @@ export default function Historia() {
           El banquillo quedó bajo la dirección de <strong>Luis Carlos Ramos</strong>, que en sus inicios contó con la ayuda de <strong>Manolo Díaz</strong>, primer entrenador provisional.
         </p>
         <p>
+          Desde el primer día, el equipo sénior fue el alma de los pueblos cercanos. </strong> Campillo del Río, Torreblascopedro y Vados de Torralba </strong> aportaron no solo jugadores, sino también cercanía, amistad y compromiso con el proyecto. Con el tiempo, el equipo fue creciendo con la llegada de compañeros de Villagordo y Linares, unidos por una misma pasión y una conexión entre pueblos que trasciende los límites del campo.
+        </p>
+        <p>
           El club no habría sido posible sin el apoyo de muchas personas: <strong>Miguel Moreno</strong> con el equipo audiovisual, <strong>Raquel Moreno</strong> con redes sociales, <strong>Francisco Macías</strong>, <strong>Iván Fernández</strong>, <strong>Lucas López</strong>, <strong>María Fernández</strong> y <strong>Victoriano Civantos</strong>, quien grabó todos los partidos.
         </p>
         <p>
