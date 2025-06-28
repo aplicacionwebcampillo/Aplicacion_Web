@@ -51,4 +51,4 @@ jobs:
         # Tu script Python ya usa `os.environ.get` o similar para leerlo.
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
-        run: python backend/app/web_scrapping/main.py
+        run: python backend/app/web_scrappig/main.py
