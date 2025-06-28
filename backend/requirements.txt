@@ -95,7 +95,6 @@ yarl==1.15.2
 zipp==3.20.2
 zopfli==0.2.3.post1
 asyncio
-sys
 os
 playwright
 beautifulsoup4==4.12.3
