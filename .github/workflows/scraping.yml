@@ -31,19 +31,19 @@ jobs:
           # Cache para las dependencias de pip, acelera ejecuciones futuras
           cache: 'pip'
 
-      # 3. Instalar dependencias de Python
+      # 3. Instalar dependencias de Python (asegúrate de que Playwright esté en requirements.txt)
       - name: Instalar dependencias de Python
         run: |
           python -m pip install --upgrade pip
           pip install -r backend/requirements.txt
+          # Asegúrate de que playwright esté listado en backend/requirements.txt
+          # o añádelo explícitamente aquí si no lo está:
+          # pip install playwright
 
-      # 4. Instalar dependencias y navegadores de Playwright
-      # Este comando instala las librerías del sistema operativo necesarias
-      # y descarga el navegador Firefox que tu script utiliza.
-      - name: Instalar Playwright y su navegador (Firefox)
-        run: |
-          playwright install-deps firefox
-          playwright install firefox
+      # 4. Instalar los navegadores de Playwright
+      # Este comando instalará los navegadores y sus dependencias de sistema.
+      - name: Instalar navegadores de Playwright (Firefox)
+        run: playwright install firefox
 
       # 5. Ejecutar el script de web scraping
       - name: Ejecutar script de scraping
