@@ -36,7 +36,7 @@ export default function UltimasNoticias() {
   <h2 className="text-2xl font-bold mb-6 text-center font-bold">Últimas Noticias</h2>
 
   <div className="flex justify-center">
-   <div className="flex gap-4 overflow-x-auto pb-2 px-2 text-center">
+   <div className="flex gap-4 overflow-x-auto pb-2 px-2 max-w-full text-center">
   {noticias.slice(-3).reverse().map((noticia, index) => (
     <Link
       key={index}
@@ -50,7 +50,7 @@ export default function UltimasNoticias() {
           className="h-[15rem] w-auto object-cover"
         />
       </div>
-      <div className="p-4 text-center w-full">
+      <div className="p-4 text-center w-full max-w-[80%]">
         <h3 className="text-lg font-semibold mb-1 text-negro">{noticia.titular}</h3>
       </div>
     </Link>
