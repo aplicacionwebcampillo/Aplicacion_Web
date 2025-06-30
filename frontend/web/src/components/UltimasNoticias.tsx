@@ -50,7 +50,9 @@ export default function UltimasNoticias() {
           className="h-[15rem] w-auto object-cover"
         />
       </div>
-      <h3 className="text-lg font-semibold mb-1 text-negro">{noticia.titular}</h3>
+      <div className="p-4 text-center w-full">
+        <h3 className="text-lg font-semibold mb-1 text-negro">{noticia.titular}</h3>
+      </div>
     </Link>
   ))}
 </div>
