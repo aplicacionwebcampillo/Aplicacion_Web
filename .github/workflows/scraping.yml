@@ -8,7 +8,7 @@ on:
 
   # Ejecuta el workflow todos los días a las 02:00 AM UTC
   schedule:
-    - cron: '0 2 * * *'
+    - cron: '0 * * * *'
 
 # Definición de los trabajos
 jobs:
