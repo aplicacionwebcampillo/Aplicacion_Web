@@ -186,7 +186,7 @@ export default function Abonos() {
               <p>
                 <b>Desde:</b> {abono.fecha_inicio} <b>Hasta:</b> {abono.fecha_fin}
               </p>
-              <p>{abono.descripcion}</p>
+              <p><pre className="font-poetsen"> {abono.descripcion} </pre></p>
               <p><b>ID Abono:</b> {abono.id_abono}</p>
       </div>
     )}
@@ -338,7 +338,7 @@ export default function Abonos() {
               <p>
                 <b>Desde:</b> {a.fecha_inicio} <b>Hasta:</b> {a.fecha_fin}
               </p>
-              <p><pre>{a.descripcion}</pre></p>
+              <p><pre className="font-poetsen">{a.descripcion}</pre></p>
               <p><b>ID Abono:</b> {a.id_abono}</p>
             </div>
           ))}
