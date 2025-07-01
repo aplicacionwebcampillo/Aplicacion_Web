@@ -96,7 +96,7 @@ const ClubAntiguo = () => {
     rel="noopener noreferrer"
     className="no-underline text-negro_texto hover:text-azul"
   >
-    3. Segunda Regional - Jaén-02
+    Segunda Regional - Jaén - Grupo 2
   </a></td>
               <td>8º</td>
               <td>7</td>
@@ -120,7 +120,7 @@ const ClubAntiguo = () => {
     rel="noopener noreferrer"
     className="no-underline text-negro_texto hover:text-azul"
   >
-    3. Segunda Regional - Jaén-02
+    Segunda Regional - Jaén - Grupo 2
   </a></td>
               <td>10º</td>
               <td>8</td>
@@ -173,7 +173,7 @@ const ClubAntiguo = () => {
     rel="noopener noreferrer"
     className="no-underline text-negro_texto hover:text-azul"
   >
-    3. Primera Provincial - Jaén-02
+    Primera Provincial - Jaén - Grupo 2
   </a></td>
               <td>6º</td>
               <td>21</td>
@@ -193,7 +193,7 @@ const ClubAntiguo = () => {
     rel="noopener noreferrer"
     className="no-underline text-negro_texto hover:text-azul"
   >
-    3. Primera Provincial - Jaén
+    Primera Provincial - Jaén
   </a></td>
               <td>13º</td>
               <td>18</td>
