@@ -338,8 +338,8 @@ export default function Abonos() {
               <p>
                 <b>Desde:</b> {a.fecha_inicio} <b>Hasta:</b> {a.fecha_fin}
               </p>
-              <p>{a.descripcion}</p>
-              <p><b>ID Abono:</b> <pre>{a.id_abono}</pre></p>
+              <p><pre>{a.descripcion}</pre></p>
+              <p><b>ID Abono:</b> {a.id_abono}</p>
             </div>
           ))}
         </div>
