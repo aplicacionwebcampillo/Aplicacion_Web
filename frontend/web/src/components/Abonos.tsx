@@ -117,7 +117,7 @@ export default function Abonos() {
   };
 
   return (
-    <div className="bg-celeste text-blanco px-6 py-10 rounded-[1rem] font-poetsen font-bold w-full max-w-[40rem] shadow-lg space-y-4   ">
+    <div className="bg-celeste text-blanco px-6 py-10 rounded-[1rem] font-poetsen font-bold w-full max-w-[20rem] sm:max-w-[40rem] shadow-lg space-y-4">
       {/* Menú */}
       <div className="flex flex-wrap justify-center gap-3 mb-6">
         {["crear", "listar", "buscar", "editar", "eliminar"].map((m) => (
