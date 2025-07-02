@@ -181,12 +181,13 @@ export default function Abonos() {
 
     {abono && (
       <div className="mt-6 p-4 bg-blanco text-negro rounded-[1rem] shadow-md space-y-2">
-        <h3 className="font-bold text-lg">Temporada: {abono.temporada}</h3>
+        <h3 className="font-bold text-lg">{abono.temporada}</h3>
               <p><b>Precio:</b> {abono.precio}€</p>
-              <p>
-                <b>Desde:</b> {abono.fecha_inicio} <b>Hasta:</b> {abono.fecha_fin}
-              </p>
-              <p><pre className="font-poetsen">{abono.descripcion}</pre></p>
+              <p><b>Desde:</b> {abono.fecha_inicio}</p>
+              <p><b>Hasta:</b> {abono.fecha_fin}</p>
+              <p><pre className="whitespace-pre-wrap break-words overflow-hidden font-poetsen">
+              	{abono.descripcion}
+              </pre></p>
               <p><b>ID Abono:</b> {abono.id_abono}</p>
       </div>
     )}
@@ -337,7 +338,6 @@ export default function Abonos() {
               <p><b>Precio:</b> {a.precio}€</p>
               <p><b>Desde:</b> {a.fecha_inicio}</p>
               <p><b>Hasta:</b> {a.fecha_fin}</p>
-              <p><pre className="font-poetsen">{a.descripcion}</pre></p>
               <p><pre className="whitespace-pre-wrap break-words overflow-hidden font-poetsen">
               	{a.descripcion}
               </pre></p>
