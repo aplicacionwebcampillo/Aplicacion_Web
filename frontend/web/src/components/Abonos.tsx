@@ -333,12 +333,14 @@ export default function Abonos() {
               key={a.id_abono}
               className="bg-blanco text-negro px-6 py-10 rounded-[1rem] font-poetsen font-bold shadow-lg space-y-4"
             >
-              <h3 className="font-bold text-lg">Temporada: {a.temporada}</h3>
+              <h3 className="font-bold text-lg">{a.temporada}</h3>
               <p><b>Precio:</b> {a.precio}€</p>
-              <p>
-                <b>Desde:</b> {a.fecha_inicio} <b>Hasta:</b> {a.fecha_fin}
-              </p>
+              <p><b>Desde:</b> {a.fecha_inicio}</p>
+              <p><b>Hasta:</b> {a.fecha_fin}</p>
               <p><pre className="font-poetsen">{a.descripcion}</pre></p>
+              <p><pre className="whitespace-pre-wrap break-words overflow-hidden font-poetsen">
+              	{a.descripcion}
+              </pre></p>
               <p><b>ID Abono:</b> {a.id_abono}</p>
             </div>
           ))}
