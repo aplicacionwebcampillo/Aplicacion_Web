@@ -40,7 +40,7 @@ export default function Clasificacion() {
       {/* Botones de categoría */}
       <div className="flex justify-center gap-4 mb-6">
         {/*{(["Senior", "Femenino", "Juvenil"] as const).map((cat) => (*/}
-        {(["Senior", "Femenino", "Juvenil"] as const).map((cat) => (
+        {(["Senior", "Femenino"] as const).map((cat) => (
           <button
             key={cat}
             onClick={() => setCategoriaActiva(cat)}

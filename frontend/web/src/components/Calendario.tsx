@@ -122,7 +122,7 @@ export default function TodosPartidos() {
       {/* Botones categoría */}
       <div className="flex flex-wrap justify-center gap-3 mb-6">
         {/*{(["Todos", "Senior", "Femenino", "Juvenil"] as const).map((cat) => (*/}
-        {(["Todos", "Senior", "Femenino", "Juvenil"] as const).map((cat) => (
+        {(["Todos", "Senior", "Femenino"] as const).map((cat) => (
           <button
             key={cat}
             onClick={() => setCategoriaActiva(cat)}
