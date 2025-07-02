@@ -35,7 +35,7 @@ const competicionesPorCategoria: Record<string, string[]> = {
     "Fase Final Trofeo Copa Subdelegado del Gobierno (Jaén)",
   ],
   Femenino: ["Liga Fomento Femenino Sénior Fútbol 7 (Jaén)"],
-  Juvenil: ["3ª Andaluza Juvenil (Jaén)"],
+  //Juvenil: ["3ª Andaluza Juvenil (Jaén)"],
 };
 
 const FILAS_POR_PAGINA = 3;
@@ -43,8 +43,12 @@ const COLUMNAS = 3;
 const PARTIDOS_POR_PAGINA = FILAS_POR_PAGINA * COLUMNAS;
 
 export default function TodosPartidos() {
+  //const [categoriaActiva, setCategoriaActiva] = useState<
+  //  "Senior" | "Femenino" | "Juvenil" | "Todos"
+  //>("Todos");
+  
   const [categoriaActiva, setCategoriaActiva] = useState<
-    "Senior" | "Femenino" | "Juvenil" | "Todos"
+    "Senior" | "Femenino" | "Todos"
   >("Todos");
   const [partidos, setPartidos] = useState<Partido[]>([]);
   const [paginaActual, setPaginaActual] = useState(1);
@@ -117,6 +121,7 @@ export default function TodosPartidos() {
 
       {/* Botones categoría */}
       <div className="flex flex-wrap justify-center gap-3 mb-6">
+        {/*{(["Todos", "Senior", "Femenino", "Juvenil"] as const).map((cat) => (*/}
         {(["Todos", "Senior", "Femenino", "Juvenil"] as const).map((cat) => (
           <button
             key={cat}

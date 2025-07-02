@@ -23,11 +23,12 @@ const competicionesPorCategoria: Record<string, string[]> = {
     "Fase Final Trofeo Copa Subdelegado del Gobierno (Jaén)",
   ],
   Femenino: ["Liga Fomento Femenino Sénior Fútbol 7 (Jaén)"],
-  Juvenil: ["3ª Andaluza Juvenil (Jaén)"],
+  //Juvenil: ["3ª Andaluza Juvenil (Jaén)"],
 };
 
 export default function Partidos() {
-  const [categoriaActiva, setCategoriaActiva] = useState<"Senior" | "Femenino" | "Juvenil">("Senior");
+  //const [categoriaActiva, setCategoriaActiva] = useState<"Senior" | "Femenino" | "Juvenil">("Senior");
+  const [categoriaActiva, setCategoriaActiva] = useState<"Senior" | "Femenino">("Senior");
   const [ultimo, setUltimo] = useState<Partido | null>(null);
   const [proximo, setProximo] = useState<Partido | null>(null);
 
@@ -141,7 +142,8 @@ export default function Partidos() {
       <h2 className="text-2xl font-bold mb-6 text-center">Partidos</h2>
       {/* Botones categoría */}
       <div className="flex justify-center gap-4 mb-6">
-        {(["Senior", "Femenino", "Juvenil"] as const).map((cat) => (
+        {/*{(["Senior", "Femenino", "Juvenil"] as const).map((cat) => (*/}
+        {(["Senior", "Femenino"] as const).map((cat) => (
           <button
             key={cat}
             onClick={() => setCategoriaActiva(cat)}

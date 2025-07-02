@@ -11,12 +11,13 @@ interface Clasificacion {
 const competiciones: Record<string, string> = {
   Senior: "2ª Andaluza Sénior (Jaén)",
   Femenino: "Liga Fomento Femenino Sénior Fútbol 7 (Jaén)",
-  Juvenil: "3ª Andaluza Juvenil (Jaén)",
+  //Juvenil: "3ª Andaluza Juvenil (Jaén)",
 };
 
 export default function Clasificacion() {
   const [datos, setDatos] = useState<Clasificacion[]>([]);
-  const [categoriaActiva, setCategoriaActiva] = useState<"Senior" | "Femenino" | "Juvenil">("Senior");
+  //const [categoriaActiva, setCategoriaActiva] = useState<"Senior" | "Femenino" | "Juvenil">("Senior");
+  const [categoriaActiva, setCategoriaActiva] = useState<"Senior" | "Femenino">("Senior");
 
   useEffect(() => {
     const nombre_competicion = competiciones[categoriaActiva];
@@ -38,6 +39,7 @@ export default function Clasificacion() {
 
       {/* Botones de categoría */}
       <div className="flex justify-center gap-4 mb-6">
+        {/*{(["Senior", "Femenino", "Juvenil"] as const).map((cat) => (*/}
         {(["Senior", "Femenino", "Juvenil"] as const).map((cat) => (
           <button
             key={cat}
