@@ -34,10 +34,16 @@ export default function Compras() {
 
     try {
       if (modo === "compra") {
-        url = `https://aplicacion-web-m5oa.onrender.com/compras/validar_pago/${encodeURIComponent(
-          dni
-        )}`;
-      } else if (modo === "predice") {
+  if (!idPedido) {
+    setError("Debe ingresar el ID del pedido");
+    return;
+  }
+
+  url = `https://aplicacion-web-m5oa.onrender.com/compras/validar_pago/${encodeURIComponent(
+    dni
+  )}/${encodeURIComponent(idPedido)}`;
+}
+ else if (modo === "predice") {
         const params = new URLSearchParams();
         Object.entries(prediceParams).forEach(([key, val]) => {
           if (val) params.append(key, val);
@@ -134,6 +140,9 @@ const buscarPedido = async () => {
     setErrorBusqueda("Error al buscar el pedido");
   }
 };
+
+const [idPedido, setIdPedido] = useState(""); 
+
 
 
   return (
@@ -319,6 +328,20 @@ const buscarPedido = async () => {
         onChange={(e) => setDni(e.target.value)}
         className="rounded-[1rem] font-poetsen w-[90%] rounded-xl border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-cyan-500 "
       />
+      
+      {/* Parámetro extra solo para Compra Tienda */}
+{modo === "compra" && (
+  <div className="space-y-2">
+    <input
+      type="text"
+      placeholder="ID Pedido"
+      value={idPedido}
+      onChange={(e) => setIdPedido(e.target.value)}
+      className="rounded-[1rem] font-poetsen w-[90%] rounded-xl border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-cyan-500"
+    />
+  </div>
+)}
+
 
       {/* Parámetros extra solo para predice */}
       {modo === "predice" && (
