@@ -8,6 +8,7 @@ from app.models import Usuario
 from app.models import Pedido
 from app.models import pedido_producto
 from app.models import Producto
+from app.models import Compra
 from app.utils.emails_utils import enviar_correos
 from app.utils.emails_utils import enviar_correo
 
