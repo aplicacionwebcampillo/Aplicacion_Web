@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import FormularioEditarSocio from "../components/FormularioEditarSocio";
 import VerBonoDigital from "../components/VerBonoDigital";
 import Predicciones from "../components/Predicciones";
-import CesionesAbono from "../components/CesionesAbono";
+//import CesionesAbono from "../components/CesionesAbono";
 import RenovarAbono from "../components/RenovarAbono";
 
 export function Introduccion() {
