@@ -82,11 +82,11 @@ async def registrar_compra(compra: CompraCreate, db: Session = Depends(get_db)):
 def listar_compras(db: Session = Depends(get_db)):
     return crud.get_compras(db)
     
-@router.put("/validar_pago/{dni}")
-def validar_pago_compra(dni: str, db: Session = Depends(get_db)):
+@router.put("/validar_pago/{dni}/{id_pedido}")
+def validar_pago_compra(dni: str, id_pedido:int, db: Session = Depends(get_db)):
     usuario = db.query(Usuario).filter(Usuario.dni == dni).first()
     if not usuario:
-        raise HTTPException(status_code=404, detail="Socio no encontrado")
+        raise HTTPException(status_code=404, detail="Usuario no encontrado")
     
     asyncio.run(enviar_correo(
         cliente_email=usuario.email,
@@ -94,7 +94,11 @@ def validar_pago_compra(dni: str, db: Session = Depends(get_db)):
         cuerpo_cliente=f"Hola {usuario.nombre}, gracias por realizar el pago de la compra en la tienda oficial del Campillo del Río CF."
     ))
     
-    return crud.validar_pago_compra(db, dni)
+    compra = db.query(Compra).filter(Compra.id_pedido == id_pedido).first()
+    if not compra:
+        raise HTTPException(status_code=404, detail="Pedido no encontrado")
+    
+    return crud.validar_pago_compra(db, id_pedido)
 
 @router.get("/{dni}/{id_pedido}", response_model=CompraResponse)
 def obtener_compra(dni: str, id_pedido: int, db: Session = Depends(get_db)):

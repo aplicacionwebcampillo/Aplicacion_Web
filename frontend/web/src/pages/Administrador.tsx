@@ -9,7 +9,7 @@ import Patrocinadores from "../components/PatrocinadoresAdmin";
 import Jugadores from "../components/Jugadores";
 import Equipos from "../components/Equipos";
 import Abonos from "../components/Abonos";
-import ValidarPago from "../components/ValidarPago";
+import Compras from "../components/Compras";
 
 export function Introduccion() {
   return (
@@ -80,7 +80,7 @@ export default function AdministradorPage() {
     { id: "jugadores", label: "Jugadores" },
     { id: "equipos", label: "Equipos" },
     { id: "abonos", label: "Abonos" },
-    { id: "validarPago", label: "Validar Pagos" },
+    { id: "Compras", label: "Compras" },
   ];
 
   return (
@@ -121,7 +121,7 @@ export default function AdministradorPage() {
         {seccion === "jugadores" && <Jugadores />}
         {seccion === "equipos" && <Equipos />}
         {seccion === "abonos" && <Abonos />}
-        {seccion === "validarPago" && <ValidarPago />}
+        {seccion === "Compras" && <Compras />}
       </main>
     </div>
   );

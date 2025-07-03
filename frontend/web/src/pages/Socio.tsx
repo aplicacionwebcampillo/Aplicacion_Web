@@ -65,7 +65,7 @@ export default function SocioPage() {
     { id: "modificar", label: "Modificar Socio" },
     { id: "verAbonoDigital", label: "Ver Abono Digital" },
     { id: "predicciones", label: "Predicciones" },
-    { id: "cesionesAbono", label: "Cesión de Abono" },
+    //{ id: "cesionesAbono", label: "Cesión de Abono" },
     { id: "renovarAbono", label: "Renovar Abono" },
   ];
 
@@ -104,7 +104,7 @@ export default function SocioPage() {
       <main className="flex-1 p-6 flex justify-center items-start">
       	{seccion === "introduccion" && socioData && <Introduccion />}
         {seccion === "modificar" && <FormularioEditarSocio />}
-        {seccion === "cesionesAbono" &&  <CesionesAbono />}
+        {/*{seccion === "cesionesAbono" &&  <CesionesAbono />}*/}
         {seccion === "predicciones" && <Predicciones />}
         {seccion === "renovarAbono" && <RenovarAbono />}
         {seccion === "verAbonoDigital" && <VerBonoDigital />}

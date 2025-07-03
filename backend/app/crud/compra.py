@@ -40,20 +40,10 @@ def delete_compra(db: Session, dni: str, id_pedido: int):
     db.commit()
     return True
 
-def validar_pago_compra(db: Session, dni: str):
-    usuario = db.query(Usuario).filter(Usuario.dni == dni).first()
-    if not usuario:
-        raise HTTPException(status_code=404, detail="Usuario no encontrado")
-
-    compra = (
-        db.query(Compra)
-        .filter(Compra.dni == usuario.dni)
-        .order_by(Compra.fecha_compra.desc())
-        .first()
-    )
-
+def validar_pago_compra(db: Session, id_pedido: int):
+    compra = db.query(Compra).filter(Compra.id_pedido == id_pedido).first()
     if not compra:
-        raise HTTPException(status_code=404, detail="No se encontró compra para este usuario")
+        raise HTTPException(status_code=404, detail="Pedido no encontrado")
 
     compra.pagado = True
     db.commit()
