@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from typing import List
 from app.crud import contenido_dinamico as crud_contenido
-from app.schemas.contenido_dinamico as ContenidoCreate, ContenidoUpdate, ContenidoResponse
+from app.schemas.contenido_dinamico import ContenidoCreate, ContenidoUpdate, ContenidoResponse
 from app.database import get_db
 
 router = APIRouter(prefix="/contenido", tags=["Contenido Dinámico"])
