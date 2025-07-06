@@ -28,7 +28,7 @@ interface Jugador {
 const CATEGORIAS_EQUIPO = [
   { id: 1, nombre: "Senior" },
   { id: 2, nombre: "Femenino" },
-  //{ id: 3, nombre: "Juvenil" },
+  //{ id: 3, nombre: "Juvenil" }
 ];
 
 const FILAS_POR_PAGINA = 3;

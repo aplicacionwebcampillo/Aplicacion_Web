@@ -103,6 +103,9 @@ export default function Equipos() {
       console.error("Error eliminando equipo:", error);
     }
   };
+  
+
+  
 
   return (
     <div className="bg-celeste text-blanco px-6 py-10 rounded-[1rem] font-poetsen font-bold w-full max-w-[40rem] shadow-lg space-y-4 ">
@@ -193,37 +196,50 @@ export default function Equipos() {
         </div>
       )}
 
-      {/* Formulario editar */}
-      {modo === "editar" && equipo.id_equipo && (
-        <div className="space-y-2 max-w-md mt-2">
-          <input
-            type="text"
-            placeholder="Categoría"
-            value={equipo.categoria}
-            onChange={(e) =>
-              setEquipo((prev) => ({ ...prev, categoria: e.target.value }))
-            }
-            className="rounded-[1rem] font-poetsen w-[90%] rounded-xl border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-cyan-500 "
-          />
-          <input
-            type="number"
-            placeholder="Número de jugadores"
-            value={equipo.num_jugadores}
-            onChange={(e) =>
-              setEquipo((prev) => ({ ...prev, num_jugadores: Number(e.target.value) }))
-            }
-            className="rounded-[1rem] font-poetsen w-[90%] rounded-xl border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-cyan-500 "
-          />
-          <div className="flex justify-center">
+      {modo === "editar" && (
+  <>
+    <div className="flex justify-center gap-2 mb-4">
+      <button
+        onClick={obtenerEquipo}
+        disabled={!equipoIdBuscado}
+        className="px-4 py-2 rounded-full border-2 font-bold bg-blanco text-azul border-azul hover:bg-azul hover:text-blanco"
+      >
+        Cargar Equipo
+      </button>
+    </div>
+
+    {equipo.id_equipo && (
+      <div className="space-y-2 max-w-md mt-2">
+        <input
+          type="text"
+          placeholder="Categoría"
+          value={equipo.categoria}
+          onChange={(e) =>
+            setEquipo((prev) => ({ ...prev, categoria: e.target.value }))
+          }
+          className="rounded-[1rem] font-poetsen w-[90%] border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-cyan-500"
+        />
+        <input
+          type="number"
+          placeholder="Número de jugadores"
+          value={equipo.num_jugadores}
+          onChange={(e) =>
+            setEquipo((prev) => ({ ...prev, num_jugadores: Number(e.target.value) }))
+          }
+          className="rounded-[1rem] font-poetsen w-[90%] border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-cyan-500"
+        />
+        <div className="flex justify-center">
           <button
             onClick={actualizarEquipo}
-            className="px-4 py-2 rounded-full border-2 font-bold transition-colors duration-200 bg-blanco text-azul border-azul bg-blanco text-azul border-azul hover:bg-azul hover:text-blanco"
+            className="px-4 py-2 rounded-full border-2 font-bold bg-blanco text-azul border-azul hover:bg-azul hover:text-blanco"
           >
             Guardar Cambios
           </button>
-          </div>
         </div>
-      )}
+      </div>
+    )}
+  </>
+)}
 
       {/* Botón eliminar */}
       {modo === "eliminar" && (

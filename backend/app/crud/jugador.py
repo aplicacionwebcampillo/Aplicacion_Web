@@ -26,7 +26,7 @@ def create_jugador(db: Session, jugador: JugadorCreate):
 def get_jugador(db: Session, jugador_nombre: str):
     return db.query(Jugador).filter(Jugador.nombre == jugador_nombre).first()
 
-def get_jugadores(db: Session, skip: int = 0, limit: int = 100):
+def get_jugadores(db: Session, skip: int = 0, limit: int = 200):
     # Obtener los jugadores con paginación (skip, limit)
     return db.query(Jugador).offset(skip).limit(limit).all()
 
