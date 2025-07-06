@@ -29,7 +29,7 @@ def get_contenido(db: Session, contenido_id: int):
     return db.query(ContenidoDinamico).filter(ContenidoDinamico.id == contenido_id).first()
 
 
-def update_contenido(db: Session, contenido_id: int, datos_actualizados: ContenidoUpdate):
+def actualizar_contenido(db: Session, contenido_id: int, datos_actualizados: ContenidoUpdate):
     contenido = obtener_contenido_por_id(db, contenido_id)
     if not contenido:
         return None
