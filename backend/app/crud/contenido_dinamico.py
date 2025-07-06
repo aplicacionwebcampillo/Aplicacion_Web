@@ -16,7 +16,7 @@ def get_contenidos(db: Session, skip: int = 0, limit: int = 100) -> List[Conteni
     return db.query(ContenidoDinamico).offset(skip).limit(limit).all()
 
 
-def get_contenido_por_lugar(db: Session, lugar: str) -> List[ContenidoDinamico]:
+def obtener_contenido_por_lugar(db: Session, lugar: str) -> List[ContenidoDinamico]:
     return (
         db.query(ContenidoDinamico)
         .filter(ContenidoDinamico.lugar == lugar)
