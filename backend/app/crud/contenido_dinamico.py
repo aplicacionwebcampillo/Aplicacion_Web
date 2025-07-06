@@ -30,7 +30,7 @@ def get_contenido(db: Session, contenido_id: int):
 
 
 def actualizar_contenido(db: Session, contenido_id: int, datos_actualizados: ContenidoUpdate):
-    contenido = obtener_contenido_por_id(db, contenido_id)
+    contenido = get_contenido(db, contenido_id)
     if not contenido:
         return None
 
@@ -43,7 +43,7 @@ def actualizar_contenido(db: Session, contenido_id: int, datos_actualizados: Con
 
 
 def eliminar_contenido(db: Session, contenido_id: int):
-    contenido = obtener_contenido_por_id(db, contenido_id)
+    contenido = get_contenido(db, contenido_id)
     if not contenido:
         return False
 
