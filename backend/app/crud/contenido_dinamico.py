@@ -12,11 +12,11 @@ def crear_contenido(db: Session, contenido: ContenidoCreate):
     return nuevo_contenido
 
 
-def obtener_contenido(db: Session, skip: int = 0, limit: int = 100) -> List[ContenidoDinamico]:
+def get_contenidos(db: Session, skip: int = 0, limit: int = 100) -> List[ContenidoDinamico]:
     return db.query(ContenidoDinamico).offset(skip).limit(limit).all()
 
 
-def obtener_contenido_por_lugar(db: Session, lugar: str) -> List[ContenidoDinamico]:
+def get_contenido_por_lugar(db: Session, lugar: str) -> List[ContenidoDinamico]:
     return (
         db.query(ContenidoDinamico)
         .filter(ContenidoDinamico.lugar == lugar)
@@ -25,7 +25,7 @@ def obtener_contenido_por_lugar(db: Session, lugar: str) -> List[ContenidoDinami
     )
 
 
-def obtener_contenido_por_id(db: Session, contenido_id: int):
+def get_contenido(db: Session, contenido_id: int):
     return db.query(ContenidoDinamico).filter(ContenidoDinamico.id == contenido_id).first()
 
 
