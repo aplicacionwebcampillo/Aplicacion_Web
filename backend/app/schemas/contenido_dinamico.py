@@ -3,6 +3,7 @@ from typing import Literal, Optional
 
 
 class ContenidoBase(BaseModel):
+    id: int
     tipo: Literal["texto", "imagen"]
     contenido: str
     lugar: str
@@ -21,7 +22,6 @@ class ContenidoUpdate(BaseModel):
 
 
 class ContenidoResponse(ContenidoBase):
-    id: int
     class Config:
         orm_mode = True
 
