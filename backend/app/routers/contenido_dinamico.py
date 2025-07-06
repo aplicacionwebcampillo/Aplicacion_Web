@@ -9,7 +9,7 @@ router = APIRouter(prefix="/contenido", tags=["Contenido Dinámico"])
 
 
 # Obtener todos los contenidos o por lugar
-@router.get("/", response_model=List[schemas.Contenido])
+@router.get("/", response_model=List[ContenidoResponse])
 def obtener_contenido(lugar: str = None, db: Session = Depends(get_db)):
     if lugar:
         return crud_contenido.obtener_contenido_por_lugar(db, lugar)
