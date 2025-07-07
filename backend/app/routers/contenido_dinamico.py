@@ -44,6 +44,6 @@ def eliminar_contenido(contenido_id: int, db: Session = Depends(get_db)):
     eliminado = crud_contenido.eliminar_contenido(db, contenido_id)
     if not eliminado:
         raise HTTPException(status_code=404, detail="Contenido no encontrado")
-    return
+    return eliminado
 
 
