@@ -45,10 +45,10 @@ def actualizar_contenido(db: Session, contenido_id: int, datos_actualizados: Con
 def eliminar_contenido(db: Session, contenido_id: int):
     contenido = get_contenido(db, contenido_id)
     if not contenido:
-        return False
+        return None
 
     db.delete(contenido)
     db.commit()
-    return True
+    return contenido
 
 
