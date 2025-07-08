@@ -10,6 +10,7 @@ import Jugadores from "../components/Jugadores";
 import Equipos from "../components/Equipos";
 import Abonos from "../components/Abonos";
 import Compras from "../components/Compras";
+import ContenidoEstatico from "../components/Contenido";
 
 export function Introduccion() {
   return (
@@ -81,6 +82,7 @@ export default function AdministradorPage() {
     { id: "equipos", label: "Equipos" },
     { id: "abonos", label: "Abonos" },
     { id: "Compras", label: "Compras" },
+    { id: "Contenido", label: "Contenido estático" },
   ];
 
   return (
@@ -122,6 +124,7 @@ export default function AdministradorPage() {
         {seccion === "equipos" && <Equipos />}
         {seccion === "abonos" && <Abonos />}
         {seccion === "Compras" && <Compras />}
+        {seccion === "Contenido" && <ContenidoEstatico />}
       </main>
     </div>
   );

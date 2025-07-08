@@ -1,16 +1,13 @@
-import { useState, useEffect } from "react";
-
+import { useEffect, useState } from "react";
 
 function useWindowWidth() {
   const [width, setWidth] = useState<number | null>(null);
-
   useEffect(() => {
     const handleResize = () => setWidth(window.innerWidth);
     handleResize();
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
   }, []);
-
   return width;
 }
 
@@ -18,23 +15,41 @@ const FILAS_POR_PAGINA = 1;
 const COLUMNAS = 3;
 const IMAGENES_POR_PAGINA = FILAS_POR_PAGINA * COLUMNAS;
 
-export default function Instalaciones() {
-  // Rutas de imágenes de las instalaciones
-  const images = [
-    "/images/Instalaciones1.jpeg",
-    "/images/Instalaciones2.jpeg",
-    "/images/Instalaciones3.jpeg",
-    "/images/Instalaciones4.jpeg",
-    
-  ];
+type ContenidoItem = {
+  id: number;
+  tipo: "texto" | "imagen";
+  contenido: string; // texto o url imagen
+  lugar: string;
+  orden: number;
+};
 
+export default function Instalaciones() {
+  const width = useWindowWidth();
+  const [contenido, setContenido] = useState<ContenidoItem[]>([]);
   const [paginaActual, setPaginaActual] = useState(1);
 
-  const width = useWindowWidth();
+  useEffect(() => {
+    async function fetchContenido() {
+      try {
+        const res = await fetch("https://aplicacion-web-m5oa.onrender.com/contenido/?lugar=Instalaciones");
+        if (!res.ok) throw new Error("Error al cargar contenido");
+        const data: ContenidoItem[] = await res.json();
+        setContenido(data.sort((a, b) => a.orden - b.orden));
+      } catch (error) {
+        console.error(error);
+      }
+    }
+    fetchContenido();
+  }, []);
 
-  const totalPaginas = Math.ceil(images.length / IMAGENES_POR_PAGINA);
+  if (width === null) return null;
 
-  const imagesPagina = images.slice(
+  const textos = contenido.filter((item) => item.tipo === "texto");
+  const imagenes = contenido.filter((item) => item.tipo === "imagen");
+
+  const totalPaginas = Math.ceil(imagenes.length / IMAGENES_POR_PAGINA);
+
+  const imagenesPagina = imagenes.slice(
     (paginaActual - 1) * IMAGENES_POR_PAGINA,
     paginaActual * IMAGENES_POR_PAGINA
   );
@@ -47,38 +62,35 @@ export default function Instalaciones() {
     });
   };
 
-  if (width === null) return null;
-
   return (
     <main className="max-w-screen-xl mx-auto p-6 font-sans">
-      <section className="bg-celeste text-blanco px-4 py-8  rounded-[1rem] font-bold font-poetsen">
+      <section className="bg-celeste text-blanco px-4 py-8 rounded-[1rem] font-bold font-poetsen">
         <h1 className="text-4xl font-bold text-center text-gray-800 mb-8">
           Instalaciones Deportivas
         </h1>
 
-        <p className="mb-6 text-negro_texto leading-relaxed text-justify">
-          El <strong>Campo Municipal de Campillo del Río</strong> es el epicentro del fútbol en nuestra localidad. Tras años sin fútbol federado, este espacio ha sido reformado y acondicionado para recibir tanto al equipo sénior como a los equipos femeninos y juveniles que representan con orgullo a nuestro pueblo.
-        </p>
+        {/* Texto dinámico */}
+        {textos.map((item) => (
+          <p
+            key={item.id}
+            className="mb-6 text-negro_texto leading-relaxed text-justify"
+          >
+            {item.contenido}
+          </p>
+        ))}
 
-        <p className="mb-6 text-negro_texto leading-relaxed text-justify">
-          Gracias al apoyo del Ayuntamiento y la inversión realizada, las
-          instalaciones cuentan con césped de alta calidad (Dimensiones: 100x58m), gradas para
-          espectadores (Aforo permitido: 270 personas) y vestuarios modernos que cumplen con los requisitos
-          deportivos.
-        </p>
-
-        {/* Galería */}
+        {/* Galería dinámica */}
         <div className="mt-12">
           <h2 className="text-2xl font-semibold text-gray-800 mb-6 text-center">
             Galería de Instalaciones
           </h2>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-            {imagesPagina.map((src, index) => (
+            {imagenesPagina.map((item) => (
               <img
-                key={index}
-                src={src}
-                alt={`Instalación ${index + 1 + (paginaActual - 1) * IMAGENES_POR_PAGINA}`}
+                key={item.id}
+                src={item.contenido}
+                alt={`Instalación ${item.id}`}
                 className="w-full h-48 object-cover rounded-xl shadow-md"
               />
             ))}
