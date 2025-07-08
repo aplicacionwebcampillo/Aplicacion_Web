@@ -14,7 +14,6 @@ export default function ContenidoEstatico() {
 
   const [modo, setModo] = useState<"crear" | "listar" | "buscar" | "editar" | "eliminar">("listar");
   const [contenidoId, setContenidoId] = useState<string>("");
-  const [contenidoLugar, setContenidoLugar] = useState<string>("");
   const [contenido, setContenido] = useState<Contenido>({
     id: 0,
     tipo: "texto",
