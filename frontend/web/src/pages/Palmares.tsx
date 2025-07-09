@@ -11,9 +11,6 @@ function useWindowWidth() {
   return width;
 }
 
-const FILAS_POR_PAGINA = 1;
-const COLUMNAS = 3;
-const IMAGENES_POR_PAGINA = FILAS_POR_PAGINA * COLUMNAS;
 
 type ContenidoItem = {
   id: number;
@@ -26,7 +23,6 @@ type ContenidoItem = {
 export default function Palmares() {
   const width = useWindowWidth();
   const [contenido, setContenido] = useState<ContenidoItem[]>([]);
-  const [paginaActual, setPaginaActual] = useState(1);
 
   useEffect(() => {
     async function fetchContenido() {
@@ -45,9 +41,6 @@ export default function Palmares() {
   if (width === null) return null;
 
   const textos = contenido.filter((item) => item.tipo === "texto");
-  const imagenes = contenido.filter((item) => item.tipo === "imagen");
-
-  const totalPaginas = Math.ceil(imagenes.length / IMAGENES_POR_PAGINA);
 
 
   return (
