@@ -49,17 +49,6 @@ export default function Palmares() {
 
   const totalPaginas = Math.ceil(imagenes.length / IMAGENES_POR_PAGINA);
 
-  const imagenesPagina = imagenes.slice(
-    (paginaActual - 1) * IMAGENES_POR_PAGINA,
-    paginaActual * IMAGENES_POR_PAGINA
-  );
-
-  const cambiarPagina = (direccion: "anterior" | "siguiente") => {
-    setPaginaActual((prev) => {
-      if (direccion === "anterior" && prev > 1) return prev - 1;
-      if (direccion === "siguiente" && prev < totalPaginas) return prev + 1;
-      return prev;
-    });
   };
 
   return (

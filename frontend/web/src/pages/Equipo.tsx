@@ -44,7 +44,6 @@ export default function Equipos() {
 
   if (width === null) return null;
 
-  const textos = contenido.filter((item) => item.tipo === "texto");
   const imagenes = contenido.filter((item) => item.tipo === "imagen");
 
   const totalPaginas = Math.ceil(imagenes.length / IMAGENES_POR_PAGINA);
