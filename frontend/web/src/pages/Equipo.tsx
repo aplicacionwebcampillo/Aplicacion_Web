@@ -23,7 +23,7 @@ type ContenidoItem = {
   orden: number;
 };
 
-export default function Instalaciones() {
+export default function Equipos() {
   const width = useWindowWidth();
   const [contenido, setContenido] = useState<ContenidoItem[]>([]);
   const [paginaActual, setPaginaActual] = useState(1);
@@ -31,7 +31,7 @@ export default function Instalaciones() {
   useEffect(() => {
     async function fetchContenido() {
       try {
-        const res = await fetch("https://aplicacion-web-m5oa.onrender.com/contenido/?lugar=Instalaciones");
+        const res = await fetch("https://aplicacion-web-m5oa.onrender.com/contenido/?lugar=Equipos");
         if (!res.ok) throw new Error("Error al cargar contenido");
         const data: ContenidoItem[] = await res.json();
         setContenido(data.sort((a, b) => a.orden - b.orden));
@@ -64,31 +64,11 @@ export default function Instalaciones() {
 
   return (
     <main className="max-w-screen-xl mx-auto p-6 font-sans">
-      <section className="bg-celeste text-blanco px-4 py-8 rounded-[1rem] font-bold font-poetsen">
-        <h1 className="text-4xl font-bold text-center text-gray-800 mb-8">
-          Instalaciones Deportivas
-        </h1>
-
-        {/* Texto dinámico */}
-        {textos.map((item) => (
-          <p
-            key={item.id}
-          >
-            <pre className="whitespace-pre-wrap break-words overflow-hidden text-negro_texto font-poetsen">
-              	{item.contenido}
-              </pre>
-          </p>
-        ))}
-
-</section>
-        <section className="bg-blanco text-blanco px-4 py-8 rounded-[1rem] font-bold font-poetsen">
-        </section>
-        <section className="bg-celeste text-blanco px-4 py-8 rounded-[1rem] font-bold font-poetsen">
-        
+      <section className="bg-celeste text-blanco px-4 py-8 rounded-[1rem] font-bold font-poetsen">        
         {/* Galería dinámica */}
         <div className="mt-12">
           <h2 className="text-2xl font-semibold text-gray-800 mb-6 text-center">
-            Galería de Instalaciones
+            Galería
           </h2>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
@@ -96,7 +76,7 @@ export default function Instalaciones() {
               <img
                 key={item.id}
                 src={item.contenido}
-                alt={`Instalación ${item.id}`}
+                alt={``}
                 className="w-full h-48 object-cover rounded-xl shadow-md"
               />
             ))}

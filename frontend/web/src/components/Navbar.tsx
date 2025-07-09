@@ -13,6 +13,7 @@ export default function Navbar() {
       submenu: [
         { to: '/plantilla', label: 'Plantillas' },
         { to: '/calendario', label: 'Calendarios' },
+        { to: '/equipos', label: 'Galería' },
       ],
     },
     { to: '/tienda', label: 'Tienda' },

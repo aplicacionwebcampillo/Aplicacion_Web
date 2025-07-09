@@ -27,6 +27,7 @@ import PolíticaPrivacidad from './pages/PoliticaPrivacidad';
 import PoliticaCookies from './pages/PoliticaCookies';
 import AvisoCookies from "./components/Cookies";
 import ClubAntiguo from './pages/ClubAntiguo';
+import Equipos from './pages/Equipo';
 
 export default function App() {
   return (
@@ -59,6 +60,7 @@ export default function App() {
 		<Route path="/politica-privacidad" element={<PolíticaPrivacidad />} />
 		<Route path="/politica-cookies" element={<PoliticaCookies />} />
 		<Route path="/club-antiguo" element={<ClubAntiguo />} />
+		<Route path="/equipos" element={<Equipos />} />
 	      </Routes>
 	    </main>
 	    <Footer />

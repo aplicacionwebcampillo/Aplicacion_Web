@@ -1,53 +1,84 @@
+import { useEffect, useState } from "react";
+
+function useWindowWidth() {
+  const [width, setWidth] = useState<number | null>(null);
+  useEffect(() => {
+    const handleResize = () => setWidth(window.innerWidth);
+    handleResize();
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+  return width;
+}
+
+const FILAS_POR_PAGINA = 1;
+const COLUMNAS = 3;
+const IMAGENES_POR_PAGINA = FILAS_POR_PAGINA * COLUMNAS;
+
+type ContenidoItem = {
+  id: number;
+  tipo: "texto" | "imagen";
+  contenido: string; // texto o url imagen
+  lugar: string;
+  orden: number;
+};
+
 export default function Palmares() {
+  const width = useWindowWidth();
+  const [contenido, setContenido] = useState<ContenidoItem[]>([]);
+  const [paginaActual, setPaginaActual] = useState(1);
+
+  useEffect(() => {
+    async function fetchContenido() {
+      try {
+        const res = await fetch("https://aplicacion-web-m5oa.onrender.com/contenido/?lugar=Palmarés");
+        if (!res.ok) throw new Error("Error al cargar contenido");
+        const data: ContenidoItem[] = await res.json();
+        setContenido(data.sort((a, b) => a.orden - b.orden));
+      } catch (error) {
+        console.error(error);
+      }
+    }
+    fetchContenido();
+  }, []);
+
+  if (width === null) return null;
+
+  const textos = contenido.filter((item) => item.tipo === "texto");
+  const imagenes = contenido.filter((item) => item.tipo === "imagen");
+
+  const totalPaginas = Math.ceil(imagenes.length / IMAGENES_POR_PAGINA);
+
+  const imagenesPagina = imagenes.slice(
+    (paginaActual - 1) * IMAGENES_POR_PAGINA,
+    paginaActual * IMAGENES_POR_PAGINA
+  );
+
+  const cambiarPagina = (direccion: "anterior" | "siguiente") => {
+    setPaginaActual((prev) => {
+      if (direccion === "anterior" && prev > 1) return prev - 1;
+      if (direccion === "siguiente" && prev < totalPaginas) return prev + 1;
+      return prev;
+    });
+  };
+
   return (
-    <main className="flex flex-col gap-8 px-4 py-8 max-w-screen-xl mx-auto font-sans">
-      <section className="bg-celeste rounded-[1rem] text-negro_texto px-6 py-8 rounded-2xl font-poetsen">
-        <h1 className="text-4xl text-center text-blanco font-bold mb-10">Palmarés</h1>
+    <main className="max-w-screen-xl mx-auto p-6 font-sans">
+      <section className="bg-celeste text-blanco px-4 py-8 rounded-[1rem] font-bold font-poetsen">
+        <h1 className="text-4xl font-bold text-center text-gray-800 mb-8">
+          Palmarés
+        </h1>
 
-      <p className="mb-6">
-        El Club Deportivo Campillo del Río C.F., desde su fundación, ha ido consolidándose en las competiciones regionales de fútbol, mostrando una evolución constante y un crecimiento notable en sus primeras temporadas. A continuación, se detalla su palmarés hasta la temporada 2024/2025:
-      </p>
-
-      <div className="space-y-8">
-        {/* Liga */}
-        <div>
-          <h3 className="text-2xl text-negro_texto mb-4">Liga (Segunda Andaluza de Jaén)</h3>
-          <ul className="list-disc list-inside space-y-2">
-            <li>
-              <strong>Temporada 2022/2023:</strong> Debut en la categoría, finalizando en la 8ª posición. Temporada de adaptación y aprendizaje.
-            </li>
-            <li>
-              <strong>Temporada 2023/2024:</strong> Mejora de rendimiento, terminando en 5ª posición. Reflejo del crecimiento del equipo.
-            </li>
-            <li>
-              <strong>Temporada 2024/2025:</strong> Mejor campaña hasta la fecha, acabando en 3ª posición y clasificándose para los play-offs de ascenso.
-            </li>
-          </ul>
-        </div>
-
-        {/* Copa */}
-        <div>
-          <h3 className="text-2xl text-negro_texto mb-4">Copa (Copa Subdelegada de Jaén)</h3>
-          <ul className="list-disc list-inside space-y-2">
-            <li>
-              <strong>Temporada 2022/2023:</strong> Eliminados en octavos de final. Una experiencia formativa para el club.
-            </li>
-            <li>
-              <strong>Temporada 2023/2024:</strong> Alcanzaron las semifinales, mostrando un progreso competitivo destacado.
-            </li>
-          </ul>
-        </div>
-
-        {/* Resumen */}
-        <div>
-          <h3 className="text-2xl text-negro_texto mb-4">Resumen del palmarés</h3>
-          <ul className="list-disc list-inside space-y-2">
-            <li><strong>Mejor posición en liga:</strong> 3º (Temporada 2024/2025)</li>
-            <li><strong>Mejor participación en copa:</strong> Semifinales (Temporada 2023/2024)</li>
-            <li><strong>Participación en play-offs de ascenso:</strong> 1 vez (Temporada 2024/2025)</li>
-          </ul>
-        </div>
-      </div>
+        {/* Texto dinámico */}
+        {textos.map((item) => (
+          <p
+            key={item.id}
+          >
+          <pre className="whitespace-pre-wrap break-words overflow-hidden text-negro_texto font-poetsen">
+              	{item.contenido}
+              </pre>
+          </p>
+        ))}
       </section>
     </main>
   );
