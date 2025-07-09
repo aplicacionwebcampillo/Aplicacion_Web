@@ -49,7 +49,6 @@ export default function Palmares() {
 
   const totalPaginas = Math.ceil(imagenes.length / IMAGENES_POR_PAGINA);
 
-  };
 
   return (
     <main className="max-w-screen-xl mx-auto p-6 font-sans">
