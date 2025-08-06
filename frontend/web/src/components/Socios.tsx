@@ -475,7 +475,6 @@ export default function Socios() {
               )}
               <div>
                 <p><strong>DNI:</strong> {s.dni}</p>
-                <p><strong>Nombre:</strong> {s.nombre} {s.apellidos}</p>
                 <p><strong>Número de socio:</strong> {s.num_socio}</p>
                 <p><strong>Membresía:</strong> {s.tipo_membresia}</p>
                 <p><strong>Estado:</strong> {s.estado}</p>
