@@ -6,7 +6,7 @@ class CompeticionBase(BaseModel):
     nombre: constr(max_length=100)
     temporada: constr(max_length=20)
     formato: Literal['Liga', 'Copa']
-    id_equipo: int
+    id_equipo: Optional[int] = None
 
 
 class CompeticionCreate(CompeticionBase):
