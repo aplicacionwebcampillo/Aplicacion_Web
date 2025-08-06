@@ -150,6 +150,7 @@ export default function Socios() {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
+          num_socio: socio.num_socio,
           tipo_membresia: socio.tipo_membresia,
           estado: socio.estado,
           foto_perfil: socio.foto_perfil,
@@ -368,6 +369,15 @@ export default function Socios() {
             <div className="space-y-2 mt-4">
               <input
                 type="text"
+                placeholder="Número de Socio"
+                className="rounded-[1rem] font-poetsen w-[90%] rounded-xl border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-cyan-500"
+                value={socio.num_socio}
+                onChange={(e) =>
+                  setSocio((prev) => prev ? { ...prev, num_socio: e.target.value } : null)
+                }
+              />
+              <input
+                type="text"
                 placeholder="Tipo Membresía"
                 className="rounded-[1rem] font-poetsen w-[90%] rounded-xl border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-cyan-500"
                 value={socio.tipo_membresia}
@@ -466,6 +476,7 @@ export default function Socios() {
               <div>
                 <p><strong>DNI:</strong> {s.dni}</p>
                 <p><strong>Nombre:</strong> {s.nombre} {s.apellidos}</p>
+                <p><strong>Número de socio:</strong> {s.num_socio}</p>
                 <p><strong>Membresía:</strong> {s.tipo_membresia}</p>
                 <p><strong>Estado:</strong> {s.estado}</p>
               </div>
