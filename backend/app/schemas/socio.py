@@ -21,6 +21,7 @@ class SocioCreate(SocioBase):
     tipo_membresia: Optional[str] = None
 
 class SocioUpdate(BaseModel):
+    num_socio: Optional[str] = None
     tipo_membresia: Optional[str] = None
     estado: Optional[str] = None
     foto_perfil: Optional[str] = None
