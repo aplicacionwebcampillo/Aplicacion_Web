@@ -93,6 +93,7 @@ export default function FormularioEditarSocio() {
     >
       <h2 className="text-xl font-bold mb-4 text-center">Modificar Datos del Socio</h2>
 
+      {/*
       <div className="flex justify-center">
         <label className="block font-semibold min-w-[10rem]">Tipo de Membresía</label>
         <input
@@ -102,7 +103,7 @@ export default function FormularioEditarSocio() {
           className="rounded-[1rem] font-poetsen w-[90%] rounded-xl border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-cyan-500"
         />
       </div>
-
+      */}
       <div className="flex justify-center">
         <label className="block font-semibold min-w-[10rem]">Estado</label>
         <input
