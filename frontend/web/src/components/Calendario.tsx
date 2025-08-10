@@ -33,6 +33,7 @@ const competicionesPorCategoria: Record<string, string[]> = {
     "Copa Andalucía 2ª Andaluza Sénior (Jaén)",
     "Trofeo Copa Subdelegado del Gobierno (Jaén)",
     "Fase Final Trofeo Copa Subdelegado del Gobierno (Jaén)",
+    "Trofeo Copa Presidente Diputación (Jaén)",
   ],
   Femenino: ["Liga Fomento Femenino Sénior Fútbol 7 (Jaén)"],
   //Juvenil: ["3ª Andaluza Juvenil (Jaén)"],
