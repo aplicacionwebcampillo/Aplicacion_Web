@@ -101,7 +101,7 @@ export default function Plantilla() {
         {CATEGORIAS_EQUIPO.map((cat) => (
           <button
             key={cat.id}
-            onClick={() => setEquipoSeleccionado(cat.id)}
+            onClick={() => setEquipoSeleccionado(null)}
             className={`px-4 py-2 rounded-full border-2 font-semibold transition-all ${
               equipoSeleccionado === cat.id
                 ? "bg-azul text-blanco border-azul"
