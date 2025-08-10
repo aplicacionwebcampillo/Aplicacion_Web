@@ -39,6 +39,25 @@ const competicionesPorCategoria: Record<string, string[]> = {
   //Juvenil: ["3ª Andaluza Juvenil (Jaén)"],
 };
 
+const temporadasPorCategoria: Record<string, string[]> = {
+  Senior: [
+    "Temporada 2024-2025",
+    "Temporada 2025-2026",
+    "Temporada 2026-2027",
+    "Temporada 2027-2028",
+    "Temporada 2028-2029",
+    "Temporada 2029-2030",
+  ],
+  Femenino: [
+    "Temporada 2024-2025",
+    "Temporada 2025-2026",
+    "Temporada 2026-2027",
+    "Temporada 2027-2028",
+    "Temporada 2028-2029",
+    "Temporada 2029-2030",
+  ],
+};
+
 const FILAS_POR_PAGINA = 3;
 const COLUMNAS = 3;
 const PARTIDOS_POR_PAGINA = FILAS_POR_PAGINA * COLUMNAS;
@@ -57,7 +76,7 @@ export default function TodosPartidos() {
   const width = useWindowWidth();
 
   useEffect(() => {
-    const temporada_competicion = "Temporada 2025-2026";
+    const temporada_competicion = temporadasPorCategoria[categoriaActiva];
 
     async function fetchAllPartidos() {
       try {
