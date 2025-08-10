@@ -86,8 +86,8 @@ export default function Plantilla() {
     <section className="bg-celeste text-black px-4 py-8 rounded-[1rem] font-bold font-poetsen">
       <h2 className="text-2xl font-bold mb-4 text-center text-blanco">Plantilla</h2>
       {/* Botones de categoría */}
-      {/*<div className="flex flex-wrap justify-center gap-3 mb-6">
-        <button
+      <div className="flex flex-wrap justify-center gap-3 mb-6">
+        {/*<button
           onClick={() => setEquipoSeleccionado(null)}
           className={`px-4 py-2 rounded-full border-2 font-semibold transition-all ${
             equipoSeleccionado === null
