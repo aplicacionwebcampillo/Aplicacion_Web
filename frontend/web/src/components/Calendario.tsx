@@ -68,8 +68,8 @@ export default function TodosPartidos() {
   //>("Todos");
   
   const [categoriaActiva, setCategoriaActiva] = useState<
-    "Senior" | "Femenino" | "Todos"
-  >("Todos");
+    "Senior" | "Femenino"
+  >("Senior");
   const [partidos, setPartidos] = useState<Partido[]>([]);
   const [paginaActual, setPaginaActual] = useState(1);
 
@@ -146,7 +146,7 @@ export default function TodosPartidos() {
       {/* Botones categoría */}
       <div className="flex flex-wrap justify-center gap-3 mb-6">
         {/*{(["Todos", "Senior", "Femenino", "Juvenil"] as const).map((cat) => (*/}
-        {(["Todos", "Senior", "Femenino"] as const).map((cat) => (
+        {(["Senior", "Femenino"] as const).map((cat) => (
           <button
             key={cat}
             onClick={() => setCategoriaActiva(cat)}
