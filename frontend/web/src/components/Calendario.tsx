@@ -76,42 +76,46 @@ export default function TodosPartidos() {
   const width = useWindowWidth();
 
   useEffect(() => {
-    const temporada_competicion = temporadasPorCategoria[categoriaActiva];
+  const temporadas = temporadasPorCategoria[categoriaActiva] || [];
 
-    async function fetchAllPartidos() {
-      try {
-        let competicionesAConsultar: string[] = [];
+  async function fetchAllPartidos() {
+    try {
+      let competicionesAConsultar: string[] = [];
 
-        if (categoriaActiva === "Todos") {
-          competicionesAConsultar = Object.values(competicionesPorCategoria).flat();
-        } else {
-          competicionesAConsultar = competicionesPorCategoria[categoriaActiva];
-        }
+      if (categoriaActiva === "Todos") {
+        competicionesAConsultar = Object.values(competicionesPorCategoria).flat();
+      } else {
+        competicionesAConsultar = competicionesPorCategoria[categoriaActiva];
+      }
 
-        const fetches = competicionesAConsultar.map((competicion) =>
+      // Ahora combinamos cada competición con cada temporada
+      const fetches = competicionesAConsultar.flatMap((competicion) =>
+        temporadas.map((temporada) =>
           fetch(
             `https://aplicacion-web-m5oa.onrender.com/partidos/?nombre_competicion=${encodeURIComponent(
               competicion
-            )}&temporada_competicion=${encodeURIComponent(temporada_competicion)}`
+            )}&temporada_competicion=${encodeURIComponent(temporada)}`
           ).then((res) => res.json() as Promise<Partido[]>)
-        );
+        )
+      );
 
-        const resultados = await Promise.all(fetches);
-        const todosPartidos = resultados.flat();
+      const resultados = await Promise.all(fetches);
+      const todosPartidos = resultados.flat();
 
-        todosPartidos.sort(
-          (a, b) => new Date(a.dia).getTime() - new Date(b.dia).getTime()
-        );
+      todosPartidos.sort(
+        (a, b) => new Date(a.dia).getTime() - new Date(b.dia).getTime()
+      );
 
-        setPartidos(todosPartidos);
-      } catch (error) {
-        console.error("Error cargando partidos:", error);
-        setPartidos([]);
-      }
+      setPartidos(todosPartidos);
+    } catch (error) {
+      console.error("Error cargando partidos:", error);
+      setPartidos([]);
     }
+  }
 
-    fetchAllPartidos();
-  }, [categoriaActiva]);
+  fetchAllPartidos();
+}, [categoriaActiva]);
+
 
   // Resetear página cuando cambia categoría
   useEffect(() => {

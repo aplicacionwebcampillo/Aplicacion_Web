@@ -53,41 +53,43 @@ export default function Partidos() {
   const [proximo, setProximo] = useState<Partido | null>(null);
 
   useEffect(() => {
-    const competiciones = competicionesPorCategoria[categoriaActiva];
-    const temporada_competicion = temporadasPorCategoria[categoriaActiva];
+  const competiciones = competicionesPorCategoria[categoriaActiva];
+  const temporadas = temporadasPorCategoria[categoriaActiva];
 
-    // Construimos un array de fetches para cada competición
-    const fetches = competiciones.map((competicion) =>
+  // Construimos un array de fetches para cada combinación competición-temporada
+  const fetches = competiciones.flatMap((competicion) =>
+    temporadas.map((temporada) =>
       fetch(
         `https://aplicacion-web-m5oa.onrender.com/partidos/?nombre_competicion=${encodeURIComponent(
           competicion
-        )}&temporada_competicion=${encodeURIComponent(temporada_competicion)}`
+        )}&temporada_competicion=${encodeURIComponent(temporada)}`
       ).then((res) => res.json() as Promise<Partido[]>)
-    );
+    )
+  );
 
-    Promise.all(fetches)
-      .then((resultados) => {
-        // resultados es un array con arrays de partidos por competición
-        const todosPartidos = resultados.flat();
+  Promise.all(fetches)
+    .then((resultados) => {
+      const todosPartidos = resultados.flat();
 
-        const hoy = new Date();
+      const hoy = new Date();
 
-        const partidosOrdenados = todosPartidos.sort(
-          (a, b) => new Date(a.dia).getTime() - new Date(b.dia).getTime()
-        );
+      const partidosOrdenados = todosPartidos.sort(
+        (a, b) => new Date(a.dia).getTime() - new Date(b.dia).getTime()
+      );
 
-        const anteriores = partidosOrdenados.filter(
-          (p) => new Date(p.dia) < hoy
-        );
-        const siguientes = partidosOrdenados.filter(
-          (p) => new Date(p.dia) >= hoy
-        );
+      const anteriores = partidosOrdenados.filter(
+        (p) => new Date(p.dia) < hoy
+      );
+      const siguientes = partidosOrdenados.filter(
+        (p) => new Date(p.dia) >= hoy
+      );
 
-        setUltimo(anteriores[anteriores.length - 1] || null);
-        setProximo(siguientes[0] || null);
-      })
-      .catch((err) => console.error("Error cargando partidos:", err));
-  }, [categoriaActiva]);
+      setUltimo(anteriores[anteriores.length - 1] || null);
+      setProximo(siguientes[0] || null);
+    })
+    .catch((err) => console.error("Error cargando partidos:", err));
+}, [categoriaActiva]);
+
 
   const renderPartido = (partido: Partido | null, tipo: "próximo" | "último") => {
     if (!partido) {
