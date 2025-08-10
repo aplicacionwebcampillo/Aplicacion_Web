@@ -82,11 +82,11 @@ export default function TodosPartidos() {
     try {
       let competicionesAConsultar: string[] = [];
 
-      if (categoriaActiva === "Todos") {
-        competicionesAConsultar = Object.values(competicionesPorCategoria).flat();
-      } else {
+      //if (categoriaActiva === "Todos") {
+        //competicionesAConsultar = Object.values(competicionesPorCategoria).flat();
+      //} else {
         competicionesAConsultar = competicionesPorCategoria[categoriaActiva];
-      }
+      //}
 
       // Ahora combinamos cada competición con cada temporada
       const fetches = competicionesAConsultar.flatMap((competicion) =>
