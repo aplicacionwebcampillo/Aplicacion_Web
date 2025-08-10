@@ -57,7 +57,7 @@ export default function TodosPartidos() {
   const width = useWindowWidth();
 
   useEffect(() => {
-    const temporada_competicion = "Temporada 2024-2025";
+    const temporada_competicion = "Temporada 2025-2026";
 
     async function fetchAllPartidos() {
       try {

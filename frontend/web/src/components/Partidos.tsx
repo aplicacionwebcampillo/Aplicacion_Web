@@ -35,7 +35,7 @@ export default function Partidos() {
 
   useEffect(() => {
     const competiciones = competicionesPorCategoria[categoriaActiva];
-    const temporada_competicion = "Temporada 2024-2025";
+    const temporada_competicion = "Temporada 2025-2026";
 
     // Construimos un array de fetches para cada competición
     const fetches = competiciones.map((competicion) =>
