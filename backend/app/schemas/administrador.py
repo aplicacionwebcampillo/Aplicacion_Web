@@ -4,8 +4,8 @@ from datetime import date
 
 class AdministradorBase(BaseModel):
     dni: str
-    cargo: str
-    permisos: str
+    cargo: Optional[str] = "Administrador de Sistemas"
+    permisos: Optional[str] = "Administrador de Sistemas"
     estado: Optional[str] = "activo"
     foto_perfil: Optional[str] = ""
 

@@ -176,6 +176,7 @@ export default function Equipos() {
             }
             className="rounded-[1rem] font-poetsen w-[90%] rounded-xl border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-cyan-500 "
           />
+          {/*
           <input
             type="number"
             placeholder="Número de jugadores"
@@ -185,6 +186,7 @@ export default function Equipos() {
             }
             className="rounded-[1rem] font-poetsen w-[90%] rounded-xl border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-cyan-500"
           />
+          */}
           <div className="flex justify-center">
           <button
             onClick={crearEquipo}
@@ -219,6 +221,7 @@ export default function Equipos() {
           }
           className="rounded-[1rem] font-poetsen w-[90%] border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-cyan-500"
         />
+        {/*
         <input
           type="number"
           placeholder="Número de jugadores"
@@ -228,6 +231,7 @@ export default function Equipos() {
           }
           className="rounded-[1rem] font-poetsen w-[90%] border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-cyan-500"
         />
+        */}
         <div className="flex justify-center">
           <button
             onClick={actualizarEquipo}

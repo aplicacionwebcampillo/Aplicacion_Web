@@ -226,13 +226,22 @@ export default function Noticias() {
             className="rounded-[1rem] font-poetsen w-[90%] border border-gray-300 px-3 py-2"
             rows={4}
           />
-          <input
-            type="text"
-            placeholder="Categoría"
-            value={noticia.categoria}
-            onChange={(e) => setNoticia({ ...noticia, categoria: e.target.value })}
-            className="rounded-[1rem] font-poetsen w-[90%] border border-gray-300 px-3 py-2"
-          />
+          <select
+  value={noticia.categoria}
+  onChange={(e) => setNoticia({ ...noticia, categoria: e.target.value })}
+  className="rounded-[1rem] font-poetsen w-[90%] border border-gray-300 px-3 py-2"
+>
+  <option value="" disabled>
+    Selecciona una categoría
+  </option>
+  <option value="Senior Masculino">Senior Masculino</option>
+  <option value="Senior Femenino">Senior Femenino</option>
+  <option value="Cantera">Cantera</option>
+  <option value="Noticias del Club">Noticias del Club</option>
+  <option value="Comunicados Oficiales">Comunicados Oficiales</option>
+  <option value="Actividades Sociales">Actividades Sociales</option>
+</select>
+
           <input
             type="text"
             placeholder="DNI Administrador"

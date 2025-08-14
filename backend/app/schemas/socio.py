@@ -5,7 +5,7 @@ from datetime import date
 class SocioBase(BaseModel):
     dni: str
     num_socio: str
-    tipo_membresia: str
+    tipo_membresia: Optional[str] = "anual"
     estado: Optional[str] = "activo"
     foto_perfil: Optional[str] = ""
 
@@ -16,7 +16,7 @@ class SocioCreate(SocioBase):
     fecha_nacimiento: date
     email: str
     contrasena: str
-    tipo_socio: str 
+    tipo_socio: Optional[str] = "" 
     num_socio: Optional[str] = None
     tipo_membresia: Optional[str] = None
 

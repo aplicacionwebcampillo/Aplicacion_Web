@@ -3,7 +3,7 @@ from typing import Optional
 
 class EquipoBase(BaseModel):
     categoria: str
-    num_jugadores: int = 0
+    num_jugadores: Optional[int] = 0
 
 class EquipoCreate(EquipoBase):
     pass

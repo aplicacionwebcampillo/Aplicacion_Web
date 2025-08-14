@@ -215,8 +215,8 @@ export default function Socios() {
   const camposCrear = [
     "dni",
     "num_socio",
-    "tipo_membresia",
-    "estado",
+    //"tipo_membresia",
+    //"estado",
     "foto_perfil",
     "nombre",
     "apellidos",
@@ -224,7 +224,7 @@ export default function Socios() {
     "fecha_nacimiento",
     "email",
     "contrasena",
-    "tipo_socio",
+    //"tipo_socio",
   ];
 
   return (

@@ -114,9 +114,9 @@ export default function Administrador() {
     "fecha_nacimiento",
     "email",
     "contrasena",
-    "cargo",
-    "permisos",
-    "estado",
+    //"cargo",
+    //"permisos",
+    //"estado",
   ];
 
   // Manejo cambio de imagen (subir)
