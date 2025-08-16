@@ -285,7 +285,8 @@ async def procesar_jornada(page, url_jornada: str):
         
         jornada = columnas[0].get_text(strip=True)
         
-        equipos_info = columnas[1].find_all('h5')
+        #equipos_info = columnas[1].find_all('h5')
+        equipos_info = list(columnas[1].stripped_strings)
         
         if len(equipos_info) < 3:
             equipo_local = equipos_info[0].get_text(strip=True)

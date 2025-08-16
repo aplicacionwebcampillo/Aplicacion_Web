@@ -14,6 +14,14 @@ const competiciones: Record<string, string> = {
   //Juvenil: "3ª Andaluza Juvenil (Jaén)",
 };
 
+const now = new Date();
+const year = now.getFullYear();
+const month = now.getMonth() + 1; // enero = 0 → sumamos 1
+
+// Si estamos en la primera mitad del año (ene-jul), la temporada empezó el año anterior
+const startYear = month >= 8 ? year : year - 1;
+const endYear = startYear + 1;
+
 export default function Clasificacion() {
   const [datos, setDatos] = useState<Clasificacion[]>([]);
   //const [categoriaActiva, setCategoriaActiva] = useState<"Senior" | "Femenino" | "Juvenil">("Senior");
@@ -21,7 +29,8 @@ export default function Clasificacion() {
 
   useEffect(() => {
     const nombre_competicion = competiciones[categoriaActiva];
-    const temporada_competicion = "Temporada 2024-2025";
+    //const temporada_competicion = "Temporada 2024-2025";
+    const temporada_competicion = `Temporada ${startYear}-${endYear}`;
 
     fetch(
       `https://aplicacion-web-m5oa.onrender.com/clasificaciones?nombre_competicion=${encodeURIComponent(
