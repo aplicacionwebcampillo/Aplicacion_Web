@@ -20,7 +20,7 @@ export default function Productos() {
     nombre: "",
     descripcion: "",
     precio: null,
-    stock: null;,
+    stock: null,
     imagen: "",
   });
   const [productos, setProductos] = useState<Producto[]>([]);
