@@ -3,8 +3,8 @@ import { useState, useEffect } from "react";
 interface Abono {
   temporada: string;
   precio: number | null;
-  fecha_inicio: string; // formato "YYYY-MM-DD"
-  fecha_fin: string;
+  fecha_inicio: string | null; // formato "YYYY-MM-DD"
+  fecha_fin: string | null;
   descripcion: string;
   id_abono?: number;
 }
@@ -19,8 +19,8 @@ export default function Abonos() {
   const [abono, setAbono] = useState<Abono>({
     temporada: "",
     precio: null,
-    fecha_inicio: "",
-    fecha_fin: "",
+    fecha_inicio: null,
+    fecha_fin: null,
     descripcion: "",
   });
 
