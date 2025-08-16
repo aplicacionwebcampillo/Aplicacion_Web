@@ -217,7 +217,7 @@ export default function Socios() {
     "num_socio",
     //"tipo_membresia",
     //"estado",
-    "foto_perfil",
+    //"foto_perfil",
     "nombre",
     "apellidos",
     "telefono",
