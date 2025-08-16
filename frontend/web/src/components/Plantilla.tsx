@@ -37,7 +37,7 @@ const JUGADORES_POR_PAGINA = FILAS_POR_PAGINA * COLUMNAS;
 
 export default function Plantilla() {
   const [jugadores, setJugadores] = useState<Jugador[]>([]);
-  const [equipoSeleccionado, setEquipoSeleccionado] = useState<number | null>(1);
+  const [equipoSeleccionado, setEquipoSeleccionado] = useState<number>(1);
   const [paginaActual, setPaginaActual] = useState(1);
 
   const width = useWindowWidth();
