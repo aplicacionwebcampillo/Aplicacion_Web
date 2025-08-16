@@ -269,7 +269,7 @@ export default function Productos() {
                 className="w-full h-32 object-cover my-2"
               />
               <p>{p.descripcion}</p>
-              <p><strong>Precio:</strong> {producto.precio} €</p>
+              <p><strong>Precio:</strong> {p.precio} €</p>
               <p>Stock: {p.stock}</p>
             </div>
           ))}
