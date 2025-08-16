@@ -349,7 +349,7 @@ useEffect(() => {
 
         <button
           onClick={() => setSeccion("modificar")}
-          className={`px-4 py-2 rounded-full border-2 font-semibold transition-all ${
+          className={`min-w-[14rem] px-4 py-2 rounded-full border-2 font-bold transition-colors duration-200 ${
           seccion === "modificar"
             ? "bg-azul text-blanco border-azul"
             : "bg-blanco text-azul border-azul hover:bg-azul hover:text-blanco"
@@ -378,7 +378,7 @@ useEffect(() => {
         {!esSocio  && (
         <button
           onClick={() => setSeccion("Registrarse como socio")}
-          className={`px-4 py-2 rounded-full border-2 font-semibold transition-all ${
+          className={`min-w-[14rem] px-4 py-2 rounded-full border-2 font-bold transition-colors duration-200 ${
           seccion === "Registrarse como socio"
             ? "bg-azul text-blanco border-azul"
             : "bg-blanco text-azul border-azul hover:bg-azul hover:text-blanco"
@@ -397,7 +397,7 @@ useEffect(() => {
 
         <button
           onClick={() => setSeccion("eliminar")}
-          className={`px-4 py-2 rounded-full border-2 font-semibold transition-all ${
+          className={`min-w-[14rem] px-4 py-2 rounded-full border-2 font-bold transition-colors duration-200 ${
           seccion === "eliminar"
             ? "bg-azul text-blanco border-azul"
             : "bg-blanco text-azul border-azul hover:bg-azul hover:text-blanco"
