@@ -269,7 +269,7 @@ export default function Abonos() {
           <input
             type="number"
             placeholder="Precio"
-            value={abono.precio}
+            value={abono.precio ?? ""}
             onChange={(e) =>
               setAbono((prev) => ({ ...prev, precio: Number(e.target.value) }))
             }
