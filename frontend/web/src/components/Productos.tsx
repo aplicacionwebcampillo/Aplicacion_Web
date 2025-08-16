@@ -6,8 +6,8 @@ interface Producto {
   id_producto?: number;
   nombre: string;
   descripcion: string;
-  precio: number;
-  stock: number;
+  precio: number | null;
+  stock: number | null;
   imagen: string;
 }
 
@@ -19,8 +19,8 @@ export default function Productos() {
   const [producto, setProducto] = useState<Producto>({
     nombre: "",
     descripcion: "",
-    precio: 0,
-    stock: 0,
+    precio: null,
+    stock: null;,
     imagen: "",
   });
   const [productos, setProductos] = useState<Producto[]>([]);
