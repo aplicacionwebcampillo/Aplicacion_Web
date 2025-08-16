@@ -293,9 +293,9 @@ async def procesar_jornada(page, url_jornada: str):
            #equipo_visitante = "Descansa"
            #fecha_hora_texto = equipos_info[1].get_text(strip=True)
         #else:
-            equipo_local = equipos_info[0].get_text(strip=True)
-            equipo_visitante = equipos_info[1].get_text(strip=True)
-            fecha_hora_texto = equipos_info[2].get_text(strip=True)
+            equipo_local = equipos_info[0]
+            equipo_visitante = equipos_info[1]
+            fecha_hora_texto = equipos_info[2]
             print(f"Partido Revisar: {equipo_local} vs {equipo_visitante}")
         
         
