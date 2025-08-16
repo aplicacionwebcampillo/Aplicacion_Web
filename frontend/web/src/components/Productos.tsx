@@ -84,8 +84,8 @@ export default function Productos() {
         setProducto({
           nombre: "",
           descripcion: "",
-          precio: 0,
-          stock: 0,
+          precio: null,
+          stock: null,
           imagen: "",
         });
         setModo("listar");
@@ -142,8 +142,8 @@ export default function Productos() {
               setProducto({
                 nombre: "",
                 descripcion: "",
-                precio: 0,
-                stock: 0,
+                precio: null,
+                stock: null,
                 imagen: "",
               });
               setNombre("");
