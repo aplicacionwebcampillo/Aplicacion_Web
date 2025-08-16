@@ -217,23 +217,33 @@ export default function Abonos() {
             className="rounded-[1rem] font-poetsen w-[90%] rounded-xl border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-cyan-500  "
           />
           <input
-            type="date"
-            placeholder="Fecha Inicio dd/mm/aaaa"
-            value={abono.fecha_inicio ?? ""}
-            onChange={(e) =>
-              setAbono((prev) => ({ ...prev, fecha_inicio: e.target.value }))
-            }
-            className="rounded-[1rem] font-poetsen w-[90%] rounded-xl border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-cyan-500  "
-          />
+  type={abono.fecha_inicio ? "date" : "text"}
+  placeholder="Fecha Inicio dd/mm/aaaa"
+  value={abono.fecha_inicio ?? ""}
+  onFocus={(e) => (e.target.type = "date")}
+  onBlur={(e) => {
+    if (!e.target.value) e.target.type = "text";
+  }}
+  onChange={(e) =>
+    setAbono((prev) => ({ ...prev, fecha_inicio: e.target.value }))
+  }
+  className="rounded-[1rem] font-poetsen w-[90%] rounded-xl border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-cyan-500"
+/>
+
           <input
-            type="date"
-            placeholder="Fecha Fin dd/mm/aaaa"
-            value={abono.fecha_fin ?? ""}
-            onChange={(e) =>
-              setAbono((prev) => ({ ...prev, fecha_fin: e.target.value }))
-            }
-            className="rounded-[1rem] font-poetsen w-[90%] rounded-xl border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-cyan-500  "
-          />
+  type={abono.fecha_fin ? "date" : "text"}
+  placeholder="Fecha Fin dd/mm/aaaa"
+  value={abono.fecha_fin ?? ""}
+  onFocus={(e) => (e.target.type = "date")}
+  onBlur={(e) => {
+    if (!e.target.value) e.target.type = "text";
+  }}
+  onChange={(e) =>
+    setAbono((prev) => ({ ...prev, fecha_fin: e.target.value }))
+  }
+  className="rounded-[1rem] font-poetsen w-[90%] rounded-xl border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-cyan-500"
+/>
+
           <textarea
             placeholder="Descripción"
             value={abono.descripcion}
@@ -276,23 +286,33 @@ export default function Abonos() {
             className="rounded-[1rem] font-poetsen w-[90%] rounded-xl border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-cyan-500  "
           />
           <input
-            type="date"
-            placeholder="Fecha Inicio dd/mm/aaaa"
-            value={abono.fecha_inicio ?? ""}
-            onChange={(e) =>
-              setAbono((prev) => ({ ...prev, fecha_inicio: e.target.value }))
-            }
-            className="rounded-[1rem] font-poetsen w-[90%] rounded-xl border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-cyan-500  "
-          />
+  type={abono.fecha_inicio ? "date" : "text"}
+  placeholder="Fecha Inicio dd/mm/aaaa"
+  value={abono.fecha_inicio ?? ""}
+  onFocus={(e) => (e.target.type = "date")}
+  onBlur={(e) => {
+    if (!e.target.value) e.target.type = "text";
+  }}
+  onChange={(e) =>
+    setAbono((prev) => ({ ...prev, fecha_inicio: e.target.value }))
+  }
+  className="rounded-[1rem] font-poetsen w-[90%] rounded-xl border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-cyan-500"
+/>
+
           <input
-            type="date"
-            placeholder="Fecha Fin dd/mm/aaaa"
-            value={abono.fecha_fin ?? ""}
-            onChange={(e) =>
-              setAbono((prev) => ({ ...prev, fecha_fin: e.target.value }))
-            }
-            className="rounded-[1rem] font-poetsen w-[90%] rounded-xl border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-cyan-500  "
-          />
+  type={abono.fecha_fin ? "date" : "text"}
+  placeholder="Fecha Fin dd/mm/aaaa"
+  value={abono.fecha_fin ?? ""}
+  onFocus={(e) => (e.target.type = "date")}
+  onBlur={(e) => {
+    if (!e.target.value) e.target.type = "text";
+  }}
+  onChange={(e) =>
+    setAbono((prev) => ({ ...prev, fecha_fin: e.target.value }))
+  }
+  className="rounded-[1rem] font-poetsen w-[90%] rounded-xl border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-cyan-500"
+/>
+
           <textarea
             placeholder="Descripción"
             value={abono.descripcion}
