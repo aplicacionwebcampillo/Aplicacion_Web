@@ -277,8 +277,8 @@ export default function Abonos() {
           />
           <input
             type="date"
-            placeholder="Fecha Inicio"
-            value={abono.fecha_inicio}
+            placeholder="Fecha Inicio dd/mm/aaaa"
+            value={abono.fecha_inicio ?? ""}
             onChange={(e) =>
               setAbono((prev) => ({ ...prev, fecha_inicio: e.target.value }))
             }
@@ -286,8 +286,8 @@ export default function Abonos() {
           />
           <input
             type="date"
-            placeholder="Fecha Fin"
-            value={abono.fecha_fin}
+            placeholder="Fecha Fin dd/mm/aaaa"
+            value={abono.fecha_fin ?? ""}
             onChange={(e) =>
               setAbono((prev) => ({ ...prev, fecha_fin: e.target.value }))
             }
