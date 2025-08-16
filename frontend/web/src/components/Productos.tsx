@@ -186,7 +186,7 @@ export default function Productos() {
               <p><strong>ID:</strong> {producto.id_producto}</p>
               <p><strong>Nombre:</strong> {producto.nombre}</p>
               <p><strong>Descripción:</strong> {producto.descripcion}</p>
-              <p><strong>Precio:</strong> {(producto.precio ?? 0).toFixed(2)}€</p>
+              <p><strong>Precio:</strong> {producto.precio} €</p>
               <p><strong>Stock:</strong> {producto.stock}</p>
               {producto.imagen && (
                 <img
@@ -269,7 +269,7 @@ export default function Productos() {
                 className="w-full h-32 object-cover my-2"
               />
               <p>{p.descripcion}</p>
-              <p><strong>Precio:</strong> {(producto.precio ?? 0).toFixed(2)}€</p>
+              <p><strong>Precio:</strong> {producto.precio} €</p>
               <p>Stock: {p.stock}</p>
             </div>
           ))}
