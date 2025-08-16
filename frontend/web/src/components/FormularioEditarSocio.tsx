@@ -104,6 +104,8 @@ export default function FormularioEditarSocio() {
         />
       </div>
       */}
+      
+      {/*
       <div className="flex justify-center">
         <label className="block font-semibold min-w-[10rem]">Estado</label>
         <input
@@ -113,6 +115,7 @@ export default function FormularioEditarSocio() {
           className="rounded-[1rem] font-poetsen w-[90%] rounded-xl border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-cyan-500"
         />
       </div>
+      */}
 
       <div className="flex flex-col items-center w-[90%] mx-auto">
         <label className="block font-semibold mb-2">Foto de Perfil</label>
