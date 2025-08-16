@@ -73,10 +73,10 @@ export default function SocioPage() {
     <div className="flex flex-col md:flex-row bg-gray-50 ">
       {/* Menú lateral */}
       {socioData && (
-      <aside className="bg-celeste text-white h-auto px-6 py-10 rounded-[1rem] font-poetsen font-bold md:w-full max-w-full m-[1.5rem] md:max-w-[20rem]  md:w-1/4 flex flex-col justify-center items-center md:items-start space-y-4">
+      <aside className="bg-celeste text-azul px-6 py-8 rounded-[1rem] font-poetsen font-bold md:w-full max-w-full m-[1.5rem] md:max-w-[20rem] md:max-h-[24rem] md:w-1/4 flex flex-col justify-center items-center space-y-4">
         <button
           onClick={() => navigate("/usuario")}
-          className="w-full max-w-xs px-4 py-2 rounded-full border-2 font-bold transition duration-200 bg-blanco text-azul border-azul hover:bg-azul hover:text-blanco"
+          className="min-w-[14rem] px-4 py-2 rounded-full border-2 font-bold transition-colors duration-200 bg-blanco text-azul border-azul hover:bg-azul hover:text-blanco"
         >
           Zona Usuario
         </button>
