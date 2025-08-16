@@ -85,11 +85,11 @@ export default function SocioPage() {
           <button
             key={btn.id}
             onClick={() => setSeccion(btn.id)}
-            className={`w-full max-w-xs px-4 py-2 rounded-full border-2 font-bold transition duration-200 bg-blanco text-azul border-azul hover:bg-azul hover:text-blanco ${
-              seccion === btn.id
-                ? ""
-                : ""
-            }`}
+            className={`min-w-[14rem] px-4 py-2 rounded-full border-2 font-bold transition-colors duration-200 ${
+          seccion === btn.id
+            ? "bg-azul text-blanco border-azul"
+            : "bg-blanco text-azul border-azul hover:bg-azul hover:text-blanco"
+        }`}
           >
             {btn.label}
           </button>
