@@ -288,14 +288,15 @@ async def procesar_jornada(page, url_jornada: str):
         #equipos_info = columnas[1].find_all('h5')
         equipos_info = list(columnas[1].stripped_strings)
         
-        if len(equipos_info) < 3:
-            equipo_local = equipos_info[0].get_text(strip=True)
-            equipo_visitante = "Descansa"
-            fecha_hora_texto = equipos_info[1].get_text(strip=True)
-        else:
+        #if len(equipos_info) < 3:
+           #equipo_local = equipos_info[0].get_text(strip=True)
+           #equipo_visitante = "Descansa"
+           #fecha_hora_texto = equipos_info[1].get_text(strip=True)
+        #else:
             equipo_local = equipos_info[0].get_text(strip=True)
             equipo_visitante = equipos_info[1].get_text(strip=True)
             fecha_hora_texto = equipos_info[2].get_text(strip=True)
+            print(f"Partido Revisar: {equipo_local} vs {equipo_visitante}")
         
         
         fecha_hora = fecha_hora_texto.split()
