@@ -349,7 +349,11 @@ useEffect(() => {
 
         <button
           onClick={() => setSeccion("modificar")}
-          className="min-w-[14rem] px-4 py-2 rounded-full border-2 font-bold transition-colors duration-200 bg-blanco text-azul border-azul bg-blanco text-azul border-azul hover:bg-azul hover:text-blanco"
+          className={`px-4 py-2 rounded-full border-2 font-semibold transition-all ${
+          seccion === "modificar"
+            ? "bg-azul text-blanco border-azul"
+            : "bg-blanco text-azul border-azul hover:bg-azul hover:text-blanco"
+        }`}
         >
           Modificar Usuario
         </button>
@@ -374,7 +378,11 @@ useEffect(() => {
         {!esSocio  && (
         <button
           onClick={() => setSeccion("Registrarse como socio")}
-          className="min-w-[14rem] px-4 py-2 rounded-full border-2 font-bold transition-colors duration-200 bg-blanco text-azul border-azul bg-blanco text-azul border-azul hover:bg-azul hover:text-blanco"
+          className={`px-4 py-2 rounded-full border-2 font-semibold transition-all ${
+          seccion === "Registrarse como socio"
+            ? "bg-azul text-blanco border-azul"
+            : "bg-blanco text-azul border-azul hover:bg-azul hover:text-blanco"
+        }`}
         >
           Registrarse como socio
         </button>
@@ -389,7 +397,11 @@ useEffect(() => {
 
         <button
           onClick={() => setSeccion("eliminar")}
-          className="min-w-[14rem] px-4 py-2 rounded-full border-2 font-bold transition-colors duration-200 bg-blanco text-azul border-azul bg-blanco text-azul border-azul hover:bg-azul hover:text-blanco"
+          className={`px-4 py-2 rounded-full border-2 font-semibold transition-all ${
+          seccion === "eliminar"
+            ? "bg-azul text-blanco border-azul"
+            : "bg-blanco text-azul border-azul hover:bg-azul hover:text-blanco"
+        }`}
         >
           Eliminar Usuario
         </button>
