@@ -18,6 +18,7 @@ export default function Jugadores() {
   >("listar");
 
   const [jugadorNombreBuscado, setJugadorNombreBuscado] = useState<string>("");
+  const [isDate, setIsDate] = useState(false);
 
   const [jugador, setJugador] = useState<Jugador>({
     nombre: "",
@@ -74,7 +75,7 @@ export default function Jugadores() {
           fecha_nacimiento: "",
           foto: "",
           biografia: "",
-          dorsal: 0,
+          dorsal: null,
           id_equipo: 0,
         });
         setModo("listar");
@@ -152,7 +153,7 @@ export default function Jugadores() {
                   fecha_nacimiento: "",
                   foto: "",
                   biografia: "",
-                  dorsal: 0,
+                  dorsal: null,
                   id_equipo: 0,
                 });
                 setJugadorNombreBuscado("");
@@ -210,95 +211,89 @@ export default function Jugadores() {
       {(modo === "crear" || (modo === "editar" && jugador.nombre)) && (
         <div className="space-y-2 max-w-md mt-2">
           {[
-  { label: "Nombre", key: "nombre", type: "text" },
-  { label: "Posición", key: "posicion", type: "select" },
-  { label: "Fecha de nacimiento", key: "fecha_nacimiento", type: "date" },
-  { label: "Biografía", key: "biografia", type: "text" },
-  { label: "Dorsal", key: "dorsal", type: "number" },
-  { label: "ID Equipo", key: "id_equipo", type: "select" },
-].map(({ label, key, type }) => {
-  if (key === "posicion") {
-    return (
-      <select
-        key={key}
-        value={jugador.posicion}
-        onChange={(e) =>
-          setJugador((prev) => ({ ...prev, posicion: e.target.value }))
-        }
-        className="rounded-[1rem] w-[90%] border px-3 py-2"
-      >
-        <option value="" disabled>
-          Selecciona posición
-        </option>
-        <option value="Portero">Portero</option>
-        <option value="Defensa">Defensa</option>
-        <option value="Centrocampista">Centrocampista</option>
-        <option value="Delantero">Delantero</option>
-      </select>
-    );
-  }
+            { label: "Nombre", key: "nombre", type: "text" },
+            { label: "Posición", key: "posicion", type: "select" },
+            { label: "Fecha de nacimiento", key: "fecha_nacimiento", type: "date" },
+            { label: "Biografía", key: "biografia", type: "text" },
+            { label: "Dorsal", key: "dorsal", type: "number" },
+            { label: "ID Equipo", key: "id_equipo", type: "select" },
+          ].map(({ label, key, type }) => {
+            if (key === "posicion") {
+              return (
+                <select
+                  key={key}
+                  value={jugador.posicion}
+                  onChange={(e) =>
+                    setJugador((prev) => ({ ...prev, posicion: e.target.value }))
+                  }
+                  className="rounded-[1rem] w-[90%] border px-3 py-2"
+                >
+                  <option value="" disabled>Selecciona posición</option>
+                  <option value="Portero">Portero</option>
+                  <option value="Defensa">Defensa</option>
+                  <option value="Centrocampista">Centrocampista</option>
+                  <option value="Delantero">Delantero</option>
+                </select>
+              );
+            }
 
-  if (key === "id_equipo") {
-    return (
-      <select
-        key={key}
-        value={jugador.id_equipo || ""}
-        onChange={(e) =>
-          setJugador((prev) => ({ ...prev, id_equipo: Number(e.target.value) }))
-        }
-        className="rounded-[1rem] w-[90%] border px-3 py-2"
-      >
-        <option value="" disabled>
-          Selecciona equipo
-        </option>
-        <option value={1}>Masculino</option>
-        <option value={2}>Femenino</option>
-      </select>
-    );
-  }
+            if (key === "id_equipo") {
+              return (
+                <select
+                  key={key}
+                  value={jugador.id_equipo || ""}
+                  onChange={(e) =>
+                    setJugador((prev) => ({ ...prev, id_equipo: Number(e.target.value) }))
+                  }
+                  className="rounded-[1rem] w-[90%] border px-3 py-2"
+                >
+                  <option value="" disabled>Selecciona equipo</option>
+                  <option value={1}>Masculino</option>
+                  <option value={2}>Femenino</option>
+                </select>
+              );
+            }
 
-  if (key === "fecha_nacimiento") {
-    const [isDate, setIsDate] = useState(false);
-    return (
-      <input
-        key={key}
-        type={isDate ? "date" : "text"}
-        placeholder={label}
-        value={jugador.fecha_nacimiento ?? ""}
-        onFocus={() => setIsDate(true)}
-        onBlur={() => setIsDate(false)}
-        onChange={(e) =>
-          setJugador((prev) => ({ ...prev, fecha_nacimiento: e.target.value }))
-        }
-        className="rounded-[1rem] w-[90%] border px-3 py-2"
-      />
-    );
-  }
+            if (key === "fecha_nacimiento") {
+              return (
+                <input
+                  key={key}
+                  type={isDate ? "date" : "text"}
+                  placeholder={label}
+                  value={jugador.fecha_nacimiento ?? ""}
+                  onFocus={() => setIsDate(true)}
+                  onBlur={() => setIsDate(false)}
+                  onChange={(e) =>
+                    setJugador((prev) => ({ ...prev, fecha_nacimiento: e.target.value }))
+                  }
+                  className="rounded-[1rem] w-[90%] border px-3 py-2"
+                />
+              );
+            }
 
-  return (
-    <input
-      key={key}
-      type={type}
-      placeholder={label}
-      value={
-        key === "dorsal"
-          ? jugador.dorsal != null
-            ? jugador.dorsal.toString()
-            : ""
-          : (jugador[key as keyof Jugador] ?? "")
-      }
-      onChange={(e) => {
-        const val = type === "number" ? Number(e.target.value) : e.target.value;
-        setJugador((prev) => ({
-          ...prev,
-          [key]: val,
-        }));
-      }}
-      className="rounded-[1rem] w-[90%] border px-3 py-2"
-    />
-  );
-})}
-
+            return (
+              <input
+                key={key}
+                type={type}
+                placeholder={label}
+                value={
+                  key === "dorsal"
+                    ? jugador.dorsal != null
+                      ? jugador.dorsal.toString()
+                      : ""
+                    : (jugador[key as keyof Jugador] ?? "")
+                }
+                onChange={(e) => {
+                  const val = type === "number" ? Number(e.target.value) : e.target.value;
+                  setJugador((prev) => ({
+                    ...prev,
+                    [key]: val,
+                  }));
+                }}
+                className="rounded-[1rem] w-[90%] border px-3 py-2"
+              />
+            );
+          })}
 
           {/* Input de archivo */}
           <div className="space-y-1">
@@ -326,48 +321,47 @@ export default function Jugadores() {
           <div className="flex justify-center">
             <button
               onClick={modo === "crear" ? crearJugador : actualizarJugador}
-              className="px-4 py-2 rounded-full border-2 bg-blanco text-azul border-azul hover:bg-azul hover:text-blanco"
+              className="px-4 py-2 rounded-full border-2 bg-blanco text-azul border-azul hover:bg-azul hover:text-blanco mt-4"
             >
-              {modo === "crear" ? "Crear Jugador" : "Guardar Cambios"}
+              {modo === "crear" ? "Crear Jugador" : "Actualizar Jugador"}
             </button>
           </div>
         </div>
       )}
 
-      {/* Botón eliminar */}
-      {modo === "eliminar" && (
-        <div className="flex justify-center">
-          <button
-            onClick={eliminarJugador}
-            disabled={!jugadorNombreBuscado}
-            className="px-4 py-2 rounded-full border-2 bg-blanco text-azul border-azul hover:bg-azul hover:text-blanco"
-          >
-            Eliminar Jugador
-          </button>
+      {/* Listado de jugadores */}
+      {modo === "listar" && (
+        <div className="space-y-4">
+          {jugadores.map((j) => (
+            <div
+              key={j.id_jugador ?? j.nombre}
+              className="p-4 bg-blanco text-negro rounded-[1rem] shadow-md flex items-center gap-4"
+            >
+              {j.foto && (
+                <img
+                  src={j.foto}
+                  alt={j.nombre}
+                  className="w-12 h-12 object-cover rounded-xl"
+                />
+              )}
+              <div>
+                <p><strong>{j.nombre}</strong></p>
+                <p>{j.posicion}</p>
+              </div>
+            </div>
+          ))}
         </div>
       )}
 
-      {/* Listado */}
-      {modo === "listar" && (
-        <div className="mt-4 space-y-2">
-          {jugadores.map((j) => (
-            <div
-              key={j.nombre}
-              className="bg-blanco text-negro px-6 py-10 rounded-[1rem] shadow-lg space-y-4"
-            >
-              <h3 className="font-bold text-lg">{j.nombre}</h3>
-              <img
-                src={j.foto}
-                alt={j.nombre}
-                className="w-full h-32 object-contain my-2"
-              />
-              <p><b>Posición:</b> {j.posicion}</p>
-              <p><b>Fecha Nac.:</b> {j.fecha_nacimiento}</p>
-              <p><b>Dorsal:</b> {j.dorsal}</p>
-              <p><b>ID Equipo:</b> {j.id_equipo}</p>
-              <p className="text-sm mt-2">{j.biografia}</p>
-            </div>
-          ))}
+      {/* Botón eliminar */}
+      {modo === "eliminar" && jugadorNombreBuscado && (
+        <div className="flex justify-center mt-4">
+          <button
+            onClick={eliminarJugador}
+            className="px-4 py-2 rounded-full border-2 bg-red-600 text-blanco border-red-600 hover:bg-red-700"
+          >
+            Eliminar Jugador
+          </button>
         </div>
       )}
     </div>
