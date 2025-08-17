@@ -148,8 +148,8 @@ export default function Administrador() {
                 setAdmin(null);
                 setDni("");
               }}
-              className={`px-4 py-2 rounded-full border-2 font-bold transition-colors duration-200 bg-blanco text-azul border-azul hover:bg-azul hover:text-blanco ${
-                modo === modoBtn ? "bg-blue-500 text-white" : "bg-white text-black"
+              className={`px-4 py-2 rounded-full border-2 font-bold transition-colors duration-200 ${
+                modo === modoBtn ? "bg-azul text-blanco border-azul" : "bg-blanco text-azul border-azul"
               }`}
             >
               {modoBtn.toUpperCase()}

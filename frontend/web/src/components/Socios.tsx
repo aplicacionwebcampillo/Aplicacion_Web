@@ -239,8 +239,8 @@ export default function Socios() {
                 setSocio(null);
                 setDni("");
               }}
-              className={`px-4 py-2 rounded-full border-2 font-bold transition-colors duration-200 bg-blanco text-azul border-azul hover:bg-azul hover:text-blanco ${
-                modo === m ? "bg-blue-500 text-white" : "bg-white text-black"
+              className={`px-4 py-2 rounded-full border-2 font-bold transition-colors duration-200 ${
+                modo === m ? "bg-azul text-blanco border-azul" : "bg-blanco text-azul border-azul"
               }`}
             >
               {m.toUpperCase()}

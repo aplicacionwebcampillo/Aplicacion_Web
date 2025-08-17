@@ -85,10 +85,18 @@ export default function Usuario() {
   return (
     <div className="bg-celeste text-blanco px-6 py-10 rounded-[1rem] font-poetsen font-bold w-full max-w-[20rem] md:max-w-[40rem] shadow-lg space-y-4">
       <div className="flex flex-wrap justify-center gap-3 mb-6">
-        <button onClick={() => setModo("listar")} className="px-4 py-2 rounded-full border-2 font-bold transition-colors duration-200 bg-blanco text-azul border-azul bg-blanco text-azul border-azul hover:bg-azul hover:text-blanco">Listar Usuarios</button>
-        <button onClick={() => setModo("buscar")} className="px-4 py-2 rounded-full border-2 font-bold transition-colors duration-200 bg-blanco text-azul border-azul bg-blanco text-azul border-azul hover:bg-azul hover:text-blanco">Buscar Usuario</button>
-        <button onClick={() => setModo("editar")} className="px-4 py-2 rounded-full border-2 font-bold transition-colors duration-200 bg-blanco text-azul border-azul bg-blanco text-azul border-azul hover:bg-azul hover:text-blanco">Editar Usuario</button>
-        <button onClick={() => setModo("eliminar")} className="px-4 py-2 rounded-full border-2 font-bold transition-colors duration-200 bg-blanco text-azul border-azul bg-blanco text-azul border-azul hover:bg-azul hover:text-blanco">Eliminar Usuario</button>
+        <button onClick={() => setModo("listar")} className={`px-4 py-2 rounded-full border-2 font-bold transition-colors duration-200 ${
+                modo === "listar" ? "bg-azul text-blanco border-azul" : "bg-blanco text-azul border-azul"
+              }`}>Listar Usuarios</button>
+        <button onClick={() => setModo("buscar")} className={`px-4 py-2 rounded-full border-2 font-bold transition-colors duration-200 ${
+                modo === "buscar" ? "bg-azul text-blanco border-azul" : "bg-blanco text-azul border-azul"
+              }`}>Buscar Usuario</button>
+        <button onClick={() => setModo("editar")} className={`px-4 py-2 rounded-full border-2 font-bold transition-colors duration-200 ${
+                modo === "editar" ? "bg-azul text-blanco border-azul" : "bg-blanco text-azul border-azul"
+              }`}>Editar Usuario</button>
+        <button onClick={() => setModo("eliminar")} className={`px-4 py-2 rounded-full border-2 font-bold transition-colors duration-200 ${
+                modo === "eliminar" ? "bg-azul text-blanco border-azul" : "bg-blanco text-azul border-azul"
+              }`}>Eliminar Usuario</button>
       </div>
 
       {(modo === "buscar" || modo === "editar" || modo === "eliminar") && (

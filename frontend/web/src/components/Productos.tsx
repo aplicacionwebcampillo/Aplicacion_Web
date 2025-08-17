@@ -148,11 +148,9 @@ export default function Productos() {
               });
               setNombre("");
             }}
-            className={`px-4 py-2 rounded-full border-2 font-bold transition-colors duration-200 bg-blanco text-azul border-azul bg-blanco text-azul border-azul hover:bg-azul hover:text-blanco ${
-              modo === m
-                ? "bg-blue-500 text-azul"
-                : "bg-blanco text-black border-azul hover:bg-azul hover:text-blanco"
-            }`}
+            className={`px-4 py-2 rounded-full border-2 font-bold transition-colors duration-200 ${
+                modo === m ? "bg-azul text-blanco border-azul" : "bg-blanco text-azul border-azul"
+              }`}
           >
             {m.toUpperCase()}
           </button>
