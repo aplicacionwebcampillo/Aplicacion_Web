@@ -142,14 +142,32 @@ const [activeDateFields, setActiveDateFields] = useState<{ [key: string]: boolea
 const renderInputs = () =>
   [
     { label: "Nombre", key: "nombre", type: "text" },
-    { label: "Tipo", key: "tipo", type: "text" },
+    { label: "Tipo", key: "tipo", type: "select" },
     //{ label: "Email", key: "email", type: "email" },
     { label: "Teléfono", key: "telefono", type: "text" },
-    { label: "Fecha Inicio", key: "fecha_inicio", type: "date" },
-    { label: "Fecha Fin", key: "fecha_fin", type: "date" },
+    { label: "Fecha Inicio dd/mm/aaaa", key: "fecha_inicio", type: "date" },
+    { label: "Fecha Fin dd/mm/aaaa", key: "fecha_fin", type: "date" },
     { label: "DNI Administrador", key: "dni_administrador", type: "text" },
   ].map(({ label, key, type }) => {
     const isFecha = key === "fecha_inicio" || key === "fecha_fin";
+    
+    if (key === "tipo") {
+      return (
+        <select
+          key={key}
+          value={patrocinador[key as keyof Patrocinador] ?? ""}
+          onChange={(e) =>
+            setPatrocinador((prev) => ({ ...prev, [key]: e.target.value }))
+          }
+          className="rounded-[1rem] font-poetsen w-[90%] rounded-xl border border-gray-300 px-3 py-2 
+                     focus:outline-none focus:ring-2 focus:ring-cyan-500"
+        >
+          <option value="">Selecciona tipo</option>
+          <option value="Principal">Principal</option>
+          <option value="Secundario">Secundario</option>
+        </select>
+      );
+    }
 
     return (
       <input
