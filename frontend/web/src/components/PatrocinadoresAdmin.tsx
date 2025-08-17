@@ -135,36 +135,39 @@ export default function Patrocinadores() {
       }
     }
   };
+    
+  // Estado global para manejar si el input de fecha está en "date" o "text"
+const [activeDateFields, setActiveDateFields] = React.useState<{ [key: string]: boolean }>({});
 
-  const renderInputs = () =>
-    [
-      { label: "Nombre", key: "nombre", type: "text" },
-      { label: "Tipo", key: "tipo", type: "text" },
-      //{ label: "Email", key: "email", type: "email" },
-      { label: "Teléfono", key: "telefono", type: "text" },
-      { label: "Fecha Inicio", key: "fecha_inicio", type: "date" },
-      { label: "Fecha Fin", key: "fecha_fin", type: "date" },
-      { label: "DNI Administrador", key: "dni_administrador", type: "text" },
-    ].map(({ label, key, type }) => (
-      const [isDate, setIsDate] = React.useState(false);
+const renderInputs = () =>
+  [
+    { label: "Nombre", key: "nombre", type: "text" },
+    { label: "Tipo", key: "tipo", type: "text" },
+    //{ label: "Email", key: "email", type: "email" },
+    { label: "Teléfono", key: "telefono", type: "text" },
+    { label: "Fecha Inicio", key: "fecha_inicio", type: "date" },
+    { label: "Fecha Fin", key: "fecha_fin", type: "date" },
+    { label: "DNI Administrador", key: "dni_administrador", type: "text" },
+  ].map(({ label, key, type }) => {
+    const isFecha = key === "fecha_inicio" || key === "fecha_fin";
 
-      const isFecha = key === "fecha_inicio" || key === "fecha_fin";
+    return (
+      <input
+        key={key}
+        type={isFecha ? (activeDateFields[key] ? "date" : "text") : type}
+        placeholder={label}
+        value={patrocinador[key as keyof Patrocinador] ?? ""}
+        onFocus={() => isFecha && setActiveDateFields(prev => ({ ...prev, [key]: true }))}
+        onBlur={() => isFecha && setActiveDateFields(prev => ({ ...prev, [key]: false }))}
+        onChange={(e) =>
+          setPatrocinador((prev) => ({ ...prev, [key]: e.target.value }))
+        }
+        className="rounded-[1rem] font-poetsen w-[90%] rounded-xl border border-gray-300 px-3 py-2 
+                   focus:outline-none focus:ring-2 focus:ring-cyan-500"
+      />
+    );
+  });
 
-      return (
-        <input
-          key={key}
-          type={isFecha ? (isDate ? "date" : "text") : type}
-          placeholder={label}
-          value={patrocinador[key as keyof Patrocinador] ?? ""}
-          onFocus={() => isFecha && setIsDate(true)}
-          onBlur={() => isFecha && setIsDate(false)}
-          onChange={(e) =>
-            setPatrocinador((prev) => ({ ...prev, [key]: e.target.value }))
-          }
-          className="rounded-[1rem] font-poetsen w-[90%] rounded-xl border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-cyan-500"
-        />
-      );
-    ));
 
   const renderFileInput = () => (
     <div className="space-y-2">
