@@ -7,7 +7,7 @@ interface Jugador {
   fecha_nacimiento: string;
   foto: string;
   biografia: string;
-  dorsal: number;
+  dorsal: number | null;
   id_equipo: number;
   id_jugador?: number;
 }
@@ -25,7 +25,7 @@ export default function Jugadores() {
     fecha_nacimiento: "",
     foto: "",
     biografia: "",
-    dorsal: 0,
+    dorsal: null,
     id_equipo: 0,
   });
 

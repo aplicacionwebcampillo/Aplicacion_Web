@@ -159,7 +159,7 @@ const renderInputs = () =>
           onChange={(e) =>
             setPatrocinador((prev) => ({ ...prev, [key]: e.target.value }))
           }
-          className="rounded-[1rem] font-poetsen w-[90%] rounded-xl border border-gray-300 px-3 py-2 
+          className="rounded-[1rem] font-poetsen w-[100%] rounded-xl border border-gray-300 px-3 py-2 
                      focus:outline-none focus:ring-2 focus:ring-cyan-500"
         >
           <option value="">Selecciona tipo</option>
