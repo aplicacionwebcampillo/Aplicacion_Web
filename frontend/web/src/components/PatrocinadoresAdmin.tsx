@@ -137,7 +137,7 @@ export default function Patrocinadores() {
   };
     
   // Estado global para manejar si el input de fecha está en "date" o "text"
-const [activeDateFields, setActiveDateFields] = React.useState<{ [key: string]: boolean }>({});
+const [activeDateFields, setActiveDateFields] = useState<{ [key: string]: boolean }>({});
 
 const renderInputs = () =>
   [
