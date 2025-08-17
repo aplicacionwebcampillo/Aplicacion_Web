@@ -19,8 +19,8 @@ export default function Patrocinadores() {
       .then((data) => {
         // Ordenar: primero los principales, luego los secundarios
         const ordenados = data.sort((a: Patrocinador, b: Patrocinador) => {
-          if (a.tipo === "principal" && b.tipo !== "principal") return -1;
-          if (a.tipo !== "principal" && b.tipo === "principal") return 1;
+          if (a.tipo === "Principal" && b.tipo !== "Principal") return -1;
+          if (a.tipo !== "Principal" && b.tipo === "Principal") return 1;
           return 0;
         });
         setPatrocinadores(ordenados);
