@@ -210,34 +210,95 @@ export default function Jugadores() {
       {(modo === "crear" || (modo === "editar" && jugador.nombre)) && (
         <div className="space-y-2 max-w-md mt-2">
           {[
-            { label: "Nombre", key: "nombre", type: "text" },
-            { label: "Posición", key: "posicion", type: "text" },
-            { label: "Fecha de nacimiento", key: "fecha_nacimiento", type: "date" },
-            { label: "Biografía", key: "biografia", type: "text" },
-            { label: "Dorsal", key: "dorsal", type: "number" },
-            { label: "ID Equipo", key: "id_equipo", type: "number" },
-          ].map(({ label, key, type }) => (
-            <input
-              key={key}
-              type={type}
-              placeholder={label}
-              value={
-  key === "dorsal" || key === "id_equipo"
-    ? jugador[key as keyof Jugador] != null
-      ? jugador[key as keyof Jugador]!.toString()
-      : ""
-    : (jugador[key as keyof Jugador] ?? "")
-}
-              onChange={(e) => {
-                const val = type === "number" ? Number(e.target.value) : e.target.value;
-                setJugador((prev) => ({
-                  ...prev,
-                  [key]: val,
-                }));
-              }}
-              className="rounded-[1rem] w-[90%] border px-3 py-2"
-            />
-          ))}
+  { label: "Nombre", key: "nombre", type: "text" },
+  { label: "Posición", key: "posicion", type: "select" },
+  { label: "Fecha de nacimiento", key: "fecha_nacimiento", type: "date" },
+  { label: "Biografía", key: "biografia", type: "text" },
+  { label: "Dorsal", key: "dorsal", type: "number" },
+  { label: "ID Equipo", key: "id_equipo", type: "select" },
+].map(({ label, key, type }) => {
+  if (key === "posicion") {
+    return (
+      <select
+        key={key}
+        value={jugador.posicion}
+        onChange={(e) =>
+          setJugador((prev) => ({ ...prev, posicion: e.target.value }))
+        }
+        className="rounded-[1rem] w-[90%] border px-3 py-2"
+      >
+        <option value="" disabled>
+          Selecciona posición
+        </option>
+        <option value="Portero">Portero</option>
+        <option value="Defensa">Defensa</option>
+        <option value="Centrocampista">Centrocampista</option>
+        <option value="Delantero">Delantero</option>
+      </select>
+    );
+  }
+
+  if (key === "id_equipo") {
+    return (
+      <select
+        key={key}
+        value={jugador.id_equipo || ""}
+        onChange={(e) =>
+          setJugador((prev) => ({ ...prev, id_equipo: Number(e.target.value) }))
+        }
+        className="rounded-[1rem] w-[90%] border px-3 py-2"
+      >
+        <option value="" disabled>
+          Selecciona equipo
+        </option>
+        <option value={1}>Masculino</option>
+        <option value={2}>Femenino</option>
+      </select>
+    );
+  }
+
+  if (key === "fecha_nacimiento") {
+    const [isDate, setIsDate] = useState(false);
+    return (
+      <input
+        key={key}
+        type={isDate ? "date" : "text"}
+        placeholder={label}
+        value={jugador.fecha_nacimiento ?? ""}
+        onFocus={() => setIsDate(true)}
+        onBlur={() => setIsDate(false)}
+        onChange={(e) =>
+          setJugador((prev) => ({ ...prev, fecha_nacimiento: e.target.value }))
+        }
+        className="rounded-[1rem] w-[90%] border px-3 py-2"
+      />
+    );
+  }
+
+  return (
+    <input
+      key={key}
+      type={type}
+      placeholder={label}
+      value={
+        key === "dorsal"
+          ? jugador.dorsal != null
+            ? jugador.dorsal.toString()
+            : ""
+          : (jugador[key as keyof Jugador] ?? "")
+      }
+      onChange={(e) => {
+        const val = type === "number" ? Number(e.target.value) : e.target.value;
+        setJugador((prev) => ({
+          ...prev,
+          [key]: val,
+        }));
+      }}
+      className="rounded-[1rem] w-[90%] border px-3 py-2"
+    />
+  );
+})}
+
 
           {/* Input de archivo */}
           <div className="space-y-1">
