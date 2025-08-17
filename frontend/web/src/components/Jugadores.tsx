@@ -222,10 +222,12 @@ export default function Jugadores() {
               type={type}
               placeholder={label}
               value={
-                key === "dorsal" || key === "id_equipo"
-                  ? jugador[key as keyof Jugador]?.toString()
-                  : jugador[key as keyof Jugador]
-              }
+  key === "dorsal" || key === "id_equipo"
+    ? jugador[key as keyof Jugador] != null
+      ? jugador[key as keyof Jugador]!.toString()
+      : ""
+    : (jugador[key as keyof Jugador] ?? "")
+}
               onChange={(e) => {
                 const val = type === "number" ? Number(e.target.value) : e.target.value;
                 setJugador((prev) => ({
