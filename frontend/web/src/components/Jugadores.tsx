@@ -213,7 +213,7 @@ export default function Jugadores() {
           {[
             { label: "Nombre", key: "nombre", type: "text" },
             { label: "Posición", key: "posicion", type: "select" },
-            { label: "Fecha de nacimiento", key: "fecha_nacimiento", type: "date" },
+            { label: "Fecha de nacimiento dd/mm/aaaa", key: "fecha_nacimiento", type: "date" },
             { label: "Biografía", key: "biografia", type: "text" },
             { label: "Dorsal", key: "dorsal", type: "number" },
             { label: "ID Equipo", key: "id_equipo", type: "select" },
@@ -226,7 +226,7 @@ export default function Jugadores() {
                   onChange={(e) =>
                     setJugador((prev) => ({ ...prev, posicion: e.target.value }))
                   }
-                  className="rounded-[1rem] w-[90%] border px-3 py-2"
+                  className="rounded-[1rem] w-[95%] border px-3 py-2"
                 >
                   <option value="" disabled>Selecciona posición</option>
                   <option value="Portero">Portero</option>
@@ -245,7 +245,7 @@ export default function Jugadores() {
                   onChange={(e) =>
                     setJugador((prev) => ({ ...prev, id_equipo: Number(e.target.value) }))
                   }
-                  className="rounded-[1rem] w-[90%] border px-3 py-2"
+                  className="rounded-[1rem] w-[95%] border px-3 py-2"
                 >
                   <option value="" disabled>Selecciona equipo</option>
                   <option value={1}>Masculino</option>
