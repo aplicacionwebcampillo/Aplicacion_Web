@@ -16,7 +16,15 @@ export default function Patrocinadores() {
   useEffect(() => {
     fetch("https://aplicacion-web-m5oa.onrender.com/patrocinadores/")
       .then((res) => res.json())
-      .then((data) => setPatrocinadores(data))
+      .then((data) => {
+        // Ordenar: primero los principales, luego los secundarios
+        const ordenados = data.sort((a: Patrocinador, b: Patrocinador) => {
+          if (a.tipo === "principal" && b.tipo !== "principal") return -1;
+          if (a.tipo !== "principal" && b.tipo === "principal") return 1;
+          return 0;
+        });
+        setPatrocinadores(ordenados);
+      })
       .catch((err) => console.error("Error al cargar patrocinadores:", err));
   }, []);
 
