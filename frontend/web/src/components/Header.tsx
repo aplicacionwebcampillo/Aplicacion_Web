@@ -1,4 +1,4 @@
-import { FaFacebookF, FaInstagram, FaXTwitter, FaUser } from 'react-icons/fa6';
+import { FaFacebookF, FaInstagram, FaXTwitter, FaUser, FaYoutube } from 'react-icons/fa6';
 import { useState, useEffect } from "react";
 import { useLocation } from "react-router-dom";
 
@@ -14,6 +14,7 @@ export default function Header() {
   const userLink = isLoggedIn ? "/usuario" : "/login";
 
   const socialLinks = [
+    { icon: FaYoutube, url: 'https://www.youtube.com/@campillodelriocf' },
     { icon: FaInstagram, url: 'https://www.instagram.com/campillodelriocf/' },
     { icon: FaFacebookF, url: 'https://www.facebook.com/p/Campillo-del-R%C3%ADo-C-F-100078374503289/' },
     { icon: FaXTwitter, url: 'https://x.com/campillodelrio' },
