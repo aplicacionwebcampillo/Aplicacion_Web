@@ -77,12 +77,16 @@ export default function Partidos() {
         (a, b) => new Date(a.dia).getTime() - new Date(b.dia).getTime()
       );
 
-      const anteriores = partidosOrdenados.filter(
-        (p) => new Date(p.dia) < hoy
-      );
-      const siguientes = partidosOrdenados.filter(
-        (p) => new Date(p.dia) >= hoy
-      );
+      const anteriores = partidosOrdenados.filter((p) => {
+        const fechaPartido = new Date(`${p.dia}T${p.hora || "00:00"}`);
+        return fechaPartido < hoy;
+      });
+
+      const siguientes = partidosOrdenados.filter((p) => {
+        const fechaPartido = new Date(`${p.dia}T${p.hora || "00:00"}`);
+        return fechaPartido >= hoy;
+      });
+
 
       setUltimo(anteriores[anteriores.length - 1] || null);
       setProximo(siguientes[0] || null);
