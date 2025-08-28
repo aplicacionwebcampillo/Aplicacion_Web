@@ -79,13 +79,16 @@ export default function Partidos() {
 
       const anteriores = partidosOrdenados.filter((p) => {
         const fechaPartido = new Date(`${p.dia}T${p.hora || "00:00"}`);
-        return fechaPartido < hoy;
+        const fechaConMargen = new Date(fechaPartido.getTime() + 3 * 60 * 60 * 1000); // +3 horas
+        return fechaConMargen < hoy;
       });
 
       const siguientes = partidosOrdenados.filter((p) => {
         const fechaPartido = new Date(`${p.dia}T${p.hora || "00:00"}`);
-        return fechaPartido >= hoy;
+        const fechaConMargen = new Date(fechaPartido.getTime() + 3 * 60 * 60 * 1000);
+        return fechaConMargen >= hoy;
       });
+
 
 
       setUltimo(anteriores[anteriores.length - 1] || null);
