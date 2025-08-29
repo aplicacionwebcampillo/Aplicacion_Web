@@ -53,7 +53,7 @@ export default function JugadorDetalle() {
   />
   
       <div className="flex justify-center px-4">
-  <div className="flex flex-col gap-4 max-w-3xl w-full">
+  <div className="flex flex-col gap-4 max-w-3xl w-full md:w-1/2">
     {/* Nombre */}
     <h1 className="text-3xl font-bold mb-4 text-center font-poetsen">
       {jugador.nombre}
