@@ -45,35 +45,42 @@ export default function JugadorDetalle() {
         ← Volver a la plantilla
       </Link>
 
-      <div className="bg-celeste text-black px-4 py-8 text-negro rounded-[1rem] font-bold font-poetsen">
-      <div className="flex justify-center"> 
-      	<img 
-      	  src={jugador.foto || "/images/PorDefecto.png"} 
-      	  alt={jugador.nombre} 
-      	  className="h-[20rem] md:h-[30rem] w-auto object-cover rounded-lg shadow-md" 
-      	/> 
-      </div>
-      	
-      	<div className="flex justify-center"> 
-      	<div className="flex flex-col gap-3 max-w-2xl w-full">
-      	  <h1 className="text-3xl font-bold mb-4 text-center font-poetsen">{jugador.nombre}</h1> 
-      	  <p> 
-      	    <strong>Posición:</strong>{" "} 
-      	    <span className="text-negro_texto">{jugador.posicion}</span> 
-      	    </p> 
-      	      {jugador.dorsal !== 0 && ( 
-      	        <p> 
-      	          <strong>Dorsal:</strong>{" "} 
-      	          <span className="text-negro_texto">{jugador.dorsal}</span> 
-      	        </p> 
-      	      )} 
-      	      <p> 
-      	        <strong>Fecha de nacimiento:</strong>{" "} 
-      	        <span className="text-negro_texto"> {new Date(jugador.fecha_nacimiento).toLocaleDateString()} </span> 
-      	      </p> 
-      	      <p className="text-justify flex justify-center text-negro_texto font-poetsen w-[40rem] md:w-[50rem] h-auto">{jugador.biografia}</p> 
-      	</div> 
-      	</div> 
+      <div className="flex justify-center px-4">
+  <div className="flex flex-col gap-4 max-w-3xl w-full">
+    {/* Nombre */}
+    <h1 className="text-3xl font-bold mb-4 text-center font-poetsen">
+      {jugador.nombre}
+    </h1>
+
+    {/* Posición */}
+    <p>
+      <strong>Posición:</strong>{" "}
+      <span className="text-negro_texto">{jugador.posicion}</span>
+    </p>
+
+    {/* Dorsal */}
+    {jugador.dorsal !== 0 && (
+      <p>
+        <strong>Dorsal:</strong>{" "}
+        <span className="text-negro_texto">{jugador.dorsal}</span>
+      </p>
+    )}
+
+    {/* Fecha de nacimiento */}
+    <p>
+      <strong>Fecha de nacimiento:</strong>{" "}
+      <span className="text-negro_texto">
+        {new Date(jugador.fecha_nacimiento).toLocaleDateString()}
+      </span>
+    </p>
+
+    {/* Biografía */}
+    <p className="text-justify text-negro_texto font-poetsen leading-relaxed">
+      {jugador.biografia}
+    </p>
+  </div>
+</div>
+
       </div>
 
     </section>
