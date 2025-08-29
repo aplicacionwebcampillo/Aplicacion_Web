@@ -45,6 +45,13 @@ export default function JugadorDetalle() {
         ← Volver a la plantilla
       </Link>
 
+    <div className="flex flex-col md:flex-row gap-6 items-center bg-celeste text-black px-4 py-8 text-negro rounded-[1rem] font-bold font-poetsen">
+  <img
+    src={jugador.foto || "/images/PorDefecto.png"}
+    alt={jugador.nombre}
+    className="h-[20rem] md:h-[30rem] w-auto object-cover rounded-lg shadow-md order-2 md:order-2"
+  />
+  
       <div className="flex justify-center px-4">
   <div className="flex flex-col gap-4 max-w-3xl w-full">
     {/* Nombre */}
@@ -79,6 +86,7 @@ export default function JugadorDetalle() {
       {jugador.biografia}
     </p>
   </div>
+</div>
 </div>
 
     </section>
