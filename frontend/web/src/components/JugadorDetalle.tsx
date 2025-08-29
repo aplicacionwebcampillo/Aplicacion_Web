@@ -81,8 +81,6 @@ export default function JugadorDetalle() {
   </div>
 </div>
 
-      </div>
-
     </section>
   );
 }
