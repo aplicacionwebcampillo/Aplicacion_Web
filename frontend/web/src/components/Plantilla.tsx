@@ -129,6 +129,7 @@ export default function Plantilla() {
         />
       </div>
       <div className="p-4 text-center w-full">
+        <h3 className="text-lg font-semibold mb-1 text-negro">{jugador.dorsal}</h3>
         <h3 className="text-lg font-semibold mb-1 text-negro">{jugador.nombre}</h3>
       </div>
     </Link>
