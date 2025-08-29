@@ -55,6 +55,7 @@ export default function JugadorDetalle() {
       </div>
       	
       	<div className="flex justify-center"> 
+      	<div className="flex flex-col gap-3">
       	  <h1 className="text-3xl font-bold text-negro">{jugador.nombre}</h1> 
       	  <p> 
       	    <strong>Posición:</strong>{" "} 
@@ -71,6 +72,7 @@ export default function JugadorDetalle() {
       	        <span className="text-negro_texto"> {new Date(jugador.fecha_nacimiento).toLocaleDateString()} </span> 
       	      </p> 
       	      <p className="text-justify flex justify-center text-negro_texto font-poetsen w-[40rem] md:w-[50rem] h-auto">{jugador.biografia}</p> 
+      	</div> 
       	</div> 
       </div>
 
