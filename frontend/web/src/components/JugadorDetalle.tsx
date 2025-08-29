@@ -56,7 +56,7 @@ export default function JugadorDetalle() {
       	
       	<div className="flex justify-center"> 
       	<div className="flex flex-col gap-3">
-      	  <h1 className="text-3xl font-bold text-negro">{jugador.nombre}</h1> 
+      	  <h1 className="text-3xl font-bold mb-4 text-center font-poetsen">{jugador.nombre}</h1> 
       	  <p> 
       	    <strong>Posición:</strong>{" "} 
       	    <span className="text-negro_texto">{jugador.posicion}</span> 
