@@ -46,36 +46,36 @@ export default function JugadorDetalle() {
       </Link>
 
       <div className="flex flex-col md:flex-row gap-6 items-center bg-celeste text-black px-4 py-8 text-negro rounded-[1rem] font-bold font-poetsen">
-        <img
-          src={jugador.foto || "/images/PorDefecto.png"}
-          alt={jugador.nombre}
-          className="h-[20rem] md:h-[30rem] w-auto object-cover rounded-lg shadow-md"
-        />
+  {/* Imagen */}
+  <img
+    src={jugador.foto || "/images/PorDefecto.png"}
+    alt={jugador.nombre}
+    className="h-[20rem] md:h-[30rem] w-auto object-cover rounded-lg shadow-md order-2 md:order-2"
+  />
 
-        <div className="flex flex-col gap-3">
-          <h1 className="text-3xl font-bold text-negro">{jugador.nombre}</h1>
-          <p>
-  <strong>Posición:</strong>{" "}
-  <span className="text-negro_texto">{jugador.posicion}</span>
-</p>
-{jugador.dorsal !== 0 && (
-  <p>
-    <strong>Dorsal:</strong>{" "}
-    <span className="text-negro_texto">{jugador.dorsal}</span>
-  </p>
-)}
+  {/* Información */}
+  <div className="flex flex-col gap-3 items-center text-center max-w-lg md:items-start md:text-left md:order-1">
+    <h1 className="text-3xl font-bold text-negro">{jugador.nombre}</h1>
+    <p>
+      <strong>Posición:</strong>{" "}
+      <span className="text-negro_texto">{jugador.posicion}</span>
+    </p>
+    {jugador.dorsal !== 0 && (
+      <p>
+        <strong>Dorsal:</strong>{" "}
+        <span className="text-negro_texto">{jugador.dorsal}</span>
+      </p>
+    )}
+    <p>
+      <strong>Fecha de nacimiento:</strong>{" "}
+      <span className="text-negro_texto">
+        {new Date(jugador.fecha_nacimiento).toLocaleDateString()}
+      </span>
+    </p>
+    <p className="mt-4 text-negro_texto text-justify">{jugador.biografia}</p>
+  </div>
+</div>
 
-
-<p>
-  <strong>Fecha de nacimiento:</strong>{" "}
-  <span className="text-negro_texto">
-    {new Date(jugador.fecha_nacimiento).toLocaleDateString()}
-  </span>
-</p>
-<p className="mt-4 text-negro_texto text-justify">{jugador.biografia}</p>
-
-        </div>
-      </div>
     </section>
   );
 }

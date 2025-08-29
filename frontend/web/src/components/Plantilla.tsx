@@ -132,6 +132,9 @@ export default function Plantilla() {
         {jugador.dorsal !== 0 && (
           <h3 className="text-lg font-semibold mb-1 text-negro">{jugador.dorsal}</h3>
         )}
+        {jugador.dorsal == 0 && (
+          <h3 className="text-lg font-semibold mb-1 text-negro"> </h3>
+        )}
         <h3 className="text-lg font-semibold mb-1 text-negro">{jugador.nombre}</h3>
       </div>
     </Link>
