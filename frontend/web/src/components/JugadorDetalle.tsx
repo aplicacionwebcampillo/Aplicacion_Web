@@ -49,7 +49,7 @@ export default function JugadorDetalle() {
         <img
           src={jugador.foto || "/images/PorDefecto.png"}
           alt={jugador.nombre}
-          className="w-full h-auto object-cover rounded-lg shadow-md"
+          className="h-[20rem] md:h-[30rem] w-auto object-cover rounded-lg shadow-md"
         />
 
         <div className="flex flex-col gap-3">
@@ -58,10 +58,14 @@ export default function JugadorDetalle() {
   <strong>Posición:</strong>{" "}
   <span className="text-negro_texto">{jugador.posicion}</span>
 </p>
-<p>
-  <strong>Dorsal:</strong>{" "}
-  <span className="text-negro_texto">{jugador.dorsal}</span>
-</p>
+{jugador.dorsal !== 0 && (
+  <p>
+    <strong>Dorsal:</strong>{" "}
+    <span className="text-negro_texto">{jugador.dorsal}</span>
+  </p>
+)}
+
+
 <p>
   <strong>Fecha de nacimiento:</strong>{" "}
   <span className="text-negro_texto">
