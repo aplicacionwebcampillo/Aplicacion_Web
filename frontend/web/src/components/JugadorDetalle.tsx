@@ -49,7 +49,7 @@ export default function JugadorDetalle() {
   <img
     src={jugador.foto || "/images/PorDefecto.png"}
     alt={jugador.nombre}
-    className="h-[20rem] md:h-[30rem] w-auto object-cover rounded-lg shadow-md order-2 md:order-2"
+    className="h-[20rem] md:h-[30rem] w-auto object-cover rounded-lg shadow-md"
   />
   
       <div className="flex justify-center px-4">
