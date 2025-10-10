@@ -130,7 +130,15 @@ export default function Plantilla() {
       </div>
       <div className="p-4 text-center w-full">
         <h3 className="text-lg font-semibold mb-1 text-negro">
-         {jugador.dorsal !== 0 ? jugador.dorsal : "\u00A0"}
+         {jugador.dorsal === 0
+    ? "\u00A0" // espacio en blanco
+    : jugador.dorsal === 26
+    ? "Entrenador"
+    : jugador.dorsal === 27
+    ? "Segundo Entrenador"
+    : jugador.dorsal === 28
+    ? "Delegado de Equipo"
+    : jugador.dorsal}
         </h3>
         <h3 className="text-lg font-semibold mb-1 text-negro">{jugador.nombre}</h3>
       </div>

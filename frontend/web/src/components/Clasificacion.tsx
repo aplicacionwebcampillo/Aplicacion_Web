@@ -10,7 +10,8 @@ interface Clasificacion {
 
 const competiciones: Record<string, string> = {
   Senior: "2ª Andaluza Sénior (Jaén)",
-  Femenino: "Liga Fomento Femenino Sénior Fútbol 7 (Jaén)",
+  Femenino_7: "Liga Femenina Sénior Fútbol 7 (Jaén)",
+  Femenino_11: "2ª Andaluza Femenina Sénior (Jaén)",
   //Juvenil: "3ª Andaluza Juvenil (Jaén)",
 };
 
@@ -25,7 +26,7 @@ const endYear = startYear + 1;
 export default function Clasificacion() {
   const [datos, setDatos] = useState<Clasificacion[]>([]);
   //const [categoriaActiva, setCategoriaActiva] = useState<"Senior" | "Femenino" | "Juvenil">("Senior");
-  const [categoriaActiva, setCategoriaActiva] = useState<"Senior" | "Femenino">("Senior");
+  const [categoriaActiva, setCategoriaActiva] = useState<"Senior" | "Femenino_7" | "Femenino_11">("Senior");
 
   useEffect(() => {
     const nombre_competicion = competiciones[categoriaActiva];
@@ -48,18 +49,21 @@ export default function Clasificacion() {
 
       {/* Botones de categoría */}
       <div className="flex justify-center gap-4 mb-6">
-        {/*{(["Senior", "Femenino", "Juvenil"] as const).map((cat) => (*/}
-        {(["Senior", "Femenino"] as const).map((cat) => (
+        {([
+          { key: "Senior", label: "Senior" },
+          { key: "Femenino_7", label: "Femenino Fútbol 7" },
+          { key: "Femenino_11", label: "Femenino Fútbol 11" },
+        ] as const).map(({ key, label }) => (
           <button
-            key={cat}
-            onClick={() => setCategoriaActiva(cat)}
+            key={key}
+            onClick={() => setCategoriaActiva(key)}
             className={`px-4 py-2 rounded-full border-2 font-bold transition-colors duration-200 ${
-              categoriaActiva === cat
+              categoriaActiva === key
                 ? "bg-azul text-blanco border-azul"
                 : "bg-blanco text-azul border-azul hover:bg-azul hover:text-blanco"
             }`}
           >
-            {cat}
+            {label}
           </button>
         ))}
       </div>

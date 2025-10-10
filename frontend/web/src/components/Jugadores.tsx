@@ -233,6 +233,9 @@ export default function Jugadores() {
                   <option value="Defensa">Defensa</option>
                   <option value="Centrocampista">Centrocampista</option>
                   <option value="Delantero">Delantero</option>
+                  <option value="Entrenador">Entrenador</option>
+                  <option value="Segundo entrenador">Segundo entrenador</option>
+                  <option value="Delegado de equipo">Delegado de equipo</option>
                 </select>
               );
             }

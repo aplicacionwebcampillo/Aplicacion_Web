@@ -66,12 +66,13 @@ export default function JugadorDetalle() {
     </p>
 
     {/* Dorsal */}
-    {jugador.dorsal !== 0 && (
-      <p>
-        <strong>Dorsal:</strong>{" "}
-        <span className="text-negro_texto">{jugador.dorsal}</span>
-      </p>
-    )}
+    {![0, 26, 27, 28].includes(jugador.dorsal) && (
+  <p>
+    <strong>Dorsal:</strong>{" "}
+    <span className="text-negro_texto">{jugador.dorsal}</span>
+  </p>
+)}
+
 
     {/* Fecha de nacimiento */}
     <p>
