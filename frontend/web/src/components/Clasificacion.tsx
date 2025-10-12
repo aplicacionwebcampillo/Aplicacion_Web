@@ -8,31 +8,38 @@ interface Clasificacion {
   puntos: number;
 }
 
+type ResultadoPartido = {
+  local: string;
+  visitante: string;
+  goles_local: string;
+  goles_visitante: string;
+  fecha_texto?: string | null;
+  hora_texto?: string | null;
+};
+
 const competiciones: Record<string, string> = {
   Senior: "2ª Andaluza Sénior (Jaén)",
   Femenino_7: "Liga Femenina Sénior Fútbol 7 (Jaén)",
   Femenino_11: "2ª Andaluza Femenina Sénior (Jaén)",
-  //Juvenil: "3ª Andaluza Juvenil (Jaén)",
 };
 
 const now = new Date();
 const year = now.getFullYear();
-const month = now.getMonth() + 1; // enero = 0 → sumamos 1
-
-// Si estamos en la primera mitad del año (ene-jul), la temporada empezó el año anterior
+const month = now.getMonth() + 1;
 const startYear = month >= 8 ? year : year - 1;
 const endYear = startYear + 1;
 
 export default function Clasificacion() {
   const [datos, setDatos] = useState<Clasificacion[]>([]);
-  //const [categoriaActiva, setCategoriaActiva] = useState<"Senior" | "Femenino" | "Juvenil">("Senior");
   const [categoriaActiva, setCategoriaActiva] = useState<"Senior" | "Femenino_7" | "Femenino_11">("Senior");
+
+  const [resultados, setResultados] = useState<{ jornada?: string | null; partidos: ResultadoPartido[] } | null>(null);
 
   useEffect(() => {
     const nombre_competicion = competiciones[categoriaActiva];
-    //const temporada_competicion = "Temporada 2024-2025";
     const temporada_competicion = `Temporada ${startYear}-${endYear}`;
 
+    // Fetch clasificación
     fetch(
       `https://aplicacion-web-m5oa.onrender.com/clasificaciones?nombre_competicion=${encodeURIComponent(
         nombre_competicion
@@ -41,6 +48,22 @@ export default function Clasificacion() {
       .then((res) => res.json())
       .then((data) => setDatos(data))
       .catch((err) => console.error("Error al cargar la clasificación:", err));
+      
+    setResultados(null);
+
+    // Fetch resultados según categoría
+    const urlResultados =
+      process.env.NODE_ENV === "production"
+        ? `https://aplicacion-web-m5oa.onrender.com/resultados/?categoria=${categoriaActiva}`
+        : `http://localhost:8000/resultados/?categoria=${categoriaActiva}`;
+
+    fetch(urlResultados)
+      .then((res) => res.json())
+      .then((data) => setResultados(data))
+      .catch((err) => {
+        console.error("Error al cargar resultados:", err);
+        setResultados({ partidos: [] });
+      });
   }, [categoriaActiva]);
 
   return (
@@ -85,7 +108,7 @@ export default function Clasificacion() {
                 <tr
                   key={index}
                   className={`hover:bg-gray-100 ${
-                    fila.equipo === "C.D. CAMPILLO DEL RÍO C.F." ? "bg-green-200 text-azul" : ""
+                    fila.equipo.includes("C.D. CAMPILLO DEL RÍO") ? "bg-green-200 text-azul" : ""
                   }`}
                 >
                   <td className="px-4 py-2 md:pl-[5rem] border-t">{fila.posicion}</td>
@@ -95,6 +118,35 @@ export default function Clasificacion() {
               ))}
           </tbody>
         </table>
+      </div>
+
+      {/* RESULTADOS: última jornada */}
+      <div className="mt-8">
+        <h3 className="text-xl font-bold mb-4 text-center">Resultados - Última Jornada</h3>
+
+        {resultados === null ? (
+          <p className="text-center text-gray-500">Cargando resultados...</p>
+        ) : resultados.partidos && resultados.partidos.length > 0 ? (
+          <div className="flex flex-col gap-3 max-w-3xl mx-auto">
+            {resultados.jornada && (
+              <p className="text-center text-sm text-gray-600 mb-2">{resultados.jornada}</p>
+            )}
+            {resultados.partidos.map((p, i) => (
+              <div
+                key={i}
+                className="flex justify-between items-center bg-blanco text-negro rounded-[1rem] p-3 shadow-md"
+              >
+                <span className="w-1/3 text-right font-semibold">{p.local}</span>
+                <span className="w-1/3 text-center text-lg font-bold">
+                  {p.goles_local} - {p.goles_visitante}
+                </span>
+                <span className="w-1/3 text-left font-semibold">{p.visitante}</span>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <p className="text-center text-gray-600">No se encontraron resultados.</p>
+        )}
       </div>
     </section>
   );
