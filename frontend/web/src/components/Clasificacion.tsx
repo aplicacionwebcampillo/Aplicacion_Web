@@ -52,10 +52,9 @@ export default function Clasificacion() {
     setResultados(null);
 
     // Fetch resultados según categoría
-    const urlResultados =
-      process.env.NODE_ENV === "production"
-        ? `https://aplicacion-web-m5oa.onrender.com/resultados/?categoria=${categoriaActiva}`
-        : `http://localhost:8000/resultados/?categoria=${categoriaActiva}`;
+    const urlResultados = import.meta.env.PROD
+  ? `https://aplicacion-web-m5oa.onrender.com/resultados/?categoria=${categoriaActiva}`
+  : `http://localhost:8000/resultados/?categoria=${categoriaActiva}`;
 
     fetch(urlResultados)
       .then((res) => res.json())
