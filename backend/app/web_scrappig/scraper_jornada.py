@@ -40,9 +40,14 @@ def scrape_y_guardar(url: str, categoria: str = "Senior"):
     print(f"[INFO] Scrapeando resultados para {categoria}")
 
     with sync_playwright() as p:
-        browser = p.firefox.launch(headless=True)
+        browser = p.firefox.launch(
+    headless=True,
+    args=["--disable-gpu", "--no-sandbox", "--disable-dev-shm-usage"],
+    timeout=60000
+)
+
         page = browser.new_page()
-        page.goto(url, wait_until="networkidle")
+        page.goto(url, wait_until="domcontentloaded", timeout=60000)
         html = page.content()
         browser.close()
 
