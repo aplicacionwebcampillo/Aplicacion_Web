@@ -8,21 +8,25 @@ router = APIRouter(prefix="/resultados", tags=["resultados"])
 
 @router.get("/")
 def get_resultados(categoria: str = Query(...), db: Session = Depends(get_db)):
-    # Obtener la fecha de scrapeo más reciente
-    ultima_fecha = db.query(func.max(Resultado.fetched_at)).filter(Resultado.categoria == categoria).scalar()
 
-    if not ultima_fecha:
+    # Obtener la última jornada scrapeada para esta categoría
+    ultima_jornada = db.query(Resultado.jornada) \
+                       .filter(Resultado.categoria == categoria) \
+                       .order_by(Resultado.fetched_at.desc()) \
+                       .limit(1) \
+                       .scalar()
+
+    if not ultima_jornada:
         return {"jornada": None, "partidos": []}
 
-    # Traer solo los partidos de la última ejecución
+    # Traer todos los partidos de esa última jornada
     partidos = db.query(Resultado).filter(
         Resultado.categoria == categoria,
-        Resultado.fetched_at == ultima_fecha
+        Resultado.jornada == ultima_jornada
     ).all()
 
-    # Convertir a dict para enviar al frontend
     return {
-        "jornada": partidos[0].jornada if partidos else None,
+        "jornada": ultima_jornada,
         "partidos": [
             {
                 "local": p.local,
