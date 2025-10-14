@@ -6,7 +6,16 @@ from app.models.resultado import Resultado
 import re
 from typing import Tuple
 import os
-
+import requests
+from urllib.parse import urljoin
+import unicodedata
+from typing import Tuple, Optional
+import httpx
+import asyncio
+import json
+from dotenv import load_dotenv
+from weasyprint import HTML
+import aiohttp
 
 def normalizar_marcador(texto: str) -> Tuple[str, str]:
     texto = texto.replace("–", "-").replace("—", "-")

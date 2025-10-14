@@ -8,14 +8,15 @@ interface Clasificacion {
   puntos: number;
 }
 
-type ResultadoPartido = {
+interface ResultadoPartido {
+  jornada: string;
   local: string;
   visitante: string;
   goles_local: string;
   goles_visitante: string;
-  fecha_texto?: string | null;
-  hora_texto?: string | null;
-};
+  fecha?: string | null;
+  hora?: string | null;
+}
 
 const competiciones: Record<string, string> = {
   Senior: "2ª Andaluza Sénior (Jaén)",
@@ -31,15 +32,18 @@ const endYear = startYear + 1;
 
 export default function Clasificacion() {
   const [datos, setDatos] = useState<Clasificacion[]>([]);
-  const [categoriaActiva, setCategoriaActiva] = useState<"Senior" | "Femenino_7" | "Femenino_11">("Senior");
+  const [categoriaActiva, setCategoriaActiva] = useState<
+    "Senior" | "Femenino_7" | "Femenino_11"
+  >("Senior");
 
-  const [resultados, setResultados] = useState<{ jornada?: string | null; partidos: ResultadoPartido[] } | null>(null);
+  const [resultados, setResultados] = useState<ResultadoPartido[] | null>(null);
+  const [jornadaActual, setJornadaActual] = useState<string | null>(null);
 
   useEffect(() => {
     const nombre_competicion = competiciones[categoriaActiva];
     const temporada_competicion = `Temporada ${startYear}-${endYear}`;
 
-    // Fetch clasificación
+    // 🔹 1️⃣ Fetch clasificación
     fetch(
       `https://aplicacion-web-m5oa.onrender.com/clasificaciones?nombre_competicion=${encodeURIComponent(
         nombre_competicion
@@ -48,20 +52,21 @@ export default function Clasificacion() {
       .then((res) => res.json())
       .then((data) => setDatos(data))
       .catch((err) => console.error("Error al cargar la clasificación:", err));
-      
-    setResultados(null);
 
-    // Fetch resultados según categoría
+    // 🔹 2️⃣ Fetch resultados desde la BD (nuevo backend)
     const urlResultados = import.meta.env.PROD
-  ? `https://aplicacion-web-m5oa.onrender.com/resultados/?categoria=${categoriaActiva}`
-  : `http://localhost:8000/resultados/?categoria=${categoriaActiva}`;
+      ? `https://aplicacion-web-m5oa.onrender.com/resultados?categoria=${categoriaActiva}`
+      : `http://localhost:8000/resultados?categoria=${categoriaActiva}`;
 
     fetch(urlResultados)
       .then((res) => res.json())
-      .then((data) => setResultados(data))
+      .then((data: ResultadoPartido[]) => {
+        setResultados(data);
+        if (data.length > 0) setJornadaActual(data[0].jornada);
+      })
       .catch((err) => {
         console.error("Error al cargar resultados:", err);
-        setResultados({ partidos: [] });
+        setResultados([]);
       });
   }, [categoriaActiva]);
 
@@ -107,44 +112,62 @@ export default function Clasificacion() {
                 <tr
                   key={index}
                   className={`hover:bg-gray-100 ${
-                    fila.equipo.includes("C.D. CAMPILLO DEL RÍO") ? "bg-green-200 text-azul" : ""
+                    fila.equipo.includes("C.D. CAMPILLO DEL RÍO")
+                      ? "bg-green-200 text-azul"
+                      : ""
                   }`}
                 >
-                  <td className="px-4 py-2 md:pl-[5rem] border-t">{fila.posicion}</td>
-                  <td className="px-4 py-2 md:pl-[11rem] border-t">{fila.equipo}</td>
-                  <td className="px-4 py-2 md:pl-[3rem] border-t">{fila.puntos}</td>
+                  <td className="px-4 py-2 md:pl-[5rem] border-t">
+                    {fila.posicion}
+                  </td>
+                  <td className="px-4 py-2 md:pl-[11rem] border-t">
+                    {fila.equipo}
+                  </td>
+                  <td className="px-4 py-2 md:pl-[3rem] border-t">
+                    {fila.puntos}
+                  </td>
                 </tr>
               ))}
           </tbody>
         </table>
       </div>
 
-      {/* RESULTADOS: última jornada */}
+      {/* RESULTADOS */}
       <div className="mt-8">
-        <h3 className="text-xl font-bold mb-4 text-center">Resultados - Última Jornada</h3>
+        <h3 className="text-xl font-bold mb-4 text-center">
+          Resultados - Última Jornada
+        </h3>
 
         {resultados === null ? (
           <p className="text-center text-gray-500">Cargando resultados...</p>
-        ) : resultados.partidos && resultados.partidos.length > 0 ? (
+        ) : resultados.length > 0 ? (
           <div className="flex flex-col gap-3 max-w-3xl mx-auto">
-            {resultados.jornada && (
-              <p className="text-center text-sm text-gray-600 mb-2">{resultados.jornada}</p>
+            {jornadaActual && (
+              <p className="text-center text-sm text-gray-600 mb-2">
+                {jornadaActual}
+              </p>
             )}
-            {resultados.partidos.map((p, i) => (
+            {resultados.map((p, i) => (
               <div
                 key={i}
                 className="flex justify-between items-center bg-blanco text-negro rounded-[1rem] p-3 shadow-md"
               >
-                <span className="w-1/3 text-right font-semibold">{p.local}</span>
+                <span className="w-1/3 text-right font-semibold">
+                  {p.local}
+                </span>
                 <span className="w-1/3 text-center text-lg font-bold">
                   {p.goles_local} - {p.goles_visitante}
                 </span>
-                <span className="w-1/3 text-left font-semibold">{p.visitante}</span>
+                <span className="w-1/3 text-left font-semibold">
+                  {p.visitante}
+                </span>
               </div>
             ))}
           </div>
         ) : (
-          <p className="text-center text-gray-600">No se encontraron resultados.</p>
+          <p className="text-center text-gray-600">
+            No se encontraron resultados.
+          </p>
         )}
       </div>
     </section>
