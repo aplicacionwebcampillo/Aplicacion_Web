@@ -9,13 +9,17 @@ interface Clasificacion {
 }
 
 interface ResultadoPartido {
-  jornada: string;
   local: string;
   visitante: string;
   goles_local: string;
   goles_visitante: string;
   fecha?: string | null;
   hora?: string | null;
+}
+
+interface ResultadoResponse {
+  jornada: string | null;
+  partidos: ResultadoPartido[];
 }
 
 const competiciones: Record<string, string> = {
@@ -36,7 +40,7 @@ export default function Clasificacion() {
     "Senior" | "Femenino_7" | "Femenino_11"
   >("Senior");
 
-  const [resultados, setResultados] = useState<ResultadoPartido[] | null>(null);
+  const [resultados, setResultados] = useState<ResultadoPartido[]>([]);
   const [jornadaActual, setJornadaActual] = useState<string | null>(null);
 
   useEffect(() => {
@@ -60,13 +64,14 @@ export default function Clasificacion() {
 
     fetch(urlResultados)
       .then((res) => res.json())
-      .then((data: ResultadoPartido[]) => {
-        setResultados(data);
-        if (data.length > 0) setJornadaActual(data[0].jornada);
+      .then((data: ResultadoResponse) => {
+        setResultados(data.partidos);
+        setJornadaActual(data.jornada);
       })
       .catch((err) => {
         console.error("Error al cargar resultados:", err);
         setResultados([]);
+        setJornadaActual(null);
       });
   }, [categoriaActiva]);
 
@@ -138,9 +143,9 @@ export default function Clasificacion() {
           Resultados - Última Jornada
         </h3>
 
-        {resultados === null ? (
+        {resultados.length === 0 ? (
           <p className="text-center text-gray-500">Cargando resultados...</p>
-        ) : resultados.length > 0 ? (
+        ) : (
           <div className="flex flex-col gap-3 max-w-3xl mx-auto">
             {jornadaActual && (
               <p className="text-center text-sm text-gray-600 mb-2">
@@ -152,22 +157,14 @@ export default function Clasificacion() {
                 key={i}
                 className="flex justify-between items-center bg-blanco text-negro rounded-[1rem] p-3 shadow-md"
               >
-                <span className="w-1/3 text-right font-semibold">
-                  {p.local}
-                </span>
+                <span className="w-1/3 text-right font-semibold">{p.local}</span>
                 <span className="w-1/3 text-center text-lg font-bold">
                   {p.goles_local} - {p.goles_visitante}
                 </span>
-                <span className="w-1/3 text-left font-semibold">
-                  {p.visitante}
-                </span>
+                <span className="w-1/3 text-left font-semibold">{p.visitante}</span>
               </div>
             ))}
           </div>
-        ) : (
-          <p className="text-center text-gray-600">
-            No se encontraron resultados.
-          </p>
         )}
       </div>
     </section>
