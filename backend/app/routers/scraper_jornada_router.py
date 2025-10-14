@@ -1,35 +1,38 @@
-from fastapi import APIRouter, Query, HTTPException
-from app.database import SessionLocal
+from fastapi import APIRouter, Query, Depends
+from sqlalchemy.orm import Session
+from sqlalchemy import func
+from app.database import get_db
 from app.models.resultado import Resultado
 
 router = APIRouter(prefix="/resultados", tags=["resultados"])
 
 @router.get("/")
-def get_resultados(categoria: str = Query("Senior")):
-    session = SessionLocal()
-    try:
-        resultados = (
-            session.query(Resultado)
-            .filter_by(categoria=categoria)
-            .order_by(Resultado.fetched_at.desc())
-            .all()
-        )
+def get_resultados(categoria: str = Query(...), db: Session = Depends(get_db)):
+    # Obtener la fecha de scrapeo más reciente
+    ultima_fecha = db.query(func.max(Resultado.fetched_at)).filter(Resultado.categoria == categoria).scalar()
 
-        if not resultados:
-            raise HTTPException(status_code=404, detail="No hay resultados guardados aún.")
+    if not ultima_fecha:
+        return {"jornada": None, "partidos": []}
 
-        return [
+    # Traer solo los partidos de la última ejecución
+    partidos = db.query(Resultado).filter(
+        Resultado.categoria == categoria,
+        Resultado.fetched_at == ultima_fecha
+    ).all()
+
+    # Convertir a dict para enviar al frontend
+    return {
+        "jornada": partidos[0].jornada if partidos else None,
+        "partidos": [
             {
-                "jornada": r.jornada,
-                "local": r.local,
-                "visitante": r.visitante,
-                "goles_local": r.goles_local,
-                "goles_visitante": r.goles_visitante,
-                "fecha": r.fecha,
-                "hora": r.hora,
+                "local": p.local,
+                "visitante": p.visitante,
+                "goles_local": p.goles_local,
+                "goles_visitante": p.goles_visitante,
+                "fecha_texto": p.fecha,
+                "hora_texto": p.hora,
             }
-            for r in resultados
+            for p in partidos
         ]
-    finally:
-        session.close()
+    }
 
