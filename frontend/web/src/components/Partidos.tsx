@@ -147,9 +147,11 @@ export default function Partidos() {
 
           {/* Resultado o VS */}
           <div className="w-1/3 text-center text-black text-2xl font-bold">
-            {tipo === "último"
+            {partido.local === "Descansa" || partido.visitante === "Descansa"
+              ? "-"
+              : tipo === "último"
               ? `${partido.resultado_local} - ${partido.resultado_visitante}`
-              : "vs"}
+              : "VS"}
           </div>
 
           {/* Equipo Visitante */}
