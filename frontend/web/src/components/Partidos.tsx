@@ -16,9 +16,9 @@ interface Partido {
 // Define competiciones por categoría como arrays
 const competicionesPorCategoria: Record<string, string[]> = {
   Senior: [
-    "2ª Andaluza Sénior (Jaén)",
-    "Fase Final 2ª Andaluza Sénior (Jaén)",
-    "Copa Andalucía 2ª Andaluza Sénior (Jaén)",
+    "1ª Andaluza Sénior (Jaén)",
+    "Fase Final 1ª Andaluza Sénior (Jaén)",
+    "Copa Andalucía 1ª Andaluza Sénior (Jaén)",
     "Trofeo Copa Subdelegado del Gobierno (Jaén)",
     "Fase Final Trofeo Copa Subdelegado del Gobierno (Jaén)",
     "Trofeo Copa Presidente Diputación (Jaén)",
