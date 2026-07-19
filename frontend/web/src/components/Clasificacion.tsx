@@ -23,7 +23,7 @@ interface ResultadoResponse {
 }
 
 const competiciones: Record<string, string> = {
-  Senior: "2ª Andaluza Sénior (Jaén)",
+  Senior: "1ª Andaluza Sénior (Jaén)",
   Femenino_7: "Liga Femenina Sénior Fútbol 7 (Jaén)",
   Femenino_11: "2ª Andaluza Femenina Sénior (Jaén)",
 };
