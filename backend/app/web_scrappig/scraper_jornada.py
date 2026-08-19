@@ -118,7 +118,7 @@ def scrape_y_guardar(url: str, categoria: str = "Senior"):
 
 if __name__ == "__main__":
     URLS = {
-        "Senior": "https://www.rfaf.es/pnfg/NPcd/NFG_VisClasificacion?cod_primaria=1000120&codgrupo=45293013&codcompeticion=44788639",
+        "Senior": "https://www.rfaf.es/pnfg/NPcd/NFG_VisClasificacion?cod_primaria=1000120&codgrupo=48466095&codcompeticion=48466094",
         "Femenino_7": "https://www.rfaf.es/pnfg/NPcd/NFG_VisClasificacion?cod_primaria=1000120&codgrupo=46575672&codcompeticion=46575570",
         "Femenino_11": "https://www.rfaf.es/pnfg/NPcd/NFG_VisClasificacion?cod_primaria=1000120&codgrupo=46573703&codcompeticion=46573611",
     }
