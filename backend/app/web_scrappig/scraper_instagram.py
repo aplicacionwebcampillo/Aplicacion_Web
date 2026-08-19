@@ -104,6 +104,8 @@ def main():
     login_pass = os.environ.get("IG_LOGIN_PASS")
     max_posts = int(os.environ.get("IG_MAX_POSTS", "5"))
 
+    print("[INFO] Arrancando importador de Instagram", flush=True)
+
     loader = instaloader.Instaloader(
         download_videos=False,
         download_video_thumbnails=False,
@@ -111,18 +113,20 @@ def main():
         download_comments=False,
         save_metadata=False,
         compress_json=False,
+        max_connection_attempts=1,  # fallar rápido en vez de reintentar ~11 min contra un bloqueo de IP
     )
 
     if login_user and login_pass:
         try:
             loader.login(login_user, login_pass)
-            print(f"[INFO] Sesión iniciada como {login_user}")
+            print(f"[INFO] Sesión iniciada como {login_user}", flush=True)
         except Exception as e:
-            print(f"[AVISO] No se pudo iniciar sesión en Instagram, se continúa sin login: {e}")
+            print(f"[AVISO] No se pudo iniciar sesión en Instagram, se continúa sin login: {e}", flush=True)
     else:
-        print("[INFO] Sin credenciales de Instagram: acceso anónimo (más propenso a bloqueos)")
+        print("[INFO] Sin credenciales de Instagram: acceso anónimo (más propenso a bloqueos)", flush=True)
 
     perfil = instaloader.Profile.from_username(loader.context, ig_target)
+    print(f"[INFO] Perfil {ig_target} obtenido correctamente", flush=True)
 
     noticias_existentes = obtener_noticias_existentes()
     titulares_existentes = {n.get("titular") for n in noticias_existentes}

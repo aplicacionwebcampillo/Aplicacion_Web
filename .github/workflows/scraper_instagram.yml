@@ -33,4 +33,5 @@ jobs:
           IG_LOGIN_USER: ${{ secrets.IG_LOGIN_USER }}
           IG_LOGIN_PASS: ${{ secrets.IG_LOGIN_PASS }}
           NOTICIA_ADMIN_DNI: ${{ secrets.NOTICIA_ADMIN_DNI }}
+          PYTHONUNBUFFERED: "1"
         run: python backend/app/web_scrappig/scraper_instagram.py
