@@ -1,0 +1,18 @@
+name: Diagnostico API temporal
+
+on:
+  workflow_dispatch:
+
+jobs:
+  diag:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Clasificaciones 1a Andaluza
+        run: |
+          curl -sS -w "\nHTTP:%{http_code}\n" "https://aplicacion-web-m5oa.onrender.com/clasificaciones?nombre_competicion=1%C2%AA%20Andaluza%20S%C3%A9nior%20(Ja%C3%A9n)&temporada_competicion=Temporada%202026-2027"
+      - name: Partidos 1a Andaluza
+        run: |
+          curl -sS -w "\nHTTP:%{http_code}\n" "https://aplicacion-web-m5oa.onrender.com/partidos/?nombre_competicion=1%C2%AA%20Andaluza%20S%C3%A9nior%20(Ja%C3%A9n)&temporada_competicion=Temporada%202026-2027"
+      - name: CORS preflight/headers check (sin trailing slash)
+        run: |
+          curl -sS -D - -o /dev/null -H "Origin: https://campillodelriocf.es" "https://aplicacion-web-m5oa.onrender.com/clasificaciones?nombre_competicion=1%C2%AA%20Andaluza%20S%C3%A9nior%20(Ja%C3%A9n)&temporada_competicion=Temporada%202026-2027"
