@@ -1,0 +1,36 @@
+name: Importar noticias desde Instagram
+
+on:
+  workflow_dispatch:
+
+  schedule:
+    # Cada 3 días a las 08:00 UTC. Frecuencia baja a propósito: es scraping
+    # no oficial (instaloader) y una cadencia diaria aumenta el riesgo de
+    # bloqueo/limitación por parte de Instagram. Ajustar aquí si hace falta
+    # más o menos frecuencia.
+    - cron: '0 8 */3 * *'
+
+jobs:
+  instagram:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout repositorio
+        uses: actions/checkout@v4
+
+      - name: Configurar Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+
+      - name: Instalar dependencias
+        run: pip install instaloader requests
+
+      - name: Ejecutar importador de Instagram
+        env:
+          IG_TARGET_USERNAME: ${{ secrets.IG_TARGET_USERNAME }}
+          IG_LOGIN_USER: ${{ secrets.IG_LOGIN_USER }}
+          IG_LOGIN_PASS: ${{ secrets.IG_LOGIN_PASS }}
+          NOTICIA_ADMIN_DNI: ${{ secrets.NOTICIA_ADMIN_DNI }}
+        run: python backend/app/web_scrappig/scraper_instagram.py
