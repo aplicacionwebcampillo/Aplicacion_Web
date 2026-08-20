@@ -34,6 +34,7 @@ Variables opcionales:
 import html
 import json
 import os
+from urllib.parse import urlparse
 
 import requests
 from playwright.sync_api import sync_playwright
@@ -194,8 +195,15 @@ def obtener_posts_del_perfil(ig_target, session_file):
         def al_recibir_respuesta(response):
             nonlocal respuestas_con_datos
             peticiones_vistas.append(f"{response.status} {response.url}")
-            content_type = response.headers.get("content-type", "")
-            if response.status != 200 or "json" not in content_type:
+            if response.status != 200:
+                return
+            # Nos fijamos en el dominio, no en el content-type: los endpoints
+            # de datos de Instagram (ajax/bz, api/graphql, graphql/query)
+            # no siempre declaran "application/json". Descartamos el CDN de
+            # imágenes/vídeo (cdninstagram.com) para no perder tiempo
+            # intentando parsear binarios.
+            host = urlparse(response.url).hostname or ""
+            if host not in ("www.instagram.com", "i.instagram.com"):
                 return
             try:
                 texto = response.text()
