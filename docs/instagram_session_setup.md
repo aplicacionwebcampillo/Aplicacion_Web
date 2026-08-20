@@ -1,79 +1,73 @@
 # Configurar la sesión de Instagram para el importador de noticias
 
-`scraper_instagram.py` ya no inicia sesión con usuario/contraseña por su
-cuenta (eso es lo que Instagram detecta y bloquea). En su lugar reutiliza una
-sesión ya autenticada a mano en un navegador real. Esto solo hay que
-configurarlo una vez (y repetirlo si la sesión llega a expirar/cerrarse).
+`scraper_instagram.py` usa Playwright (navegador real) con una sesión ya
+autenticada a mano, en vez de hacer login por script. Se probó primero con
+`instaloader` (incluso con cookies de sesión válidas) y Instagram lo seguía
+bloqueando: un cliente HTTP "en crudo" tiene una huella distinta a la de un
+navegador real y el sistema anti-bot lo detecta aunque la cookie sea
+legítima. Por eso ahora se usa un navegador de verdad.
 
-## 1. Inicia sesión en Instagram con Firefox
+Esto solo hay que configurarlo una vez (y repetirlo si la sesión llega a
+caducar/cerrarse).
 
-Abre Firefox y entra normalmente en instagram.com con la cuenta que quieras
-usar para el scraping (puede ser una cuenta secundaria, no hace falta que
-sea la del club). Resuelve a mano cualquier verificación que te pida.
-
-## 2. Importa esa sesión con instaloader
-
-En tu terminal, dentro del entorno virtual que ya tienes (`.venv_ig`):
+## 1. Instala Playwright en tu entorno local
 
 ```bash
-source .venv_ig/bin/activate
-pip install browser_cookie3
-instaloader --load-cookies firefox
+cd ~/Aplicacion_Web
+source .venv_ig/bin/activate   # o el venv que uses
+pip install playwright
+playwright install firefox
 ```
 
-Si todo va bien verás algo como:
+## 2. Genera la sesión iniciando login manual
 
-```
-Cookies loaded successfully from firefox
-<tu_usuario> has been successfully logged in.
-Next time use --login=<tu_usuario> to reuse the same session.
+```bash
+python backend/app/web_scrappig/instagram_generar_sesion.py ig_storage_state.json
 ```
 
-Esto guarda la sesión en `~/.config/instaloader/session-<tu_usuario>`. Si
-falla porque no encuentra cookies, cierra Firefox del todo y vuelve a
-intentarlo (algunos sistemas bloquean la lectura de la base de datos de
-cookies mientras el navegador está abierto).
+Se abrirá una ventana de Firefox de verdad. Inicia sesión en Instagram con
+normalidad ahí (resuelve cualquier verificación si te la pide). Cuando
+tengas la sesión iniciada, vuelve a la terminal y pulsa Enter — se guardará
+todo en `ig_storage_state.json`.
 
 ## 3. Codifica el fichero de sesión para guardarlo como secret
 
 ```bash
-base64 -w0 ~/.config/instaloader/session-<tu_usuario> > /tmp/session_b64.txt
+base64 -w0 ig_storage_state.json > /tmp/session_b64.txt
 cat /tmp/session_b64.txt
 ```
 
-Copia toda la salida (una única línea larga).
+Copia toda la salida (una única línea larga). **No la pegues en ningún
+chat**: ese contenido da acceso completo a la cuenta de Instagram, igual
+que la contraseña.
 
 ## 4. Configura los secrets en GitHub
 
 En **Settings → Secrets and variables → Actions** del repositorio:
 
-- `IG_SESSION_FILE_B64`: pega el contenido de `/tmp/session_b64.txt`.
-- `IG_SESSION_USERNAME`: tu usuario de Instagram (el mismo que salió en el
-  paso 2, sin @).
+- `IG_STORAGE_STATE_B64`: pega el contenido de `/tmp/session_b64.txt`.
+- `IG_TARGET_USERNAME`: usuario de Instagram del club (sin @), si no lo
+  tienes ya configurado de antes.
+- `NOTICIA_ADMIN_DNI`: DNI de un administrador existente en la BD.
 
-Y borra los secrets antiguos que ya no se usan: `IG_LOGIN_USER`,
-`IG_LOGIN_PASS` (el script ya no los lee, y además esa contraseña conviene
-rotarla si no lo has hecho ya).
+Si tenías secrets antiguos de intentos anteriores (`IG_SESSION_USERNAME`,
+`IG_SESSION_FILE_B64`, `IG_LOGIN_USER`, `IG_LOGIN_PASS`), puedes borrarlos:
+ya no se usan.
 
 ## 5. Limpieza local
 
 ```bash
-rm /tmp/session_b64.txt
+rm /tmp/session_b64.txt ig_storage_state.json
 ```
-
-El fichero de sesión da acceso a esa cuenta de Instagram igual que la
-contraseña — trátalo con el mismo cuidado, no lo subas al repositorio ni lo
-compartas.
 
 ## 6. Probar
 
 Lanza el workflow "Importar noticias desde Instagram" manualmente desde la
-pestaña Actions. En el log deberías ver `[INFO] Sesión cargada para
-<tu_usuario>` seguido de `[INFO] Perfil <usuario_del_club> obtenido
-correctamente`.
+pestaña Actions. En el log deberías ver `[INFO] Perfil <usuario_del_club>
+obtenido correctamente, N publicaciones vistas`.
 
 ## Cuándo repetir esto
 
 Si la sesión caduca o Instagram la invalida, el script lo indicará con
-`[AVISO] No se pudo cargar la sesión guardada...` y caerá a acceso anónimo.
-Si pasa, repite los pasos 1-4 para generar una sesión nueva.
+`[ERROR] No se capturó la respuesta del perfil...`. Si pasa, repite los
+pasos 2-4 para generar una sesión nueva.

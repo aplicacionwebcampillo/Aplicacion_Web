@@ -1,42 +1,42 @@
 """Importa las últimas publicaciones de Instagram del club como Noticias.
 
 No usa la Graph API oficial (requiere cuenta Business/Creator y acceso que
-no tenemos); usa `instaloader` para leer el perfil público. Es una solución
-de mejor esfuerzo: Instagram puede bloquear o limitar el acceso, por eso el
-workflow que ejecuta este script corre con una frecuencia baja (ver
-.github/workflows/scraper_instagram.yml) en vez de a diario.
+no tenemos). Tampoco usa `instaloader`: se probó con sesión de cookies
+válida y seguía siendo bloqueado (429), porque un cliente HTTP "en crudo"
+como `requests` tiene una huella (TLS, cabeceras, ausencia de JavaScript)
+que el sistema anti-bot de Instagram distingue de un navegador real, aunque
+las cookies sean legítimas.
 
-El script NUNCA hace login con usuario/contraseña por su cuenta: eso es lo
-que dispara los bloqueos de Instagram. En su lugar reutiliza una sesión ya
-autenticada manualmente en un navegador real (ver
-docs/instagram_session_setup.md para los pasos exactos) y exportada con:
+En su lugar usa Playwright (el mismo motor que ya usáis para el scraper de
+RFAF) con una sesión ya autenticada manualmente en un navegador real, y lee
+los datos interceptando la respuesta que el propio navegador recibe al
+cargar la página del perfil — igual que haría un humano navegando.
 
-    instaloader --load-cookies firefox --login <usuario>
+Genera esa sesión una sola vez con instagram_generar_sesion.py (ver
+docs/instagram_session_setup.md para los pasos completos).
 
-Solo depende de `instaloader` y `requests` (no de app.database ni del resto
+Solo depende de `playwright` y `requests` (no de app.database ni del resto
 del backend): habla con la API pública igual que scraper.py, así no necesita
 credenciales de base de datos.
 
 Variables de entorno requeridas:
-  IG_TARGET_USERNAME   usuario de Instagram del club (sin @)
-  NOTICIA_ADMIN_DNI    DNI de un administrador ya existente en la BD,
-                        se usará como autor de las noticias importadas
+  IG_TARGET_USERNAME    usuario de Instagram del club (sin @)
+  NOTICIA_ADMIN_DNI     DNI de un administrador ya existente en la BD,
+                         se usará como autor de las noticias importadas
+  IG_STORAGE_STATE_FILE ruta al fichero de sesión generado con
+                         instagram_generar_sesion.py
 
 Variables opcionales:
-  IG_SESSION_USERNAME  usuario de Instagram cuya sesión guardada se reutiliza
-  IG_SESSION_FILE       ruta al fichero de sesión exportado con
-                        `instaloader --load-cookies firefox --login`
-                        (sin estas dos variables, el script cae a acceso
-                        anónimo, mucho más propenso a bloqueos)
-  IG_MAX_POSTS          nº máximo de publicaciones a revisar por ejecución
-                        (por defecto 5)
+  IG_MAX_POSTS           nº máximo de publicaciones a revisar por ejecución
+                         (por defecto 5)
 """
 
 import html
+import json
 import os
 
-import instaloader
 import requests
+from playwright.sync_api import sync_playwright
 
 API_BASE = "https://aplicacion-web-m5oa.onrender.com"
 CLOUDINARY_URL = "https://api.cloudinary.com/v1_1/dft3xbtrl/image/upload"
@@ -100,76 +100,114 @@ def crear_noticia(titular, imagen_url, contenido, admin_dni):
     }
     resp = requests.post(f"{API_BASE}/noticias/", json=data, timeout=30)
     if resp.status_code in (200, 201):
-        print(f"[OK] Noticia creada: {titular}")
+        print(f"[OK] Noticia creada: {titular}", flush=True)
     else:
-        print(f"[ERROR] {resp.status_code} al crear noticia '{titular}': {resp.text}")
+        print(f"[ERROR] {resp.status_code} al crear noticia '{titular}': {resp.text}", flush=True)
+
+
+def _extraer_posts(payload):
+    """Busca la lista de publicaciones dentro de la respuesta de
+    web_profile_info, tolerando pequeñas variaciones de formato."""
+    if not isinstance(payload, dict):
+        return []
+    user = (payload.get("data") or {}).get("user") or payload.get("user")
+    if not user:
+        return []
+    timeline = user.get("edge_owner_to_timeline_media") or {}
+    return [edge.get("node", {}) for edge in timeline.get("edges", [])]
+
+
+def obtener_posts_del_perfil(ig_target, session_file):
+    """Abre el perfil con un navegador real (sesión ya autenticada) y
+    captura la respuesta que el propio navegador recibe con los datos del
+    perfil y sus publicaciones."""
+    capturas = []
+
+    with sync_playwright() as p:
+        browser = p.firefox.launch(headless=True)
+        context = browser.new_context(storage_state=session_file)
+        page = context.new_page()
+
+        def al_recibir_respuesta(response):
+            if "web_profile_info" in response.url and response.status == 200:
+                try:
+                    capturas.append(response.json())
+                except Exception:
+                    pass
+
+        page.on("response", al_recibir_respuesta)
+        page.goto(f"https://www.instagram.com/{ig_target}/", wait_until="networkidle", timeout=60000)
+        page.wait_for_timeout(3000)
+        browser.close()
+
+    if not capturas:
+        print(
+            "[ERROR] No se capturó la respuesta del perfil (posible bloqueo, "
+            "sesión caducada, o Instagram cambió cómo carga los datos)",
+            flush=True,
+        )
+        return []
+
+    posts = _extraer_posts(capturas[0])
+    if not posts:
+        print(
+            "[ERROR] Se recibió respuesta del perfil pero sin publicaciones "
+            "reconocibles. Claves recibidas: "
+            + json.dumps(list(capturas[0].keys()), ensure_ascii=False),
+            flush=True,
+        )
+    return posts
 
 
 def main():
     ig_target = os.environ["IG_TARGET_USERNAME"]
     admin_dni = os.environ["NOTICIA_ADMIN_DNI"]
-    session_username = os.environ.get("IG_SESSION_USERNAME")
-    session_file = os.environ.get("IG_SESSION_FILE")
+    session_file = os.environ["IG_STORAGE_STATE_FILE"]
     max_posts = int(os.environ.get("IG_MAX_POSTS", "5"))
 
-    print("[INFO] Arrancando importador de Instagram", flush=True)
+    print("[INFO] Arrancando importador de Instagram (Playwright)", flush=True)
 
-    loader = instaloader.Instaloader(
-        download_videos=False,
-        download_video_thumbnails=False,
-        download_geotags=False,
-        download_comments=False,
-        save_metadata=False,
-        compress_json=False,
-        max_connection_attempts=1,  # fallar rápido en vez de reintentar ~11 min contra un bloqueo de IP
-    )
+    posts = obtener_posts_del_perfil(ig_target, session_file)
+    if not posts:
+        return
 
-    # No se hace login por usuario/contraseña desde el script: eso es justo lo
-    # que Instagram detecta y bloquea. En su lugar se reutiliza una sesión ya
-    # autenticada manualmente (ver README junto a este archivo / instrucciones
-    # del workflow) exportada con `instaloader --load-cookies firefox --login`.
-    if session_username and session_file:
-        try:
-            loader.load_session_from_file(session_username, filename=session_file)
-            print(f"[INFO] Sesión cargada para {session_username}", flush=True)
-        except Exception as e:
-            print(f"[AVISO] No se pudo cargar la sesión guardada, se continúa sin login: {e}", flush=True)
-    else:
-        print("[INFO] Sin sesión configurada: acceso anónimo (más propenso a bloqueos)", flush=True)
-
-    perfil = instaloader.Profile.from_username(loader.context, ig_target)
-    print(f"[INFO] Perfil {ig_target} obtenido correctamente", flush=True)
+    print(f"[INFO] Perfil {ig_target} obtenido correctamente, {len(posts)} publicaciones vistas", flush=True)
 
     noticias_existentes = obtener_noticias_existentes()
     titulares_existentes = {n.get("titular") for n in noticias_existentes}
 
     revisados = 0
     creados = 0
-    for post in perfil.get_posts():
-        if revisados >= max_posts:
-            break
+    for post in posts[:max_posts]:
         revisados += 1
-
-        if ya_importado(post.shortcode, noticias_existentes):
-            print(f"[SKIP] Ya importado: {post.shortcode}")
+        shortcode = post.get("shortcode")
+        if not shortcode:
             continue
 
+        if ya_importado(shortcode, noticias_existentes):
+            print(f"[SKIP] Ya importado: {shortcode}", flush=True)
+            continue
+
+        display_url = post.get("display_url")
+        caption_edges = (post.get("edge_media_to_caption") or {}).get("edges") or []
+        caption = caption_edges[0]["node"]["text"] if caption_edges else ""
+
         try:
-            img_resp = requests.get(post.url, timeout=30)
+            img_resp = requests.get(display_url, timeout=30)
             img_resp.raise_for_status()
             imagen_url = subir_a_cloudinary(img_resp.content)
         except Exception as e:
-            print(f"[ERROR] No se pudo procesar la imagen de {post.shortcode}: {e}")
+            print(f"[ERROR] No se pudo procesar la imagen de {shortcode}: {e}", flush=True)
             continue
 
-        titular = generar_titular(post.caption, post.shortcode, titulares_existentes)
-        contenido = construir_contenido(post.caption, post.shortcode)
+        titular = generar_titular(caption, shortcode, titulares_existentes)
+        contenido = construir_contenido(caption, shortcode)
 
         crear_noticia(titular, imagen_url, contenido, admin_dni)
         titulares_existentes.add(titular)
         creados += 1
 
-    print(f"[FIN] Revisadas {revisados} publicaciones, {creados} noticias nuevas creadas.")
+    print(f"[FIN] Revisadas {revisados} publicaciones, {creados} noticias nuevas creadas.", flush=True)
 
 
 if __name__ == "__main__":

@@ -5,9 +5,8 @@ on:
 
   schedule:
     # Cada 3 días a las 08:00 UTC. Frecuencia baja a propósito: es scraping
-    # no oficial (instaloader) y una cadencia diaria aumenta el riesgo de
-    # bloqueo/limitación por parte de Instagram. Ajustar aquí si hace falta
-    # más o menos frecuencia.
+    # no oficial y una cadencia diaria aumenta el riesgo de bloqueo por
+    # parte de Instagram. Ajustar aquí si hace falta más o menos frecuencia.
     - cron: '0 8 */3 * *'
 
 jobs:
@@ -25,17 +24,18 @@ jobs:
           python-version: '3.10'
 
       - name: Instalar dependencias
-        run: pip install instaloader requests
+        run: |
+          pip install playwright requests
+          playwright install firefox
 
       - name: Restaurar sesión de Instagram guardada
         run: |
-          echo "${{ secrets.IG_SESSION_FILE_B64 }}" | base64 -d > "$RUNNER_TEMP/ig_session"
+          echo "${{ secrets.IG_STORAGE_STATE_B64 }}" | base64 -d > "$RUNNER_TEMP/ig_storage_state.json"
 
       - name: Ejecutar importador de Instagram
         env:
           IG_TARGET_USERNAME: ${{ secrets.IG_TARGET_USERNAME }}
-          IG_SESSION_USERNAME: ${{ secrets.IG_SESSION_USERNAME }}
-          IG_SESSION_FILE: ${{ runner.temp }}/ig_session
+          IG_STORAGE_STATE_FILE: ${{ runner.temp }}/ig_storage_state.json
           NOTICIA_ADMIN_DNI: ${{ secrets.NOTICIA_ADMIN_DNI }}
           PYTHONUNBUFFERED: "1"
         run: python backend/app/web_scrappig/scraper_instagram.py
