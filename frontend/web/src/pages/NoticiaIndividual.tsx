@@ -51,12 +51,12 @@ export default function NoticiaIndividual() {
         <img
           src={noticia.imagen || "/images/PorDefecto.png"}
           alt={noticia.titular}
-          className="h-[20rem] md:h-[30rem] w-auto object-cover"
+          className="max-h-[20rem] md:max-h-[30rem] w-auto max-w-full object-contain"
         />
       </div>
       <h1></h1>
       <div className="flex justify-center">
-        <div className="text-justify flex justify-center text-negro_texto font-poetsen w-[40rem] md:w-[50rem] h-auto" dangerouslySetInnerHTML={{ __html: noticia.contenido }} />
+        <div className="text-justify flex justify-center text-negro_texto font-poetsen w-full max-w-[40rem] md:max-w-[50rem] h-auto" dangerouslySetInnerHTML={{ __html: noticia.contenido }} />
         </div>
       </div>
      </section>
