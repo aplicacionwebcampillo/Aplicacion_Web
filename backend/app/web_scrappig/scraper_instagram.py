@@ -134,8 +134,11 @@ def _parsear_json_tolerante(texto):
     return objetos
 
 
+TIMELINE_CONNECTION_KEY = "xdt_api__v1__feed__user_timeline_graphql_connection"
+
+
 def _normalizar_post(node):
-    shortcode = node.get("shortcode")
+    shortcode = node.get("shortcode") or node.get("code")
     if not shortcode:
         return None
 
@@ -159,22 +162,39 @@ def _normalizar_post(node):
     return {"shortcode": shortcode, "display_url": display_url, "caption": caption}
 
 
-def _buscar_posts_recursivo(obj, encontrados, vistos):
-    """Recorre cualquier estructura JSON buscando objetos que tengan
-    pinta de publicación de Instagram (shortcode + imagen), sin asumir
-    en qué campo exacto del payload están anidados. Así no depende de
-    adivinar el esquema de GraphQL que Instagram use en cada momento."""
+def _buscar_timeline_del_perfil(obj):
+    """Busca específicamente la conexión con la cuadrícula de publicaciones
+    del PERFIL visitado (TIMELINE_CONNECTION_KEY) dentro de un payload.
+
+    A propósito NO se hace una búsqueda genérica de "cualquier objeto con
+    shortcode" en toda la respuesta: la misma carga de página incluye otras
+    secciones (feed de inicio, sugerencias de cuentas...) con publicaciones
+    de OTRAS personas, y mezclarlas metería noticias que no son del club."""
     if isinstance(obj, dict):
-        if "shortcode" in obj:
-            post = _normalizar_post(obj)
-            if post and post["shortcode"] not in vistos:
-                vistos.add(post["shortcode"])
-                encontrados.append(post)
+        if TIMELINE_CONNECTION_KEY in obj:
+            return obj[TIMELINE_CONNECTION_KEY]
+        # Variante antigua de la API, por si Instagram revierte el cambio.
+        if "edge_owner_to_timeline_media" in obj:
+            return obj["edge_owner_to_timeline_media"]
         for valor in obj.values():
-            _buscar_posts_recursivo(valor, encontrados, vistos)
+            resultado = _buscar_timeline_del_perfil(valor)
+            if resultado is not None:
+                return resultado
     elif isinstance(obj, list):
         for item in obj:
-            _buscar_posts_recursivo(item, encontrados, vistos)
+            resultado = _buscar_timeline_del_perfil(item)
+            if resultado is not None:
+                return resultado
+    return None
+
+
+def _extraer_posts_de_timeline(timeline):
+    posts = []
+    for edge in (timeline or {}).get("edges") or []:
+        post = _normalizar_post(edge.get("node") or {})
+        if post:
+            posts.append(post)
+    return posts
 
 
 def obtener_posts_del_perfil(ig_target, session_file):
@@ -211,9 +231,17 @@ def obtener_posts_del_perfil(ig_target, session_file):
             objetos = _parsear_json_tolerante(texto)
             if objetos:
                 respuestas_con_datos += 1
+
             antes = len(encontrados)
             for objeto in objetos:
-                _buscar_posts_recursivo(objeto, encontrados, vistos)
+                timeline = _buscar_timeline_del_perfil(objeto)
+                if timeline is None:
+                    continue
+                for post in _extraer_posts_de_timeline(timeline):
+                    if post["shortcode"] not in vistos:
+                        vistos.add(post["shortcode"])
+                        encontrados.append(post)
+
             if len(encontrados) == antes:
                 capturas_debug.append((response.url, len(texto), len(objetos), texto[:1500]))
 
