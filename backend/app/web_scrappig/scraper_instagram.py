@@ -201,6 +201,13 @@ def _normalizar_post(node):
             taken_at = caption_obj.get("created_at")
     taken_at = taken_at or 0
 
+    if not taken_at:
+        print(
+            f"[DEBUG] Sin fecha para {shortcode}, claves del nodo: "
+            + json.dumps(sorted(node.keys()), ensure_ascii=False),
+            flush=True,
+        )
+
     return {
         "shortcode": shortcode,
         "display_url": display_url,
