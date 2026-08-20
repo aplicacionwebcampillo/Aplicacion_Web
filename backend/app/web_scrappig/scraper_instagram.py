@@ -26,9 +26,15 @@ Variables de entorno requeridas:
   IG_STORAGE_STATE_FILE ruta al fichero de sesión generado con
                          instagram_generar_sesion.py
 
+El script recorre todas las publicaciones del perfil (haciendo scroll para
+que Instagram las vaya cargando) y crea noticias por las que aún no existan
+(deduplicadas por shortcode); las siguientes ejecuciones solo procesan las
+publicaciones nuevas.
+
 Variables opcionales:
-  IG_MAX_POSTS           nº máximo de publicaciones a revisar por ejecución
-                         (por defecto 5)
+  IG_MAX_POSTS           límite opcional de publicaciones a procesar por
+                         ejecución, empezando por las más antiguas de las
+                         vistas (sin límite por defecto)
 """
 
 import html
@@ -88,7 +94,12 @@ def construir_contenido(caption, shortcode):
         'target="_blank" rel="noopener noreferrer">Ver publicación en Instagram</a></p>'
     )
     marca = f"<!-- ig:{shortcode} -->"
-    return f"{parrafos}{enlace}{marca}"
+    # Todo el texto va en un único <div>: el contenedor donde se pinta
+    # contenido usa CSS flex para centrar, así que si dejamos varios <p>
+    # sueltos como hijos directos cada uno se convierte en su propia
+    # "celda" flex (se ve como una tabla rota) en vez de apilarse como
+    # párrafos normales.
+    return f"<div>{parrafos}{enlace}</div>{marca}"
 
 
 def crear_noticia(titular, imagen_url, contenido, admin_dni):
@@ -159,7 +170,24 @@ def _normalizar_post(node):
     elif isinstance(node.get("caption"), str):
         caption = node["caption"]
 
-    return {"shortcode": shortcode, "display_url": display_url, "caption": caption}
+    # taken_at: fecha real de publicación. Instagram pone las publicaciones
+    # FIJADAS primero en la cuadrícula del perfil aunque sean antiguas; si
+    # no tenemos esto en cuenta, una fijada de hace un año se importaría
+    # como si fuera la más reciente. La usamos para procesar/crear las
+    # noticias en orden cronológico real, no en el orden de la cuadrícula.
+    taken_at = node.get("taken_at")
+    if taken_at is None:
+        caption_obj = node.get("caption")
+        if isinstance(caption_obj, dict):
+            taken_at = caption_obj.get("created_at")
+    taken_at = taken_at or 0
+
+    return {
+        "shortcode": shortcode,
+        "display_url": display_url,
+        "caption": caption,
+        "taken_at": taken_at,
+    }
 
 
 def _buscar_timeline_del_perfil(obj):
@@ -249,6 +277,22 @@ def obtener_posts_del_perfil(ig_target, session_file):
         page.goto(f"https://www.instagram.com/{ig_target}/", wait_until="networkidle", timeout=60000)
         page.wait_for_timeout(3000)
 
+        # Instagram solo carga ~12 publicaciones de golpe; el resto se pide
+        # por bloques al hacer scroll (paginación infinita). Vamos bajando
+        # hasta que dos scrolls seguidos no traigan publicaciones nuevas, con
+        # un tope de seguridad para no quedarnos colgados indefinidamente.
+        sin_novedades = 0
+        for _ in range(60):
+            antes = len(encontrados)
+            page.mouse.wheel(0, 4000)
+            page.wait_for_timeout(2000)
+            if len(encontrados) == antes:
+                sin_novedades += 1
+                if sin_novedades >= 3:
+                    break
+            else:
+                sin_novedades = 0
+
         if not encontrados:
             print(f"[DEBUG] URL final tras cargar: {page.url}", flush=True)
             try:
@@ -279,13 +323,23 @@ def main():
     ig_target = os.environ["IG_TARGET_USERNAME"]
     admin_dni = os.environ["NOTICIA_ADMIN_DNI"]
     session_file = os.environ["IG_STORAGE_STATE_FILE"]
-    max_posts = int(os.environ.get("IG_MAX_POSTS", "5"))
+    # Sin límite por defecto: se recorren todas las publicaciones vistas
+    # (la deduplicación por shortcode hace que, en ejecuciones posteriores,
+    # solo se creen noticias de las publicaciones realmente nuevas).
+    max_posts_env = os.environ.get("IG_MAX_POSTS")
+    max_posts = int(max_posts_env) if max_posts_env else None
 
     print("[INFO] Arrancando importador de Instagram (Playwright)", flush=True)
 
     posts = obtener_posts_del_perfil(ig_target, session_file)
     if not posts:
         return
+
+    # Instagram devuelve primero las publicaciones FIJADAS, sin importar su
+    # fecha real. Las procesamos en orden cronológico (más antigua primero)
+    # para que las noticias se creen en el orden en que de verdad ocurrieron,
+    # en vez de que una fijada antigua parezca la más reciente.
+    posts.sort(key=lambda p: p.get("taken_at") or 0)
 
     print(f"[INFO] Perfil {ig_target} obtenido correctamente, {len(posts)} publicaciones vistas", flush=True)
 
@@ -294,7 +348,7 @@ def main():
 
     revisados = 0
     creados = 0
-    for post in posts[:max_posts]:
+    for post in (posts[:max_posts] if max_posts else posts):
         revisados += 1
         shortcode = post.get("shortcode")
         if not shortcode:
