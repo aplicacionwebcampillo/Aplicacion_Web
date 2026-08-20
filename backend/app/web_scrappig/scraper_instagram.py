@@ -2,9 +2,16 @@
 
 No usa la Graph API oficial (requiere cuenta Business/Creator y acceso que
 no tenemos); usa `instaloader` para leer el perfil público. Es una solución
-de mejor esfuerzo: Instagram puede bloquear o limitar el acceso anónimo, por
-eso el workflow que ejecuta este script corre con una frecuencia baja
-(ver .github/workflows/scraper_instagram.yml) en vez de a diario.
+de mejor esfuerzo: Instagram puede bloquear o limitar el acceso, por eso el
+workflow que ejecuta este script corre con una frecuencia baja (ver
+.github/workflows/scraper_instagram.yml) en vez de a diario.
+
+El script NUNCA hace login con usuario/contraseña por su cuenta: eso es lo
+que dispara los bloqueos de Instagram. En su lugar reutiliza una sesión ya
+autenticada manualmente en un navegador real (ver
+docs/instagram_session_setup.md para los pasos exactos) y exportada con:
+
+    instaloader --load-cookies firefox --login <usuario>
 
 Solo depende de `instaloader` y `requests` (no de app.database ni del resto
 del backend): habla con la API pública igual que scraper.py, así no necesita
@@ -16,10 +23,11 @@ Variables de entorno requeridas:
                         se usará como autor de las noticias importadas
 
 Variables opcionales:
-  IG_LOGIN_USER / IG_LOGIN_PASS  credenciales de una cuenta de Instagram
-                        para autenticar la sesión (mejora la fiabilidad,
-                        pero esa cuenta también puede ser limitada/baneada
-                        si Instagram detecta scraping)
+  IG_SESSION_USERNAME  usuario de Instagram cuya sesión guardada se reutiliza
+  IG_SESSION_FILE       ruta al fichero de sesión exportado con
+                        `instaloader --load-cookies firefox --login`
+                        (sin estas dos variables, el script cae a acceso
+                        anónimo, mucho más propenso a bloqueos)
   IG_MAX_POSTS          nº máximo de publicaciones a revisar por ejecución
                         (por defecto 5)
 """
@@ -100,8 +108,8 @@ def crear_noticia(titular, imagen_url, contenido, admin_dni):
 def main():
     ig_target = os.environ["IG_TARGET_USERNAME"]
     admin_dni = os.environ["NOTICIA_ADMIN_DNI"]
-    login_user = os.environ.get("IG_LOGIN_USER")
-    login_pass = os.environ.get("IG_LOGIN_PASS")
+    session_username = os.environ.get("IG_SESSION_USERNAME")
+    session_file = os.environ.get("IG_SESSION_FILE")
     max_posts = int(os.environ.get("IG_MAX_POSTS", "5"))
 
     print("[INFO] Arrancando importador de Instagram", flush=True)
@@ -116,14 +124,18 @@ def main():
         max_connection_attempts=1,  # fallar rápido en vez de reintentar ~11 min contra un bloqueo de IP
     )
 
-    if login_user and login_pass:
+    # No se hace login por usuario/contraseña desde el script: eso es justo lo
+    # que Instagram detecta y bloquea. En su lugar se reutiliza una sesión ya
+    # autenticada manualmente (ver README junto a este archivo / instrucciones
+    # del workflow) exportada con `instaloader --load-cookies firefox --login`.
+    if session_username and session_file:
         try:
-            loader.login(login_user, login_pass)
-            print(f"[INFO] Sesión iniciada como {login_user}", flush=True)
+            loader.load_session_from_file(session_username, filename=session_file)
+            print(f"[INFO] Sesión cargada para {session_username}", flush=True)
         except Exception as e:
-            print(f"[AVISO] No se pudo iniciar sesión en Instagram, se continúa sin login: {e}", flush=True)
+            print(f"[AVISO] No se pudo cargar la sesión guardada, se continúa sin login: {e}", flush=True)
     else:
-        print("[INFO] Sin credenciales de Instagram: acceso anónimo (más propenso a bloqueos)", flush=True)
+        print("[INFO] Sin sesión configurada: acceso anónimo (más propenso a bloqueos)", flush=True)
 
     perfil = instaloader.Profile.from_username(loader.context, ig_target)
     print(f"[INFO] Perfil {ig_target} obtenido correctamente", flush=True)

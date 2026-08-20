@@ -27,11 +27,15 @@ jobs:
       - name: Instalar dependencias
         run: pip install instaloader requests
 
+      - name: Restaurar sesión de Instagram guardada
+        run: |
+          echo "${{ secrets.IG_SESSION_FILE_B64 }}" | base64 -d > "$RUNNER_TEMP/ig_session"
+
       - name: Ejecutar importador de Instagram
         env:
           IG_TARGET_USERNAME: ${{ secrets.IG_TARGET_USERNAME }}
-          IG_LOGIN_USER: ${{ secrets.IG_LOGIN_USER }}
-          IG_LOGIN_PASS: ${{ secrets.IG_LOGIN_PASS }}
+          IG_SESSION_USERNAME: ${{ secrets.IG_SESSION_USERNAME }}
+          IG_SESSION_FILE: ${{ runner.temp }}/ig_session
           NOTICIA_ADMIN_DNI: ${{ secrets.NOTICIA_ADMIN_DNI }}
           PYTHONUNBUFFERED: "1"
         run: python backend/app/web_scrappig/scraper_instagram.py
