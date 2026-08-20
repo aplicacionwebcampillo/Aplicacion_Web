@@ -40,6 +40,7 @@ Variables opcionales:
 import html
 import json
 import os
+from datetime import datetime, timezone
 from urllib.parse import urlparse
 
 import requests
@@ -73,17 +74,35 @@ def subir_a_cloudinary(imagen_bytes):
     return resp.json()["secure_url"]
 
 
-def generar_titular(caption, shortcode, titulares_existentes):
+def generar_titular(caption, shortcode, taken_at, titulares_existentes):
     primera_linea = ""
     if caption and caption.strip():
         primera_linea = caption.strip().splitlines()[0]
     base = primera_linea[:180].strip() or f"Publicación de Instagram ({shortcode})"
 
     titular = base[:200]
-    if titular in titulares_existentes:
-        sufijo = f" ({shortcode})"
+    if titular not in titulares_existentes:
+        return titular
+
+    # Varias publicaciones pueden compartir el mismo pie de foto (p.ej.
+    # "¡¡RENOVADO!!" repetido para cada jugador). Desambiguamos con la
+    # fecha de la publicación, que es legible; el shortcode de Instagram
+    # solo se usa como último recurso si hasta la fecha coincide.
+    fecha_txt = None
+    if taken_at:
+        try:
+            fecha_txt = datetime.fromtimestamp(taken_at, tz=timezone.utc).strftime("%d/%m/%Y")
+        except (OSError, ValueError, OverflowError, TypeError):
+            fecha_txt = None
+
+    if fecha_txt:
+        sufijo = f" ({fecha_txt})"
         titular = base[: 200 - len(sufijo)] + sufijo
-    return titular
+        if titular not in titulares_existentes:
+            return titular
+
+    sufijo = f" ({shortcode})"
+    return base[: 200 - len(sufijo)] + sufijo
 
 
 def construir_contenido(caption, shortcode):
@@ -369,7 +388,7 @@ def main():
             print(f"[ERROR] No se pudo procesar la imagen de {shortcode}: {e}", flush=True)
             continue
 
-        titular = generar_titular(caption, shortcode, titulares_existentes)
+        titular = generar_titular(caption, shortcode, post.get("taken_at"), titulares_existentes)
         contenido = construir_contenido(caption, shortcode)
 
         crear_noticia(titular, imagen_url, contenido, admin_dni)

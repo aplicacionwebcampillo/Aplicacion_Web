@@ -46,7 +46,7 @@ export default function NoticiasMain() {
     fetch("https://aplicacion-web-m5oa.onrender.com/noticias/?skip=0&limit=100")
       .then((res) => res.json())
       .then((data: Noticia[]) => {
-        setNoticias(data.reverse());
+        setNoticias(data);
       })
       .catch((err) => console.error("Error al cargar noticias:", err));
   }, []);
@@ -63,7 +63,7 @@ export default function NoticiasMain() {
   const width = useWindowWidth();
   
   const noticiasOrdenadas = [...noticiasFiltradas].sort(
-  (a, b) => Number(a.id_noticia || 0) - Number(b.id_noticia || 0)
+  (a, b) => Number(b.id_noticia || 0) - Number(a.id_noticia || 0)
 );
 
 
