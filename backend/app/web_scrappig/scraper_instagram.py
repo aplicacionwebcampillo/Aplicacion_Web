@@ -122,6 +122,7 @@ def obtener_posts_del_perfil(ig_target, session_file):
     captura la respuesta que el propio navegador recibe con los datos del
     perfil y sus publicaciones."""
     capturas = []
+    peticiones_vistas = []
 
     with sync_playwright() as p:
         browser = p.firefox.launch(headless=True)
@@ -129,6 +130,7 @@ def obtener_posts_del_perfil(ig_target, session_file):
         page = context.new_page()
 
         def al_recibir_respuesta(response):
+            peticiones_vistas.append(f"{response.status} {response.url}")
             if "web_profile_info" in response.url and response.status == 200:
                 try:
                     capturas.append(response.json())
@@ -138,6 +140,18 @@ def obtener_posts_del_perfil(ig_target, session_file):
         page.on("response", al_recibir_respuesta)
         page.goto(f"https://www.instagram.com/{ig_target}/", wait_until="networkidle", timeout=60000)
         page.wait_for_timeout(3000)
+
+        if not capturas:
+            print(f"[DEBUG] URL final tras cargar: {page.url}", flush=True)
+            try:
+                print(f"[DEBUG] Título de la página: {page.title()}", flush=True)
+            except Exception:
+                pass
+            interesantes = [u for u in peticiones_vistas if "instagram" in u or "graphql" in u]
+            print(f"[DEBUG] {len(peticiones_vistas)} peticiones vistas en total, mostrando las relevantes:", flush=True)
+            for u in interesantes[-30:]:
+                print(f"[DEBUG]   {u}", flush=True)
+
         browser.close()
 
     if not capturas:
