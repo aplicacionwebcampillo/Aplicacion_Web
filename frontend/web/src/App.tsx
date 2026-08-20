@@ -45,7 +45,7 @@ export default function App() {
 	        <Route path="/administrador" element={<Administrador />} />
 		<Route path="/" element={<Home />} />
 		<Route path="/noticias" element={<Noticias />} />
-		<Route path="/noticias/:titular" element={<NoticiaIndividual />} />
+		<Route path="/noticias/id/:id" element={<NoticiaIndividual />} />
 		<Route path="/plantilla" element={<Plantilla />} />
 		<Route path="/jugadores/:id" element={<JugadorDetalle />} />
 		<Route path="/calendario" element={<Calendario />} />

@@ -52,7 +52,7 @@ export default function UltimasNoticias() {
   {[...noticias].sort((a, b) => claveOrden(b) - claveOrden(a)).slice(0, 3).map((noticia, index) => (
     <Link
       key={index}
-      to={`/noticias/${encodeURIComponent(noticia.titular)}`}
+      to={`/noticias/id/${noticia.id_noticia}`}
       className="min-w-[19rem] min-h-[23rem] md:max-w-[33.33%] bg-blanco text-black shadow rounded-[1rem] p-4 flex-shrink-0 flex flex-col items-center hover:shadow-lg transition-shadow duration-300 no-underline  hover:border-3 hover:border-azul"
     >
       <div className="h-40 w-full bg-gray-300 rounded mb-2 overflow-hidden flex justify-center items-center">

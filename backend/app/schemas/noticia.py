@@ -19,6 +19,8 @@ class NoticiaUpdate(BaseModel):
     dni_administrador: Optional[str] = None
 
 class NoticiaResponse(NoticiaBase):
+    id_noticia: int
+
     class Config:
         orm_mode = True
 

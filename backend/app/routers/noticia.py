@@ -18,6 +18,13 @@ def crear_noticia(noticia: NoticiaCreate, db: Session = Depends(get_db)):
 def listar_noticias(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
     return crud.get_noticias(db, skip, limit)
 
+@router.get("/id/{id_noticia}", response_model=NoticiaResponse)
+def obtener_noticia_por_id(id_noticia: int, db: Session = Depends(get_db)):
+    noticia = crud.get_noticia_by_id(db, id_noticia)
+    if not noticia:
+        raise HTTPException(status_code=404, detail="Noticia no encontrada")
+    return noticia
+
 @router.get("/{titular}", response_model=NoticiaResponse)
 def obtener_noticia(titular: str, db: Session = Depends(get_db)):
     noticia = crud.get_noticia(db, titular)

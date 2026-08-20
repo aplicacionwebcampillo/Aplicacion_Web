@@ -143,7 +143,7 @@ export default function NoticiasMain() {
   {noticiasPagina.map((noticia, idx) => (
     <Link
       key={idx}
-      to={`/noticias/${encodeURIComponent(noticia.titular)}`}
+      to={`/noticias/id/${noticia.id_noticia}`}
       className="no-underline min-w-[19rem] min-h-[23rem] bg-white text-black shadow rounded-lg p-4 flex-shrink-0 bg-blanco rounded-[1rem] flex flex-col items-center hover:shadow-lg transition-shadow duration-300 hover:border-2 hover:border-azul"
     >
       <div className="h-40 w-full bg-gray-300 rounded mb-2 overflow-hidden flex justify-center items-center">

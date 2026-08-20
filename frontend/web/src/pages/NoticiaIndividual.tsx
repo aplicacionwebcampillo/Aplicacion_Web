@@ -12,16 +12,16 @@ interface Noticia {
 }
 
 export default function NoticiaIndividual() {
-  const { titular } = useParams<{ titular: string }>();
+  const { id } = useParams<{ id: string }>();
   const [noticia, setNoticia] = useState<Noticia | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!titular) return;
+    if (!id) return;
 
     setLoading(true);
-    fetch(`https://aplicacion-web-m5oa.onrender.com/noticias/${encodeURIComponent(titular)}`)
+    fetch(`https://aplicacion-web-m5oa.onrender.com/noticias/id/${id}`)
       .then(res => {
         if (!res.ok) throw new Error("Noticia no encontrada");
         return res.json();
@@ -32,7 +32,7 @@ export default function NoticiaIndividual() {
       })
       .catch(err => setError(err.message))
       .finally(() => setLoading(false));
-  }, [titular]);
+  }, [id]);
 
   if (loading) return <p>Cargando noticia...</p>;
   if (error) return <p>Error: {error}</p>;

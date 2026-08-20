@@ -21,6 +21,9 @@ def create_noticia(db: Session, noticia: NoticiaCreate):
 def get_noticia(db: Session, titular: str):
     return db.query(Noticia).filter(Noticia.titular == titular).first()
 
+def get_noticia_by_id(db: Session, id_noticia: int):
+    return db.query(Noticia).filter(Noticia.id_noticia == id_noticia).first()
+
 def get_noticias(db: Session, skip: int = 0, limit: int = 100):
     return db.query(Noticia).offset(skip).limit(limit).all()
 
