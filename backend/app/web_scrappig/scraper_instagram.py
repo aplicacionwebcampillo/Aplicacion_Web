@@ -184,8 +184,8 @@ def obtener_posts_del_perfil(ig_target, session_file):
     concreto, porque Instagram cambia esto con frecuencia)."""
     encontrados = []
     vistos = set()
-    peticiones_vistas = []
     respuestas_con_datos = 0
+    capturas_debug = []  # (url, longitud, nº objetos JSON, fragmento)
 
     with sync_playwright() as p:
         browser = p.firefox.launch(headless=True)
@@ -194,7 +194,6 @@ def obtener_posts_del_perfil(ig_target, session_file):
 
         def al_recibir_respuesta(response):
             nonlocal respuestas_con_datos
-            peticiones_vistas.append(f"{response.status} {response.url}")
             if response.status != 200:
                 return
             # Nos fijamos en el dominio, no en el content-type: los endpoints
@@ -212,8 +211,11 @@ def obtener_posts_del_perfil(ig_target, session_file):
             objetos = _parsear_json_tolerante(texto)
             if objetos:
                 respuestas_con_datos += 1
+            antes = len(encontrados)
             for objeto in objetos:
                 _buscar_posts_recursivo(objeto, encontrados, vistos)
+            if len(encontrados) == antes:
+                capturas_debug.append((response.url, len(texto), len(objetos), texto[:1500]))
 
         page.on("response", al_recibir_respuesta)
         page.goto(f"https://www.instagram.com/{ig_target}/", wait_until="networkidle", timeout=60000)
@@ -225,10 +227,13 @@ def obtener_posts_del_perfil(ig_target, session_file):
                 print(f"[DEBUG] Título de la página: {page.title()}", flush=True)
             except Exception:
                 pass
-            print(f"[DEBUG] {respuestas_con_datos} respuestas JSON parseadas, 0 publicaciones encontradas en ellas", flush=True)
-            interesantes = [u for u in peticiones_vistas if "instagram" in u or "graphql" in u]
-            for u in interesantes[-30:]:
-                print(f"[DEBUG]   {u}", flush=True)
+            print(f"[DEBUG] {respuestas_con_datos} respuestas parseadas como JSON, 0 publicaciones encontradas", flush=True)
+            # Mostramos las respuestas más "grandes" (más probable que sean
+            # las que llevan datos de verdad, no confirmaciones triviales).
+            capturas_debug.sort(key=lambda c: c[1], reverse=True)
+            for url, longitud, n_objetos, fragmento in capturas_debug[:6]:
+                print(f"[DEBUG] --- {url} (len={longitud}, objetos_json={n_objetos}) ---", flush=True)
+                print(f"[DEBUG] {fragmento}", flush=True)
 
         browser.close()
 
