@@ -105,24 +105,86 @@ def crear_noticia(titular, imagen_url, contenido, admin_dni):
         print(f"[ERROR] {resp.status_code} al crear noticia '{titular}': {resp.text}", flush=True)
 
 
-def _extraer_posts(payload):
-    """Busca la lista de publicaciones dentro de la respuesta de
-    web_profile_info, tolerando pequeñas variaciones de formato."""
-    if not isinstance(payload, dict):
-        return []
-    user = (payload.get("data") or {}).get("user") or payload.get("user")
-    if not user:
-        return []
-    timeline = user.get("edge_owner_to_timeline_media") or {}
-    return [edge.get("node", {}) for edge in timeline.get("edges", [])]
+def _parsear_json_tolerante(texto):
+    """Devuelve una lista de objetos JSON encontrados en un cuerpo de
+    respuesta, tolerando el formato "streaming" de Meta: varias líneas,
+    cada una con su propio JSON, a veces con un prefijo anti-hijacking
+    tipo `for (;;);` delante."""
+    texto = (texto or "").strip()
+    if texto.startswith("for (;;);"):
+        texto = texto[len("for (;;);"):]
+
+    objetos = []
+    for linea in texto.splitlines():
+        linea = linea.strip()
+        if not linea:
+            continue
+        try:
+            objetos.append(json.loads(linea))
+        except Exception:
+            continue
+
+    if not objetos:
+        try:
+            objetos.append(json.loads(texto))
+        except Exception:
+            pass
+
+    return objetos
+
+
+def _normalizar_post(node):
+    shortcode = node.get("shortcode")
+    if not shortcode:
+        return None
+
+    display_url = node.get("display_url")
+    if not display_url:
+        candidatos = ((node.get("image_versions2") or {}).get("candidates")) or []
+        if candidatos:
+            display_url = candidatos[0].get("url")
+    if not display_url:
+        return None
+
+    caption = ""
+    caption_edges = (node.get("edge_media_to_caption") or {}).get("edges") or []
+    if caption_edges:
+        caption = caption_edges[0].get("node", {}).get("text", "")
+    elif isinstance(node.get("caption"), dict):
+        caption = node["caption"].get("text", "") or ""
+    elif isinstance(node.get("caption"), str):
+        caption = node["caption"]
+
+    return {"shortcode": shortcode, "display_url": display_url, "caption": caption}
+
+
+def _buscar_posts_recursivo(obj, encontrados, vistos):
+    """Recorre cualquier estructura JSON buscando objetos que tengan
+    pinta de publicación de Instagram (shortcode + imagen), sin asumir
+    en qué campo exacto del payload están anidados. Así no depende de
+    adivinar el esquema de GraphQL que Instagram use en cada momento."""
+    if isinstance(obj, dict):
+        if "shortcode" in obj:
+            post = _normalizar_post(obj)
+            if post and post["shortcode"] not in vistos:
+                vistos.add(post["shortcode"])
+                encontrados.append(post)
+        for valor in obj.values():
+            _buscar_posts_recursivo(valor, encontrados, vistos)
+    elif isinstance(obj, list):
+        for item in obj:
+            _buscar_posts_recursivo(item, encontrados, vistos)
 
 
 def obtener_posts_del_perfil(ig_target, session_file):
     """Abre el perfil con un navegador real (sesión ya autenticada) y
-    captura la respuesta que el propio navegador recibe con los datos del
-    perfil y sus publicaciones."""
-    capturas = []
+    busca publicaciones en cualquiera de las respuestas JSON que el propio
+    navegador reciba mientras carga la página (no se asume un endpoint
+    concreto, porque Instagram cambia esto con frecuencia)."""
+    encontrados = []
+    vistos = set()
     peticiones_vistas = []
+    respuestas_con_datos = 0
 
     with sync_playwright() as p:
         browser = p.firefox.launch(headless=True)
@@ -130,47 +192,46 @@ def obtener_posts_del_perfil(ig_target, session_file):
         page = context.new_page()
 
         def al_recibir_respuesta(response):
+            nonlocal respuestas_con_datos
             peticiones_vistas.append(f"{response.status} {response.url}")
-            if "web_profile_info" in response.url and response.status == 200:
-                try:
-                    capturas.append(response.json())
-                except Exception:
-                    pass
+            content_type = response.headers.get("content-type", "")
+            if response.status != 200 or "json" not in content_type:
+                return
+            try:
+                texto = response.text()
+            except Exception:
+                return
+            objetos = _parsear_json_tolerante(texto)
+            if objetos:
+                respuestas_con_datos += 1
+            for objeto in objetos:
+                _buscar_posts_recursivo(objeto, encontrados, vistos)
 
         page.on("response", al_recibir_respuesta)
         page.goto(f"https://www.instagram.com/{ig_target}/", wait_until="networkidle", timeout=60000)
         page.wait_for_timeout(3000)
 
-        if not capturas:
+        if not encontrados:
             print(f"[DEBUG] URL final tras cargar: {page.url}", flush=True)
             try:
                 print(f"[DEBUG] Título de la página: {page.title()}", flush=True)
             except Exception:
                 pass
+            print(f"[DEBUG] {respuestas_con_datos} respuestas JSON parseadas, 0 publicaciones encontradas en ellas", flush=True)
             interesantes = [u for u in peticiones_vistas if "instagram" in u or "graphql" in u]
-            print(f"[DEBUG] {len(peticiones_vistas)} peticiones vistas en total, mostrando las relevantes:", flush=True)
             for u in interesantes[-30:]:
                 print(f"[DEBUG]   {u}", flush=True)
 
         browser.close()
 
-    if not capturas:
+    if not encontrados:
         print(
-            "[ERROR] No se capturó la respuesta del perfil (posible bloqueo, "
-            "sesión caducada, o Instagram cambió cómo carga los datos)",
+            "[ERROR] No se encontraron publicaciones en ninguna respuesta "
+            "(posible bloqueo, sesión caducada, o cambio de formato)",
             flush=True,
         )
-        return []
 
-    posts = _extraer_posts(capturas[0])
-    if not posts:
-        print(
-            "[ERROR] Se recibió respuesta del perfil pero sin publicaciones "
-            "reconocibles. Claves recibidas: "
-            + json.dumps(list(capturas[0].keys()), ensure_ascii=False),
-            flush=True,
-        )
-    return posts
+    return encontrados
 
 
 def main():
@@ -203,8 +264,7 @@ def main():
             continue
 
         display_url = post.get("display_url")
-        caption_edges = (post.get("edge_media_to_caption") or {}).get("edges") or []
-        caption = caption_edges[0]["node"]["text"] if caption_edges else ""
+        caption = post.get("caption", "")
 
         try:
             img_resp = requests.get(display_url, timeout=30)
