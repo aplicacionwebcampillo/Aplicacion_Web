@@ -74,33 +74,33 @@ def subir_a_cloudinary(imagen_bytes):
     return resp.json()["secure_url"]
 
 
+def _formatear_fecha(taken_at):
+    if not taken_at:
+        return None
+    try:
+        return datetime.fromtimestamp(taken_at, tz=timezone.utc).strftime("%d/%m/%Y")
+    except (OSError, ValueError, OverflowError, TypeError):
+        return None
+
+
 def generar_titular(caption, shortcode, taken_at, titulares_existentes):
     primera_linea = ""
     if caption and caption.strip():
         primera_linea = caption.strip().splitlines()[0]
-    base = primera_linea[:180].strip() or f"Publicación de Instagram ({shortcode})"
+    base = primera_linea[:170].strip() or "Publicación de Instagram"
 
-    titular = base[:200]
+    # La fecha va siempre en el titular (no solo para desambiguar): el
+    # modelo de Noticia no tiene columna de fecha, así que el frontend
+    # ordena la lista de noticias extrayendo esta fecha del titular.
+    fecha_txt = _formatear_fecha(taken_at)
+    sufijo_fecha = f" ({fecha_txt})" if fecha_txt else ""
+    titular = (base[: 200 - len(sufijo_fecha)] + sufijo_fecha)[:200]
+
     if titular not in titulares_existentes:
         return titular
 
-    # Varias publicaciones pueden compartir el mismo pie de foto (p.ej.
-    # "¡¡RENOVADO!!" repetido para cada jugador). Desambiguamos con la
-    # fecha de la publicación, que es legible; el shortcode de Instagram
-    # solo se usa como último recurso si hasta la fecha coincide.
-    fecha_txt = None
-    if taken_at:
-        try:
-            fecha_txt = datetime.fromtimestamp(taken_at, tz=timezone.utc).strftime("%d/%m/%Y")
-        except (OSError, ValueError, OverflowError, TypeError):
-            fecha_txt = None
-
-    if fecha_txt:
-        sufijo = f" ({fecha_txt})"
-        titular = base[: 200 - len(sufijo)] + sufijo
-        if titular not in titulares_existentes:
-            return titular
-
+    # Coincide incluso con la fecha (misma publicación el mismo día, poco
+    # probable) -> el shortcode como último recurso para garantizar unicidad.
     sufijo = f" ({shortcode})"
     return base[: 200 - len(sufijo)] + sufijo
 
@@ -338,19 +338,35 @@ def obtener_posts_del_perfil(ig_target, session_file):
     return encontrados
 
 
+FECHA_DESDE_DEFAULT = "2025-12-30"
+
+
 def main():
     ig_target = os.environ["IG_TARGET_USERNAME"]
     admin_dni = os.environ["NOTICIA_ADMIN_DNI"]
     session_file = os.environ["IG_STORAGE_STATE_FILE"]
     # Sin límite por defecto: se recorren todas las publicaciones vistas
-    # (la deduplicación por shortcode hace que, en ejecuciones posteriores,
-    # solo se creen noticias de las publicaciones realmente nuevas).
+    # dentro del rango de fechas (la deduplicación por shortcode hace que,
+    # en ejecuciones posteriores, solo se creen noticias nuevas).
     max_posts_env = os.environ.get("IG_MAX_POSTS")
     max_posts = int(max_posts_env) if max_posts_env else None
+
+    fecha_desde_str = os.environ.get("IG_FECHA_DESDE", FECHA_DESDE_DEFAULT)
+    fecha_desde_ts = datetime.strptime(fecha_desde_str, "%Y-%m-%d").replace(tzinfo=timezone.utc).timestamp()
 
     print("[INFO] Arrancando importador de Instagram (Playwright)", flush=True)
 
     posts = obtener_posts_del_perfil(ig_target, session_file)
+    if not posts:
+        return
+
+    antes_filtro = len(posts)
+    posts = [p for p in posts if (p.get("taken_at") or 0) >= fecha_desde_ts]
+    print(
+        f"[INFO] {len(posts)} de {antes_filtro} publicaciones están dentro del rango "
+        f"(desde {fecha_desde_str})",
+        flush=True,
+    )
     if not posts:
         return
 

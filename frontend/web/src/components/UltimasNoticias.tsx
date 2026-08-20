@@ -10,6 +10,18 @@ interface Noticia {
   dni_administrador: string;
 }
 
+// Ver el mismo criterio en components/Noticias.tsx: el modelo de Noticia no
+// tiene columna de fecha, así que la extraemos del titular cuando la trae
+// (formato "Título (DD/MM/AAAA)", usado por el importador de Instagram).
+function claveOrden(noticia: Noticia): number {
+  const match = noticia.titular.match(/\((\d{2})\/(\d{2})\/(\d{4})\)\s*$/);
+  if (match) {
+    const [, dd, mm, yyyy] = match;
+    return new Date(Number(yyyy), Number(mm) - 1, Number(dd)).getTime();
+  }
+  return Number(noticia.id_noticia || 0) - 1e15;
+}
+
 export default function UltimasNoticias() {
   const [noticias, setNoticias] = useState<Noticia[]>([]);
   const [loading, setLoading] = useState(true);
@@ -37,7 +49,7 @@ export default function UltimasNoticias() {
 
   <div className="flex justify-center">
    <div className="flex gap-4 overflow-x-auto pb-2 px-2 max-w-full text-center">
-  {noticias.slice(-3).reverse().map((noticia, index) => (
+  {[...noticias].sort((a, b) => claveOrden(b) - claveOrden(a)).slice(0, 3).map((noticia, index) => (
     <Link
       key={index}
       to={`/noticias/${encodeURIComponent(noticia.titular)}`}

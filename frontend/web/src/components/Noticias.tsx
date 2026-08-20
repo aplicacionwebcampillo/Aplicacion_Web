@@ -20,6 +20,20 @@ const CATEGORIAS = [
 ];
 
 
+// El modelo de Noticia no tiene columna de fecha; las noticias importadas
+// de Instagram llevan la fecha de publicación al final del titular, p.ej.
+// "Título (20/07/2026)". La extraemos para poder ordenar por fecha real.
+// Las noticias sin fecha en el título (creadas a mano) se consideran las
+// más antiguas de todas a efectos de orden.
+function claveOrden(noticia: Noticia): number {
+  const match = noticia.titular.match(/\((\d{2})\/(\d{2})\/(\d{4})\)\s*$/);
+  if (match) {
+    const [, dd, mm, yyyy] = match;
+    return new Date(Number(yyyy), Number(mm) - 1, Number(dd)).getTime();
+  }
+  return Number(noticia.id_noticia || 0) - 1e15;
+}
+
 function useWindowWidth() {
   const [width, setWidth] = useState<number | null>(null);
 
@@ -63,8 +77,8 @@ export default function NoticiasMain() {
   const width = useWindowWidth();
   
   const noticiasOrdenadas = [...noticiasFiltradas].sort(
-  (a, b) => Number(b.id_noticia || 0) - Number(a.id_noticia || 0)
-);
+    (a, b) => claveOrden(b) - claveOrden(a)
+  );
 
 
   const totalPaginas = Math.ceil(noticiasOrdenadas.length / NOTICIAS_POR_PAGINA);
