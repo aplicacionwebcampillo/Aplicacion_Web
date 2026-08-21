@@ -11,6 +11,15 @@ class JugadorBase(BaseModel):
     biografia: Optional[str] = None
     dorsal: int
     id_equipo: int
+    nombre_corto: Optional[str] = Field(None, max_length=100)
+    nombre_completo: Optional[str] = Field(None, max_length=150)
+    estado_fichaje: Optional[str] = Field(None, max_length=30)
+    partidos_jugados: int = 0
+    partidos_titular: int = 0
+    minutos: int = 0
+    goles: int = 0
+    tarjetas_amarillas: int = 0
+    tarjetas_rojas: int = 0
 
 
 class JugadorCreate(JugadorBase):
@@ -25,6 +34,15 @@ class JugadorUpdate(BaseModel):
     biografia: Optional[str] = None
     dorsal: Optional[int] = None
     id_equipo: Optional[int] = None
+    nombre_corto: Optional[str] = Field(None, max_length=100)
+    nombre_completo: Optional[str] = Field(None, max_length=150)
+    estado_fichaje: Optional[str] = Field(None, max_length=30)
+    partidos_jugados: Optional[int] = None
+    partidos_titular: Optional[int] = None
+    minutos: Optional[int] = None
+    goles: Optional[int] = None
+    tarjetas_amarillas: Optional[int] = None
+    tarjetas_rojas: Optional[int] = None
 
 
 class JugadorResponse(JugadorBase):
@@ -32,4 +50,3 @@ class JugadorResponse(JugadorBase):
 
     class Config:
         orm_mode = True
-

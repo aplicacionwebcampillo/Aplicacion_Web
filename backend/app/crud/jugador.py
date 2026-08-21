@@ -14,15 +14,7 @@ def _mensaje_integridad(error: IntegrityError) -> str:
 
 
 def create_jugador(db: Session, jugador: JugadorCreate):
-    db_jugador = Jugador(
-        id_equipo=jugador.id_equipo,
-        nombre=jugador.nombre,
-        posicion=jugador.posicion,
-        fecha_nacimiento=jugador.fecha_nacimiento,
-        foto=jugador.foto,
-        biografia=jugador.biografia,
-        dorsal=jugador.dorsal,
-    )
+    db_jugador = Jugador(**jugador.dict())
     try:
         db.add(db_jugador)
         db.commit()
@@ -44,18 +36,11 @@ def update_jugador(db: Session, jugador_nombre: str, jugador_update: JugadorUpda
     if db_jugador is None:
         return None
 
-    if jugador_update.nombre:
-        db_jugador.nombre = jugador_update.nombre
-    if jugador_update.posicion:
-        db_jugador.posicion = jugador_update.posicion
-    if jugador_update.fecha_nacimiento:
-        db_jugador.fecha_nacimiento = jugador_update.fecha_nacimiento
-    if jugador_update.foto:
-        db_jugador.foto = jugador_update.foto
-    if jugador_update.biografia:
-        db_jugador.biografia = jugador_update.biografia
-    if jugador_update.dorsal:
-        db_jugador.dorsal = jugador_update.dorsal
+    # exclude_unset (no "campo con valor verdadero") para que se puedan
+    # guardar valores como 0 goles/tarjetas o cadenas vacías sin que la
+    # comprobación los descarte por ser "falsy".
+    for campo, valor in jugador_update.dict(exclude_unset=True).items():
+        setattr(db_jugador, campo, valor)
 
     try:
         db.commit()
