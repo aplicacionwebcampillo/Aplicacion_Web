@@ -1,8 +1,10 @@
+import os
+
 from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker, Session
 
-DATABASE_URL = "postgresql://admin_bd:swgahQWq1sW7zkhV2LnUUb1gyd8L9yrQ@dpg-d0s75hs9c44c73crr5v0-a.frankfurt-postgres.render.com/aplicacion_web"
+DATABASE_URL = os.environ["DATABASE_URL"]
 
 # Motor de conexión
 engine = create_engine(DATABASE_URL)
