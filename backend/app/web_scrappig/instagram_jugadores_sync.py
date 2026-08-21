@@ -4,8 +4,8 @@ Instagram del club que anuncian fichajes, renovaciones o bajas.
 Reutiliza la obtención de publicaciones de scraper_instagram.py (sesión de
 Playwright ya autenticada). Para cada publicación candidata (cuyo pie de
 foto contiene palabras como "HERE WE GO", "NUEVA INCORPORACIÓN", "FICHAJE",
-"RENOVADO" o "GRACIAS"), se envía el texto y la imagen a la API de Claude
-para clasificarla y extraer los datos:
+"RENOVADO" o "GRACIAS"), se envía el texto y la imagen a la API gratuita de
+Gemini (Google) para clasificarla y extraer los datos:
 
   - El TEXTO del pie de foto indica el tipo de publicación y el nombre del
     jugador.
@@ -35,8 +35,9 @@ Variables de entorno requeridas:
   IG_TARGET_USERNAME    usuario de Instagram del club (sin @)
   IG_STORAGE_STATE_FILE ruta al fichero de sesión (ver
                          instagram_generar_sesion.py)
-  ANTHROPIC_API_KEY     clave de la API de Claude (usada para leer las
-                         imágenes de fichaje/renovación)
+  GEMINI_API_KEY        clave gratuita de la API de Gemini (Google AI
+                         Studio: https://ai.google.dev), usada para leer
+                         las imágenes de fichaje/renovación
 
 Variables opcionales:
   IG_JUGADORES_FECHA_DESDE  publicaciones anteriores a esta fecha
@@ -45,15 +46,16 @@ Variables opcionales:
                             creados. Por defecto 1 (primer equipo Sénior).
 """
 
-import base64
+import json
 import os
 import sys
 import unicodedata
 from datetime import datetime, timezone
 from typing import Literal, Optional
 
-import anthropic
 import requests
+from google import genai
+from google.genai import types
 from pydantic import BaseModel
 
 sys.path.insert(0, os.path.dirname(__file__))
@@ -63,15 +65,15 @@ from scraper_instagram import (  # noqa: E402
     subir_a_cloudinary,
 )
 
-MODEL = "claude-opus-5"
+MODEL = "gemini-3.5-flash"
 FECHA_DESDE_DEFAULT = "2025-12-30"
 ID_EQUIPO_SENIOR_DEFAULT = 1
 POSICION_DEFAULT = "Sin especificar"
 
-# Filtro previo por palabras clave: evita gastar llamadas a Claude en
+# Filtro previo por palabras clave: evita gastar llamadas a Gemini en
 # publicaciones que no son de fichajes/renovaciones/bajas (partidos,
 # patrocinadores, etc.). La clasificación fina (fichaje/renovación/baja/
-# otro) la hace después Claude con el texto completo.
+# otro) la hace después Gemini con el texto completo.
 PALABRAS_CLAVE = [
     "here we go",
     "nueva incorporacion",
@@ -105,7 +107,6 @@ def clasificar_post(client, caption, imagen_bytes, content_type):
     media_type = content_type.split(";")[0].strip() if content_type else "image/jpeg"
     if not media_type.startswith("image/"):
         media_type = "image/jpeg"
-    imagen_b64 = base64.standard_b64encode(imagen_bytes).decode("utf-8")
 
     instrucciones = (
         "Esta es una publicación de Instagram del club de fútbol amateur "
@@ -131,22 +132,18 @@ def clasificar_post(client, caption, imagen_bytes, content_type):
         "\"Delantero\"), o null si no aparece."
     )
 
-    response = client.messages.parse(
+    response = client.models.generate_content(
         model=MODEL,
-        max_tokens=1024,
-        messages=[{
-            "role": "user",
-            "content": [
-                {
-                    "type": "image",
-                    "source": {"type": "base64", "media_type": media_type, "data": imagen_b64},
-                },
-                {"type": "text", "text": instrucciones},
-            ],
-        }],
-        output_format=ClasificacionPost,
+        contents=[
+            instrucciones,
+            types.Part.from_bytes(data=imagen_bytes, mime_type=media_type),
+        ],
+        config=types.GenerateContentConfig(
+            response_mime_type="application/json",
+            response_json_schema=ClasificacionPost.model_json_schema(),
+        ),
     )
-    return response.parsed_output
+    return ClasificacionPost(**json.loads(response.text))
 
 
 def obtener_jugadores_existentes():
@@ -225,7 +222,7 @@ def main():
     if not candidatas:
         return
 
-    client = anthropic.Anthropic()
+    client = genai.Client(api_key=os.environ["GEMINI_API_KEY"])
 
     for post in candidatas:
         shortcode = post.get("shortcode")

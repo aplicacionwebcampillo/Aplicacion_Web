@@ -54,9 +54,10 @@ En **Settings → Secrets and variables → Actions** del repositorio:
 - `IG_TARGET_USERNAME`: usuario de Instagram del club (sin @), si no lo
   tienes ya configurado de antes.
 - `NOTICIA_ADMIN_DNI`: DNI de un administrador existente en la BD.
-- `ANTHROPIC_API_KEY`: solo si vas a usar el sincronizador de plantilla
+- `GEMINI_API_KEY`: solo si vas a usar el sincronizador de plantilla
   (`instagram_jugadores_sync.py`), que necesita leer el dorsal en la imagen
-  de los fichajes/renovaciones.
+  de los fichajes/renovaciones. Se obtiene gratis en
+  https://ai.google.dev (API Keys), sin tarjeta de crédito.
 
 Si tenías secrets antiguos de intentos anteriores (`IG_SESSION_USERNAME`,
 `IG_SESSION_FILE_B64`, `IG_LOGIN_USER`, `IG_LOGIN_PASS`), puedes borrarlos:

@@ -24,7 +24,7 @@ jobs:
 
       - name: Instalar dependencias
         run: |
-          pip install playwright requests anthropic pydantic
+          pip install playwright requests google-genai pydantic
           playwright install firefox
 
       - name: Restaurar sesión de Instagram guardada
@@ -35,6 +35,6 @@ jobs:
         env:
           IG_TARGET_USERNAME: ${{ secrets.IG_TARGET_USERNAME }}
           IG_STORAGE_STATE_FILE: ${{ runner.temp }}/ig_storage_state.json
-          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
           PYTHONUNBUFFERED: "1"
         run: python backend/app/web_scrappig/instagram_jugadores_sync.py
