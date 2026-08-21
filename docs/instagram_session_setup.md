@@ -1,5 +1,10 @@
 # Configurar la sesión de Instagram para el importador de noticias
 
+La misma sesión de Instagram (`IG_STORAGE_STATE_B64` / `IG_TARGET_USERNAME`)
+la usan dos workflows: el importador de noticias (`scraper_instagram.py`) y
+el sincronizador de la plantilla (`instagram_jugadores_sync.py`). No hace
+falta repetir esta configuración por separado para cada uno.
+
 `scraper_instagram.py` usa Playwright (navegador real) con una sesión ya
 autenticada a mano, en vez de hacer login por script. Se probó primero con
 `instaloader` (incluso con cookies de sesión válidas) y Instagram lo seguía
@@ -49,6 +54,9 @@ En **Settings → Secrets and variables → Actions** del repositorio:
 - `IG_TARGET_USERNAME`: usuario de Instagram del club (sin @), si no lo
   tienes ya configurado de antes.
 - `NOTICIA_ADMIN_DNI`: DNI de un administrador existente en la BD.
+- `ANTHROPIC_API_KEY`: solo si vas a usar el sincronizador de plantilla
+  (`instagram_jugadores_sync.py`), que necesita leer el dorsal en la imagen
+  de los fichajes/renovaciones.
 
 Si tenías secrets antiguos de intentos anteriores (`IG_SESSION_USERNAME`,
 `IG_SESSION_FILE_B64`, `IG_LOGIN_USER`, `IG_LOGIN_PASS`), puedes borrarlos:
