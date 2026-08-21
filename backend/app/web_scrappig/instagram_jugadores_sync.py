@@ -247,13 +247,13 @@ def _reportar_fallo(resp, accion, nombre):
         print(f"[ERROR] {resp.status_code} al {accion} '{nombre}': {resp.text}", flush=True)
 
 
-def crear_jugador(nombre, posicion, dorsal, foto, id_equipo):
+def crear_jugador(nombre, posicion, dorsal, foto, id_equipo, biografia=None):
     data = {
         "nombre": nombre,
         "posicion": posicion or POSICION_DEFAULT,
         "fecha_nacimiento": None,
         "foto": foto,
-        "biografia": None,
+        "biografia": biografia,
         "dorsal": dorsal,
         "id_equipo": id_equipo,
     }
@@ -265,10 +265,12 @@ def crear_jugador(nombre, posicion, dorsal, foto, id_equipo):
     return False
 
 
-def actualizar_jugador(nombre_actual, posicion, dorsal, foto):
+def actualizar_jugador(nombre_actual, posicion, dorsal, foto, biografia=None):
     data = {"dorsal": dorsal, "foto": foto}
     if posicion:
         data["posicion"] = posicion
+    if biografia:
+        data["biografia"] = biografia
     resp = requests.put(f"{API_BASE}/jugadores/{nombre_actual}", json=data, timeout=30)
     if resp.status_code == 200:
         print(f"[OK] Jugador actualizado: {nombre_actual} (dorsal {dorsal})", flush=True)
@@ -388,12 +390,13 @@ def main():
                 if foto_url:
                     if jugador_existente:
                         terminado = actualizar_jugador(
-                            jugador_existente["nombre"], clasificacion.posicion, clasificacion.dorsal, foto_url
+                            jugador_existente["nombre"], clasificacion.posicion, clasificacion.dorsal, foto_url,
+                            biografia=caption,
                         )
                     else:
                         terminado = crear_jugador(
                             clasificacion.nombre_jugador, clasificacion.posicion, clasificacion.dorsal,
-                            foto_url, id_equipo,
+                            foto_url, id_equipo, biografia=caption,
                         )
 
         if terminado:
