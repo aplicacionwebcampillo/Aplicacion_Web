@@ -1,4 +1,4 @@
-name: DIAG acta partido RFAF v2
+name: DIAG acta partido RFAF v3
 
 on:
   workflow_dispatch:
@@ -15,4 +15,4 @@ jobs:
       - run: |
           pip install playwright
           playwright install firefox
-      - run: python backend/app/web_scrappig/_diag_acta2.py
+      - run: python backend/app/web_scrappig/_diag_acta3.py
