@@ -49,6 +49,7 @@ Variables opcionales:
 import json
 import os
 import sys
+import time
 import unicodedata
 from datetime import datetime, timezone
 from typing import Literal, Optional
@@ -74,14 +75,23 @@ POSICION_DEFAULT = "Sin especificar"
 # publicaciones que no son de fichajes/renovaciones/bajas (partidos,
 # patrocinadores, etc.). La clasificación fina (fichaje/renovación/baja/
 # otro) la hace después Gemini con el texto completo.
-PALABRAS_CLAVE = [
+PALABRAS_ALTA = [
     "here we go",
     "nueva incorporacion",
     "fichaje",
     "renovado",
     "renovacion",
-    "gracias",
 ]
+
+# La cuota gratuita de Gemini es de solo 5 peticiones/minuto: hay que
+# espaciar las llamadas y reintentar con espera cuando se agota. En una
+# primera prueba real, filtrar solo por "gracias" en cualquier parte del
+# texto disparó falsos positivos constantes (agradecimientos a
+# patrocinadores, aficionados...), así que la baja solo se detecta si la
+# publicación EMPIEZA por "gracias".
+RATE_LIMIT_SLEEP_SECONDS = 13
+REINTENTOS_LIMITE_CUOTA = 3
+ESPERA_TRAS_LIMITE_SEGUNDOS = 35
 
 
 def _normalizar(texto):
@@ -91,9 +101,16 @@ def _normalizar(texto):
     return " ".join(sin_acentos.lower().split())
 
 
+def _es_posible_baja(caption):
+    lineas = [l for l in (caption or "").splitlines() if l.strip()]
+    if not lineas:
+        return False
+    return _normalizar(lineas[0]).startswith("gracias")
+
+
 def es_candidata(caption):
     caption_norm = _normalizar(caption)
-    return any(palabra in caption_norm for palabra in PALABRAS_CLAVE)
+    return any(palabra in caption_norm for palabra in PALABRAS_ALTA) or _es_posible_baja(caption)
 
 
 class ClasificacionPost(BaseModel):
@@ -132,18 +149,30 @@ def clasificar_post(client, caption, imagen_bytes, content_type):
         "\"Delantero\"), o null si no aparece."
     )
 
-    response = client.models.generate_content(
-        model=MODEL,
-        contents=[
-            instrucciones,
-            types.Part.from_bytes(data=imagen_bytes, mime_type=media_type),
-        ],
-        config=types.GenerateContentConfig(
-            response_mime_type="application/json",
-            response_json_schema=ClasificacionPost.model_json_schema(),
-        ),
-    )
-    return ClasificacionPost(**json.loads(response.text))
+    for intento in range(1, REINTENTOS_LIMITE_CUOTA + 1):
+        try:
+            response = client.models.generate_content(
+                model=MODEL,
+                contents=[
+                    instrucciones,
+                    types.Part.from_bytes(data=imagen_bytes, mime_type=media_type),
+                ],
+                config=types.GenerateContentConfig(
+                    response_mime_type="application/json",
+                    response_json_schema=ClasificacionPost.model_json_schema(),
+                ),
+            )
+            return ClasificacionPost(**json.loads(response.text))
+        except Exception as e:
+            limite_alcanzado = "RESOURCE_EXHAUSTED" in str(e) or "429" in str(e)
+            if not limite_alcanzado or intento == REINTENTOS_LIMITE_CUOTA:
+                raise
+            print(
+                f"[INFO] Límite de peticiones de Gemini alcanzado (intento {intento}/"
+                f"{REINTENTOS_LIMITE_CUOTA}), esperando {ESPERA_TRAS_LIMITE_SEGUNDOS}s...",
+                flush=True,
+            )
+            time.sleep(ESPERA_TRAS_LIMITE_SEGUNDOS)
 
 
 def obtener_jugadores_existentes():
@@ -224,7 +253,12 @@ def main():
 
     client = genai.Client(api_key=os.environ["GEMINI_API_KEY"])
 
-    for post in candidatas:
+    for indice, post in enumerate(candidatas):
+        if indice > 0:
+            # La cuota gratuita de Gemini es de solo 5 peticiones/minuto:
+            # espaciamos las llamadas para no agotarla de entrada.
+            time.sleep(RATE_LIMIT_SLEEP_SECONDS)
+
         shortcode = post.get("shortcode")
         caption = post.get("caption", "")
         display_url = post.get("display_url")
