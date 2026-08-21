@@ -1,0 +1,37 @@
+name: Diagnostico lapreferente temporal
+
+on:
+  workflow_dispatch:
+
+jobs:
+  diag:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Instalar dependencias
+        run: pip install requests beautifulsoup4
+      - name: Inspeccionar pagina
+        run: |
+          python3 << 'PY'
+          import requests
+          from bs4 import BeautifulSoup
+
+          url = "https://www.lapreferente.com/E38004/cd-campillo-del-rio-cf"
+          headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"}
+          resp = requests.get(url, headers=headers, timeout=30)
+          print("STATUS:", resp.status_code)
+          print("LEN:", len(resp.text))
+
+          soup = BeautifulSoup(resp.text, "html.parser")
+          print("TITLE:", soup.title.get_text() if soup.title else None)
+
+          tablas = soup.select("table")
+          print(f"Nº de <table>: {len(tablas)}")
+          for i, t in enumerate(tablas):
+              filas = t.select("tr")
+              print(f"--- tabla {i}: {len(filas)} filas, class={t.get('class')} id={t.get('id')} ---")
+
+          # Buscamos bloques que parezcan filas de jugador
+          for i, t in enumerate(tablas[:6]):
+              print(f"\n===== FRAGMENTO TABLA {i} =====")
+              print(str(t)[:3000])
+          PY
