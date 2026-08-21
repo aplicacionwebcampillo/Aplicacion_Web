@@ -6,7 +6,7 @@ from typing import Optional
 class JugadorBase(BaseModel):
     nombre: str = Field(..., max_length=100)
     posicion: str = Field(..., max_length=50)
-    fecha_nacimiento: date
+    fecha_nacimiento: Optional[date] = None
     foto: Optional[str] = None
     biografia: Optional[str] = None
     dorsal: int

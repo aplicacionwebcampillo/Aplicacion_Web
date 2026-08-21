@@ -8,7 +8,7 @@ class Jugador(Base):
     id_equipo = Column(Integer, ForeignKey("equipo.id_equipo", ondelete="SET NULL"), nullable=False)
     nombre = Column(String(100), nullable=False)
     posicion = Column(String(50), nullable=False)
-    fecha_nacimiento = Column(Date, nullable=False)
+    fecha_nacimiento = Column(Date, nullable=True)
     foto = Column(String(255))
     biografia = Column(Text)
     dorsal = Column(Integer, nullable=False)
