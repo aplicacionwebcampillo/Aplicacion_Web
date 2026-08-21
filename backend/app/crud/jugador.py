@@ -1,8 +1,17 @@
+from fastapi import HTTPException
 from sqlalchemy.orm import Session
 from app import models, schemas
 from sqlalchemy.exc import IntegrityError
 from app.models.jugador import Jugador
 from app.schemas.jugador import JugadorCreate, JugadorUpdate
+
+
+def _mensaje_integridad(error: IntegrityError) -> str:
+    # Los triggers de la BD (p.ej. validar_dorsal_unico) lanzan un mensaje
+    # legible en la primera línea de la excepción original; el resto es
+    # contexto interno de PL/pgSQL que no aporta nada al usuario.
+    return str(error.orig).splitlines()[0] if error.orig else str(error)
+
 
 def create_jugador(db: Session, jugador: JugadorCreate):
     db_jugador = Jugador(
@@ -17,11 +26,11 @@ def create_jugador(db: Session, jugador: JugadorCreate):
     try:
         db.add(db_jugador)
         db.commit()
-        db.refresh(db_jugador) 
+        db.refresh(db_jugador)
         return db_jugador
-    except IntegrityError:
-        db.rollback()  
-        raise Exception("Error al crear el jugador, es posible que el equipo no exista.")
+    except IntegrityError as e:
+        db.rollback()
+        raise HTTPException(status_code=409, detail=_mensaje_integridad(e))
 
 def get_jugador(db: Session, jugador_nombre: str):
     return db.query(Jugador).filter(Jugador.nombre == jugador_nombre).first()
@@ -48,7 +57,11 @@ def update_jugador(db: Session, jugador_nombre: str, jugador_update: JugadorUpda
     if jugador_update.dorsal:
         db_jugador.dorsal = jugador_update.dorsal
 
-    db.commit()
+    try:
+        db.commit()
+    except IntegrityError as e:
+        db.rollback()
+        raise HTTPException(status_code=409, detail=_mensaje_integridad(e))
     db.refresh(db_jugador)
     return db_jugador
 
