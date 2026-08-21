@@ -25,11 +25,18 @@ Reglas de negocio (indicadas por el club):
 
 El emparejamiento con jugadores ya existentes se hace por nombre
 normalizado (sin acentos, en minúsculas), igual que ya hace la API (los
-endpoints de jugador están indexados por nombre). Por eso no hace falta
-guardar una marca de "ya procesado" por publicación: si se vuelve a
-procesar la misma publicación, el resultado converge al mismo estado
-(alta/actualización si el jugador no existe o ya existe con esos mismos
-datos; baja si el jugador ya no existe, no hace nada).
+endpoints de jugador están indexados por nombre).
+
+La cuota gratuita de Gemini es limitada (incluso por DÍA, no solo por
+minuto), así que sí hace falta recordar qué publicaciones ya se
+clasificaron: se guarda en jugadores_procesados.json (junto a este script,
+en el propio repositorio) para no volver a gastar cuota reclasificando lo
+mismo en cada ejecución y así, con el tiempo, llegar a procesar todo el
+histórico aunque cada ejecución solo alcance a unas pocas. El workflow de
+GitHub Actions hace commit de ese fichero tras cada ejecución. Una
+publicación NO se marca como procesada si el fallo es recuperable (fallo de
+red, límite de cuota, o un dorsal ya usado por OTRO jugador que requiere
+revisión manual): esas se reintentan en la siguiente ejecución.
 
 Variables de entorno requeridas:
   IG_TARGET_USERNAME    usuario de Instagram del club (sin @)
@@ -44,6 +51,9 @@ Variables opcionales:
                             (YYYY-MM-DD) se ignoran. Por defecto 2025-12-30.
   ID_EQUIPO_SENIOR          id_equipo al que pertenecen los jugadores
                             creados. Por defecto 1 (primer equipo Sénior).
+  IG_JUGADORES_ESTADO_FILE  ruta del fichero de progreso (publicaciones ya
+                            procesadas). Por defecto
+                            data/instagram_jugadores_procesados.json.
 """
 
 import json
@@ -92,6 +102,32 @@ PALABRAS_ALTA = [
 RATE_LIMIT_SLEEP_SECONDS = 13
 REINTENTOS_LIMITE_CUOTA = 3
 ESPERA_TRAS_LIMITE_SEGUNDOS = 35
+
+# Fuera de backend/ y frontend/ a propósito: Render vigila esas carpetas
+# para redesplegar automáticamente, y este fichero de estado (que el
+# workflow actualiza y sube en cada ejecución) no debería disparar un
+# redespliegue del backend cada vez.
+ESTADO_FILE = os.environ.get("IG_JUGADORES_ESTADO_FILE", "data/instagram_jugadores_procesados.json")
+
+
+class CuotaDiariaAgotada(Exception):
+    """La cuota gratuita DIARIA de Gemini se ha agotado: reintentar con
+    espera no sirve de nada hasta el día siguiente, hay que parar ya."""
+
+
+def _cargar_procesados():
+    try:
+        with open(ESTADO_FILE, encoding="utf-8") as f:
+            return set(json.load(f))
+    except (FileNotFoundError, json.JSONDecodeError):
+        return set()
+
+
+def _guardar_procesados(procesados):
+    os.makedirs(os.path.dirname(ESTADO_FILE) or ".", exist_ok=True)
+    with open(ESTADO_FILE, "w", encoding="utf-8") as f:
+        json.dump(sorted(procesados), f, ensure_ascii=False, indent=2)
+        f.write("\n")
 
 
 def _normalizar(texto):
@@ -164,7 +200,12 @@ def clasificar_post(client, caption, imagen_bytes, content_type):
             )
             return ClasificacionPost(**json.loads(response.text))
         except Exception as e:
-            limite_alcanzado = "RESOURCE_EXHAUSTED" in str(e) or "429" in str(e)
+            mensaje = str(e)
+            if "PerDay" in mensaje:
+                # Cuota DIARIA agotada: reintentar con espera no tiene
+                # sentido (no se libera hasta el día siguiente).
+                raise CuotaDiariaAgotada(mensaje) from e
+            limite_alcanzado = "RESOURCE_EXHAUSTED" in mensaje or "429" in mensaje
             if not limite_alcanzado or intento == REINTENTOS_LIMITE_CUOTA:
                 raise
             print(
@@ -194,6 +235,18 @@ def buscar_jugador(nombre_buscado, jugadores):
     return None
 
 
+def _reportar_fallo(resp, accion, nombre):
+    if resp.status_code == 409:
+        # Conflicto real de datos (p.ej. dorsal ya usado por OTRO jugador):
+        # no se reintenta solo, necesita revisión manual (¿el jugador
+        # anterior con ese dorsal se ha ido y falta su baja? ¿Gemini leyó
+        # mal el número?). Se deja sin marcar como procesado para que
+        # siga apareciendo en cada ejecución hasta que se resuelva.
+        print(f"[SKIP] Conflicto al {accion} '{nombre}', revisión manual necesaria: {resp.text}", flush=True)
+    else:
+        print(f"[ERROR] {resp.status_code} al {accion} '{nombre}': {resp.text}", flush=True)
+
+
 def crear_jugador(nombre, posicion, dorsal, foto, id_equipo):
     data = {
         "nombre": nombre,
@@ -207,8 +260,9 @@ def crear_jugador(nombre, posicion, dorsal, foto, id_equipo):
     resp = requests.post(f"{API_BASE}/jugadores/", json=data, timeout=30)
     if resp.status_code in (200, 201):
         print(f"[OK] Jugador creado: {nombre} (dorsal {dorsal})", flush=True)
-    else:
-        print(f"[ERROR] {resp.status_code} al crear jugador '{nombre}': {resp.text}", flush=True)
+        return True
+    _reportar_fallo(resp, "crear jugador", nombre)
+    return False
 
 
 def actualizar_jugador(nombre_actual, posicion, dorsal, foto):
@@ -218,8 +272,9 @@ def actualizar_jugador(nombre_actual, posicion, dorsal, foto):
     resp = requests.put(f"{API_BASE}/jugadores/{nombre_actual}", json=data, timeout=30)
     if resp.status_code == 200:
         print(f"[OK] Jugador actualizado: {nombre_actual} (dorsal {dorsal})", flush=True)
-    else:
-        print(f"[ERROR] {resp.status_code} al actualizar jugador '{nombre_actual}': {resp.text}", flush=True)
+        return True
+    _reportar_fallo(resp, "actualizar jugador", nombre_actual)
+    return False
 
 
 def eliminar_jugador(nombre_actual):
@@ -247,21 +302,30 @@ def main():
     posts = [p for p in posts if (p.get("taken_at") or 0) >= fecha_desde_ts]
     posts.sort(key=lambda p: p.get("taken_at") or 0)
     candidatas = [p for p in posts if es_candidata(p.get("caption"))]
-    print(f"[INFO] {len(candidatas)} publicaciones candidatas de {len(posts)} en rango", flush=True)
-    if not candidatas:
+
+    procesados = _cargar_procesados()
+    pendientes = [p for p in candidatas if p.get("shortcode") not in procesados]
+    print(
+        f"[INFO] {len(candidatas)} publicaciones candidatas de {len(posts)} en rango "
+        f"({len(candidatas) - len(pendientes)} ya procesadas en ejecuciones anteriores, "
+        f"{len(pendientes)} pendientes)",
+        flush=True,
+    )
+    if not pendientes:
         return
 
     client = genai.Client(api_key=os.environ["GEMINI_API_KEY"])
 
-    for indice, post in enumerate(candidatas):
+    for indice, post in enumerate(pendientes):
         if indice > 0:
-            # La cuota gratuita de Gemini es de solo 5 peticiones/minuto:
-            # espaciamos las llamadas para no agotarla de entrada.
+            # La cuota gratuita de Gemini también tiene un límite por
+            # minuto: espaciamos las llamadas para no agotarla de entrada.
             time.sleep(RATE_LIMIT_SLEEP_SECONDS)
 
         shortcode = post.get("shortcode")
         caption = post.get("caption", "")
         display_url = post.get("display_url")
+        terminado = False  # solo True si esta publicación no necesita reintentarse
 
         try:
             img_resp = requests.get(display_url, timeout=30)
@@ -274,6 +338,14 @@ def main():
             clasificacion = clasificar_post(
                 client, caption, img_resp.content, img_resp.headers.get("Content-Type")
             )
+        except CuotaDiariaAgotada:
+            print(
+                "[FIN] Cuota diaria gratuita de Gemini agotada: se retoma en la siguiente "
+                f"ejecución programada. Procesadas {indice}/{len(pendientes)} publicaciones "
+                "pendientes en esta ejecución.",
+                flush=True,
+            )
+            break
         except Exception as e:
             print(f"[ERROR] No se pudo clasificar {shortcode}: {e}", flush=True)
             continue
@@ -281,43 +353,52 @@ def main():
         print(f"[INFO] {shortcode}: {clasificacion}", flush=True)
 
         if clasificacion.tipo == "otro" or not clasificacion.nombre_jugador:
-            continue
-
-        # Se recarga en cada iteración para reflejar altas/bajas ya hechas
-        # en publicaciones anteriores de esta misma ejecución.
-        jugadores_existentes = obtener_jugadores_existentes()
-        jugador_existente = buscar_jugador(clasificacion.nombre_jugador, jugadores_existentes)
-
-        if clasificacion.tipo == "baja":
-            if jugador_existente:
-                eliminar_jugador(jugador_existente["nombre"])
-            else:
-                print(f"[SKIP] Baja de '{clasificacion.nombre_jugador}': no hay jugador con ese nombre", flush=True)
-            continue
-
-        # fichaje o renovación
-        if clasificacion.dorsal is None:
-            print(
-                f"[SKIP] '{clasificacion.nombre_jugador}': sin dorsal legible en la imagen, "
-                "no se guarda hasta que se conozca",
-                flush=True,
-            )
-            continue
-
-        try:
-            foto_url = subir_a_cloudinary(img_resp.content)
-        except Exception as e:
-            print(f"[ERROR] No se pudo subir la imagen de {shortcode} a Cloudinary: {e}", flush=True)
-            continue
-
-        if jugador_existente:
-            actualizar_jugador(
-                jugador_existente["nombre"], clasificacion.posicion, clasificacion.dorsal, foto_url
-            )
+            terminado = True
         else:
-            crear_jugador(
-                clasificacion.nombre_jugador, clasificacion.posicion, clasificacion.dorsal, foto_url, id_equipo
-            )
+            # Se recarga en cada iteración para reflejar altas/bajas ya
+            # hechas en publicaciones anteriores de esta misma ejecución.
+            jugadores_existentes = obtener_jugadores_existentes()
+            jugador_existente = buscar_jugador(clasificacion.nombre_jugador, jugadores_existentes)
+
+            if clasificacion.tipo == "baja":
+                if jugador_existente:
+                    eliminar_jugador(jugador_existente["nombre"])
+                else:
+                    print(
+                        f"[SKIP] Baja de '{clasificacion.nombre_jugador}': no hay jugador con ese nombre",
+                        flush=True,
+                    )
+                terminado = True
+
+            elif clasificacion.dorsal is None:
+                print(
+                    f"[SKIP] '{clasificacion.nombre_jugador}': sin dorsal legible en la imagen, "
+                    "no se guarda hasta que se conozca",
+                    flush=True,
+                )
+                terminado = True
+
+            else:
+                try:
+                    foto_url = subir_a_cloudinary(img_resp.content)
+                except Exception as e:
+                    print(f"[ERROR] No se pudo subir la imagen de {shortcode} a Cloudinary: {e}", flush=True)
+                    foto_url = None
+
+                if foto_url:
+                    if jugador_existente:
+                        terminado = actualizar_jugador(
+                            jugador_existente["nombre"], clasificacion.posicion, clasificacion.dorsal, foto_url
+                        )
+                    else:
+                        terminado = crear_jugador(
+                            clasificacion.nombre_jugador, clasificacion.posicion, clasificacion.dorsal,
+                            foto_url, id_equipo,
+                        )
+
+        if terminado:
+            procesados.add(shortcode)
+            _guardar_procesados(procesados)
 
     print("[FIN] Sincronización de plantilla completada.", flush=True)
 

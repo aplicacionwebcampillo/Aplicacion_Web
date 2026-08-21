@@ -8,6 +8,9 @@ on:
     # noticias, para no competir por la misma sesión de Instagram a la vez).
     - cron: '0 9 */3 * *'
 
+permissions:
+  contents: write
+
 jobs:
   jugadores:
     runs-on: ubuntu-latest
@@ -38,3 +41,22 @@ jobs:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
           PYTHONUNBUFFERED: "1"
         run: python backend/app/web_scrappig/instagram_jugadores_sync.py
+
+      - name: Guardar progreso de la sincronización
+        # Se ejecuta también si el paso anterior falla a medio camino (p.ej.
+        # límite de cuota), para no perder el progreso ya conseguido.
+        if: always()
+        run: |
+          if [ -f data/instagram_jugadores_procesados.json ]; then
+            git add data/instagram_jugadores_procesados.json
+            if git diff --cached --quiet; then
+              echo "Sin cambios en el progreso, nada que subir."
+            else
+              git config user.name "github-actions[bot]"
+              git config user.email "github-actions[bot]@users.noreply.github.com"
+              git commit -m "Actualizar progreso del sincronizador de plantilla [skip ci]"
+              git push
+            fi
+          else
+            echo "No se generó fichero de progreso en esta ejecución."
+          fi
