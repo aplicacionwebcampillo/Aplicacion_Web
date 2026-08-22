@@ -80,3 +80,31 @@ obtenido correctamente, N publicaciones vistas`.
 Si la sesión caduca o Instagram la invalida, el script lo indicará con
 `[ERROR] No se capturó la respuesta del perfil...`. Si pasa, repite los
 pasos 2-4 para generar una sesión nueva.
+
+## Alternativa: si Instagram rechaza el login en `instagram_generar_sesion.py`
+
+A veces Instagram no deja iniciar sesión en ningún navegador "nuevo" que no
+reconoce -- incógnito, otro navegador, o la ventana que abre Playwright --
+mostrando un falso "contraseña incorrecta" aunque sea correcta, mientras que
+en tu navegador de siempre (el que usas a diario) sí funciona. Esto no es un
+bloqueo de la cuenta, es que Instagram solo confía en contextos de navegador
+con historial ya establecido.
+
+En ese caso, en vez de intentar iniciar sesión de nuevo en ningún sitio,
+reutiliza la sesión que ya tienes autenticada en tu navegador de confianza:
+
+1. En ese navegador, instala una extensión para exportar cookies, por
+   ejemplo **Cookie-Editor** (Chrome/Firefox).
+2. Con https://www.instagram.com abierto y logueado, abre la extensión y
+   exporta las cookies del sitio como JSON (botón "Export" → "Export as
+   JSON"). Guarda ese contenido en un fichero, por ejemplo
+   `cookies_instagram.json`.
+3. Conviértelo al formato que necesita el sincronizador:
+   ```bash
+   python backend/app/web_scrappig/instagram_cookies_a_sesion.py \
+       cookies_instagram.json ig_storage_state.json
+   ```
+4. Sigue desde el paso 3 de más arriba (codificar en base64 y actualizar el
+   secret `IG_STORAGE_STATE_B64`).
+5. Borra `cookies_instagram.json` e `ig_storage_state.json` al terminar --
+   dan acceso completo a la cuenta, igual que la contraseña.
