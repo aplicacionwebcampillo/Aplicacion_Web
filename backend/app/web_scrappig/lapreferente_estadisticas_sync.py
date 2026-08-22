@@ -93,7 +93,10 @@ def extraer_jugadores(html):
         if indice_celda_nombre is not None and indice_celda_nombre + 1 < len(celdas):
             posicion = celdas[indice_celda_nombre + 1].get_text(" ", strip=True) or None
 
-        _edad, pj, pt, minutos, goles, ta, tr = (c.get_text(" ", strip=True) for c in celdas[-7:])
+        # Las 7 últimas celdas son Edad, PJ, PT, Min, Goles, TA, TR. Los
+        # minutos se descartan: lapreferente los marca siempre a 0, no es
+        # un dato real.
+        _edad, pj, pt, _minutos, goles, ta, tr = (c.get_text(" ", strip=True) for c in celdas[-7:])
 
         jugadores.append({
             "nombre_corto": nombre_corto,
@@ -102,7 +105,6 @@ def extraer_jugadores(html):
             "estado_fichaje": estado,
             "partidos_jugados": _a_entero(pj),
             "partidos_titular": _a_entero(pt),
-            "minutos": _a_entero(minutos),
             "goles": _a_entero(goles),
             "tarjetas_amarillas": _a_entero(ta),
             "tarjetas_rojas": _a_entero(tr),

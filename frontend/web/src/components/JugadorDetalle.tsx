@@ -15,7 +15,6 @@ interface Jugador {
   estado_fichaje: string | null;
   partidos_jugados: number;
   partidos_titular: number;
-  minutos: number;
   goles: number;
   tarjetas_amarillas: number;
   tarjetas_rojas: number;
@@ -112,7 +111,6 @@ export default function JugadorDetalle() {
           <tr className="border-b-2 border-negro_texto">
             <th className="p-1">PJ</th>
             <th className="p-1">Titular</th>
-            <th className="p-1">Min</th>
             <th className="p-1">Goles</th>
             <th className="p-1">TA</th>
             <th className="p-1">TR</th>
@@ -122,7 +120,6 @@ export default function JugadorDetalle() {
           <tr>
             <td className="p-1">{jugador.partidos_jugados}</td>
             <td className="p-1">{jugador.partidos_titular}</td>
-            <td className="p-1">{jugador.minutos}</td>
             <td className="p-1">{jugador.goles}</td>
             <td className="p-1">{jugador.tarjetas_amarillas}</td>
             <td className="p-1">{jugador.tarjetas_rojas}</td>

@@ -28,7 +28,6 @@ interface Jugador {
   estado_fichaje: string | null;
   partidos_jugados: number;
   partidos_titular: number;
-  minutos: number;
   goles: number;
   tarjetas_amarillas: number;
   tarjetas_rojas: number;

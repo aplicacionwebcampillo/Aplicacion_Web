@@ -16,7 +16,6 @@ class JugadorBase(BaseModel):
     estado_fichaje: Optional[str] = Field(None, max_length=30)
     partidos_jugados: int = 0
     partidos_titular: int = 0
-    minutos: int = 0
     goles: int = 0
     tarjetas_amarillas: int = 0
     tarjetas_rojas: int = 0
@@ -39,7 +38,6 @@ class JugadorUpdate(BaseModel):
     estado_fichaje: Optional[str] = Field(None, max_length=30)
     partidos_jugados: Optional[int] = None
     partidos_titular: Optional[int] = None
-    minutos: Optional[int] = None
     goles: Optional[int] = None
     tarjetas_amarillas: Optional[int] = None
     tarjetas_rojas: Optional[int] = None
