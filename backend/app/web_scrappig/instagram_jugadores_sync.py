@@ -235,6 +235,26 @@ def buscar_jugador(nombre_buscado, jugadores):
     return None
 
 
+def buscar_jugador_por_dorsal(nombre_buscado, dorsal, id_equipo, jugadores):
+    # Respaldo cuando el nombre completo no coincide (apodos tipo "Alex"
+    # por "Alejandro", "Fran" por "Francisco", "Kike" por "Enrique"...): si
+    # ese dorsal ya lo tiene otro jugador del mismo equipo Y comparten al
+    # menos una palabra del nombre (normalmente el apellido), se trata de
+    # la misma persona. Sin esa coincidencia de palabra NO se asume: podría
+    # ser un dorsal reciclado de un jugador distinto que se fue sin que
+    # capturáramos su baja.
+    tokens_buscado = set(_normalizar(nombre_buscado).split())
+    if not tokens_buscado:
+        return None
+    for jugador in jugadores:
+        if jugador.get("dorsal") != dorsal or jugador.get("id_equipo") != id_equipo:
+            continue
+        tokens_candidato = set(_normalizar(jugador.get("nombre")).split())
+        if tokens_buscado & tokens_candidato:
+            return jugador
+    return None
+
+
 def _reportar_fallo(resp, accion, nombre):
     if resp.status_code == 409:
         # Conflicto real de datos (p.ej. dorsal ya usado por OTRO jugador):
@@ -361,6 +381,23 @@ def main():
             # hechas en publicaciones anteriores de esta misma ejecución.
             jugadores_existentes = obtener_jugadores_existentes()
             jugador_existente = buscar_jugador(clasificacion.nombre_jugador, jugadores_existentes)
+
+            if (
+                not jugador_existente
+                and clasificacion.tipo in ("fichaje", "renovacion")
+                and clasificacion.dorsal is not None
+            ):
+                por_dorsal = buscar_jugador_por_dorsal(
+                    clasificacion.nombre_jugador, clasificacion.dorsal, id_equipo, jugadores_existentes
+                )
+                if por_dorsal:
+                    print(
+                        f"[INFO] '{clasificacion.nombre_jugador}' no coincide por nombre, pero el dorsal "
+                        f"{clasificacion.dorsal} ya lo tiene '{por_dorsal['nombre']}': se trata como el "
+                        "mismo jugador",
+                        flush=True,
+                    )
+                    jugador_existente = por_dorsal
 
             if clasificacion.tipo == "baja":
                 if jugador_existente:

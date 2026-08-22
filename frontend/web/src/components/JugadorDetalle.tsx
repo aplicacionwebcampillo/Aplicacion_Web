@@ -20,6 +20,11 @@ interface Jugador {
   tarjetas_rojas: number;
 }
 
+// Dorsales especiales que no son jugadores de campo (entrenador, segundo
+// entrenador, delegado de equipo): no tiene sentido mostrarles dorsal ni
+// estadísticas de partidos/goles/tarjetas.
+const DORSALES_CUERPO_TECNICO = [0, 26, 27, 28];
+
 export default function JugadorDetalle() {
   const { id } = useParams<{ id: string }>();
   const [jugador, setJugador] = useState<Jugador | null>(null);
@@ -60,8 +65,8 @@ export default function JugadorDetalle() {
     className="max-h-[20rem] md:max-h-[30rem] w-auto max-w-full object-contain rounded-lg shadow-md"
   />
 
-      <div className="flex justify-center px-4">
-  <div className="flex flex-col gap-4 max-w-3xl w-full md:w-[50%]">
+      <div className="flex justify-center px-4 w-full min-w-0 md:flex-1">
+  <div className="flex flex-col gap-4 max-w-3xl w-full min-w-0">
     {/* Nombre */}
     <h1 className="text-3xl font-bold mb-1 text-center font-poetsen">
       {jugador.nombre_completo || jugador.nombre}
@@ -86,7 +91,7 @@ export default function JugadorDetalle() {
     </p>
 
     {/* Dorsal */}
-    {![0, 26, 27, 28].includes(jugador.dorsal) && (
+    {!DORSALES_CUERPO_TECNICO.includes(jugador.dorsal) && (
   <p>
     <strong>Dorsal:</strong>{" "}
     <span className="text-negro_texto">{jugador.dorsal}</span>
@@ -104,29 +109,31 @@ export default function JugadorDetalle() {
       </p>
     )}
 
-    {/* Estadísticas de la temporada */}
-    <div className="overflow-x-auto">
-      <table className="w-full text-center border-collapse">
-        <thead>
-          <tr className="border-b-2 border-negro_texto">
-            <th className="p-1">PJ</th>
-            <th className="p-1">Titular</th>
-            <th className="p-1">Goles</th>
-            <th className="p-1">TA</th>
-            <th className="p-1">TR</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td className="p-1">{jugador.partidos_jugados}</td>
-            <td className="p-1">{jugador.partidos_titular}</td>
-            <td className="p-1">{jugador.goles}</td>
-            <td className="p-1">{jugador.tarjetas_amarillas}</td>
-            <td className="p-1">{jugador.tarjetas_rojas}</td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
+    {/* Estadísticas de la temporada (no aplica al cuerpo técnico) */}
+    {!DORSALES_CUERPO_TECNICO.includes(jugador.dorsal) && (
+      <div className="overflow-x-auto max-w-full">
+        <table className="w-full text-center border-collapse">
+          <thead>
+            <tr className="border-b-2 border-negro_texto">
+              <th className="p-1">PJ</th>
+              <th className="p-1">Titular</th>
+              <th className="p-1">Goles</th>
+              <th className="p-1">TA</th>
+              <th className="p-1">TR</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td className="p-1">{jugador.partidos_jugados}</td>
+              <td className="p-1">{jugador.partidos_titular}</td>
+              <td className="p-1">{jugador.goles}</td>
+              <td className="p-1">{jugador.tarjetas_amarillas}</td>
+              <td className="p-1">{jugador.tarjetas_rojas}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    )}
 
     {/* Biografía */}
     <p className="text-justify text-negro_texto font-poetsen leading-relaxed">
