@@ -1,12 +1,12 @@
 from fastapi import HTTPException
 from sqlalchemy.orm import Session
 from app import models, schemas
-from sqlalchemy.exc import IntegrityError
+from sqlalchemy.exc import DBAPIError
 from app.models.jugador import Jugador
 from app.schemas.jugador import JugadorCreate, JugadorUpdate
 
 
-def _mensaje_integridad(error: IntegrityError) -> str:
+def _mensaje_integridad(error: DBAPIError) -> str:
     # Los triggers de la BD (p.ej. validar_dorsal_unico) lanzan un mensaje
     # legible en la primera línea de la excepción original; el resto es
     # contexto interno de PL/pgSQL que no aporta nada al usuario.
@@ -20,7 +20,7 @@ def create_jugador(db: Session, jugador: JugadorCreate):
         db.commit()
         db.refresh(db_jugador)
         return db_jugador
-    except IntegrityError as e:
+    except DBAPIError as e:
         db.rollback()
         raise HTTPException(status_code=409, detail=_mensaje_integridad(e))
 
@@ -44,7 +44,7 @@ def update_jugador(db: Session, jugador_nombre: str, jugador_update: JugadorUpda
 
     try:
         db.commit()
-    except IntegrityError as e:
+    except DBAPIError as e:
         db.rollback()
         raise HTTPException(status_code=409, detail=_mensaje_integridad(e))
     db.refresh(db_jugador)
