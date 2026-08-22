@@ -10,6 +10,15 @@ interface Jugador {
   dorsal: number | null;
   id_equipo: number;
   id_jugador?: number;
+  nombre_corto?: string | null;
+  nombre_completo?: string | null;
+  estado_fichaje?: string | null;
+  partidos_jugados?: number;
+  partidos_titular?: number;
+  minutos?: number;
+  goles?: number;
+  tarjetas_amarillas?: number;
+  tarjetas_rojas?: number;
 }
 
 export default function Jugadores() {

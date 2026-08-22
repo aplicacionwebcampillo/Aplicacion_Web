@@ -5,11 +5,20 @@ interface Jugador {
   id_jugador: number;
   nombre: string;
   posicion: string;
-  fecha_nacimiento: string;
+  fecha_nacimiento: string | null;
   foto: string;
   biografia: string;
   dorsal: number;
   id_equipo: number;
+  nombre_corto: string | null;
+  nombre_completo: string | null;
+  estado_fichaje: string | null;
+  partidos_jugados: number;
+  partidos_titular: number;
+  minutos: number;
+  goles: number;
+  tarjetas_amarillas: number;
+  tarjetas_rojas: number;
 }
 
 export default function JugadorDetalle() {
@@ -49,15 +58,27 @@ export default function JugadorDetalle() {
   <img
     src={jugador.foto || "/images/PorDefecto.png"}
     alt={jugador.nombre}
-    className="h-[20rem] md:h-[30rem] w-auto object-cover rounded-lg shadow-md"
+    className="max-h-[20rem] md:max-h-[30rem] w-auto max-w-full object-contain rounded-lg shadow-md"
   />
-  
+
       <div className="flex justify-center px-4">
   <div className="flex flex-col gap-4 max-w-3xl w-full md:w-[50%]">
     {/* Nombre */}
-    <h1 className="text-3xl font-bold mb-4 text-center font-poetsen">
-      {jugador.nombre}
+    <h1 className="text-3xl font-bold mb-1 text-center font-poetsen">
+      {jugador.nombre_completo || jugador.nombre}
     </h1>
+    {jugador.nombre_corto && jugador.nombre_corto !== jugador.nombre_completo && (
+      <p className="text-center text-negro_texto -mt-3">"{jugador.nombre_corto}"</p>
+    )}
+
+    {/* Estado de fichaje/renovación */}
+    {jugador.estado_fichaje && (
+      <p className="text-center">
+        <span className="inline-block bg-azul text-white text-sm px-3 py-1 rounded-full">
+          {jugador.estado_fichaje}
+        </span>
+      </p>
+    )}
 
     {/* Posición */}
     <p>
@@ -75,12 +96,40 @@ export default function JugadorDetalle() {
 
 
     {/* Fecha de nacimiento */}
-    <p>
-      <strong>Fecha de nacimiento:</strong>{" "}
-      <span className="text-negro_texto">
-        {new Date(jugador.fecha_nacimiento).toLocaleDateString()}
-      </span>
-    </p>
+    {jugador.fecha_nacimiento && (
+      <p>
+        <strong>Fecha de nacimiento:</strong>{" "}
+        <span className="text-negro_texto">
+          {new Date(jugador.fecha_nacimiento).toLocaleDateString()}
+        </span>
+      </p>
+    )}
+
+    {/* Estadísticas de la temporada */}
+    <div className="overflow-x-auto">
+      <table className="w-full text-center border-collapse">
+        <thead>
+          <tr className="border-b-2 border-negro_texto">
+            <th className="p-1">PJ</th>
+            <th className="p-1">Titular</th>
+            <th className="p-1">Min</th>
+            <th className="p-1">Goles</th>
+            <th className="p-1">TA</th>
+            <th className="p-1">TR</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td className="p-1">{jugador.partidos_jugados}</td>
+            <td className="p-1">{jugador.partidos_titular}</td>
+            <td className="p-1">{jugador.minutos}</td>
+            <td className="p-1">{jugador.goles}</td>
+            <td className="p-1">{jugador.tarjetas_amarillas}</td>
+            <td className="p-1">{jugador.tarjetas_rojas}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
 
     {/* Biografía */}
     <p className="text-justify text-negro_texto font-poetsen leading-relaxed">
@@ -93,4 +142,3 @@ export default function JugadorDetalle() {
     </section>
   );
 }
-

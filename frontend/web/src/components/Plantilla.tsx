@@ -18,11 +18,20 @@ interface Jugador {
   id_jugador: number;
   nombre: string;
   posicion: string;
-  fecha_nacimiento: string;
+  fecha_nacimiento: string | null;
   foto: string;
   biografia: string;
   dorsal: number;
   id_equipo: number;
+  nombre_corto: string | null;
+  nombre_completo: string | null;
+  estado_fichaje: string | null;
+  partidos_jugados: number;
+  partidos_titular: number;
+  minutos: number;
+  goles: number;
+  tarjetas_amarillas: number;
+  tarjetas_rojas: number;
 }
 
 const CATEGORIAS_EQUIPO = [
