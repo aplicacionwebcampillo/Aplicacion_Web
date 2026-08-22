@@ -17,14 +17,17 @@ para clasificarla y extraer los datos:
 
 Como la cuota gratuita de cada proveedor de IA es limitada (incluso por
 DÍA, no solo por minuto), se usa una CASCADA de proveedores: Gemini →
-Groq → Mistral, en ese orden. En cuanto un proveedor agota su cuota, el
-resto de la ejecución sigue automáticamente con el siguiente, sin
-intervención humana — así una sola ejecución puede llegar a cubrir todo lo
-pendiente en vez de depender de la cuota de uno solo. Solo se usan los
-proveedores cuya clave esté configurada (basta con GEMINI_API_KEY para que
-funcione; GROQ_API_KEY y MISTRAL_API_KEY son opcionales, para ampliar la
-cascada). Si TODOS los proveedores configurados se quedan sin cuota en la
-misma ejecución, se para limpio y se retoma en la siguiente.
+Mistral, en ese orden. En cuanto un proveedor agota su cuota, el resto de
+la ejecución sigue automáticamente con el siguiente, sin intervención
+humana — así una sola ejecución puede llegar a cubrir todo lo pendiente en
+vez de depender de la cuota de uno solo. Solo se usan los proveedores cuya
+clave esté configurada (basta con GEMINI_API_KEY para que funcione;
+MISTRAL_API_KEY es opcional, para ampliar la cascada). Si TODOS los
+proveedores configurados se quedan sin cuota en la misma ejecución, se
+para limpio y se retoma en la siguiente.
+
+(Se probó también Groq como tercer proveedor, pero ninguno de los modelos
+disponibles en una cuenta gratuita tiene visión: se descartó.)
 
 Reglas de negocio (indicadas por el club):
   - Si no se puede determinar el dorsal, el jugador NO se guarda (ni se crea
@@ -57,16 +60,11 @@ Variables de entorno requeridas:
                          de la cascada.
 
 Variables opcionales:
-  GROQ_API_KEY              clave gratuita de Groq (https://console.groq.com).
+  MISTRAL_API_KEY           clave gratuita de Mistral (https://console.mistral.ai).
                              Segundo proveedor de la cascada, si está
                              configurada.
-  GROQ_MODEL                modelo de Groq a usar. Por defecto
-                             meta-llama/llama-4-scout-17b-16e-instruct.
-  MISTRAL_API_KEY           clave gratuita de Mistral (https://console.mistral.ai).
-                             Tercer proveedor de la cascada, si está
-                             configurada.
   MISTRAL_MODEL              modelo de Mistral a usar. Por defecto
-                             pixtral-large-latest.
+                             mistral-small-latest.
   IG_JUGADORES_FECHA_DESDE  publicaciones anteriores a esta fecha
                             (YYYY-MM-DD) se ignoran. Por defecto 2025-12-30.
   ID_EQUIPO_SENIOR          id_equipo al que pertenecen los jugadores
@@ -98,8 +96,7 @@ from scraper_instagram import (  # noqa: E402
 )
 
 GEMINI_MODEL = "gemini-3.5-flash"
-GROQ_MODEL_DEFAULT = "meta-llama/llama-4-scout-17b-16e-instruct"
-MISTRAL_MODEL_DEFAULT = "pixtral-large-latest"
+MISTRAL_MODEL_DEFAULT = "mistral-small-latest"
 FECHA_DESDE_DEFAULT = "2025-12-30"
 ID_EQUIPO_SENIOR_DEFAULT = 1
 POSICION_DEFAULT = "Sin especificar"
@@ -125,7 +122,7 @@ PALABRAS_ALTA = [
 # entre llamadas para no agotarlo de entrada. Gemini es el más estricto
 # (5 peticiones/minuto observadas); para el resto, un margen prudente
 # mientras no se demuestre lo contrario con uso real.
-PAUSA_POR_PROVEEDOR = {"Gemini": 13, "Groq": 3, "Mistral": 3}
+PAUSA_POR_PROVEEDOR = {"Gemini": 13, "Mistral": 3}
 PAUSA_POR_DEFECTO = 5
 
 REINTENTOS_LIMITE_CUOTA = 3
@@ -265,10 +262,12 @@ def _segundos_de_reintento(resp):
 
 
 def _clasificar_openai_compatible(url, api_key, modelo, caption, imagen_bytes, media_type):
-    """Groq y Mistral exponen una API de chat compatible con el formato de
-    OpenAI (mensajes con bloques de texto + image_url en base64). Se usa
-    request directo en vez de instalar el SDK propio de cada uno, para no
-    depender de una sintaxis de cliente que no se puede verificar aquí."""
+    """Mistral expone una API de chat compatible con el formato de OpenAI
+    (mensajes con bloques de texto + image_url en base64). Se usa request
+    directo en vez de instalar el SDK propio, para no depender de una
+    sintaxis de cliente que no se puede verificar aquí. Escrita de forma
+    genérica (recibe la URL) por si en el futuro se añade otro proveedor
+    compatible."""
     imagen_b64 = base64.standard_b64encode(imagen_bytes).decode("utf-8")
     instrucciones = _construir_instrucciones(caption)
     payload = {
@@ -320,16 +319,6 @@ class Clasificador:
         if gemini_key:
             self._proveedores.append(("Gemini", lambda c, b, m: _clasificar_gemini(gemini_key, c, b, m)))
 
-        groq_key = os.environ.get("GROQ_API_KEY")
-        if groq_key:
-            groq_modelo = os.environ.get("GROQ_MODEL", GROQ_MODEL_DEFAULT)
-            self._proveedores.append((
-                "Groq",
-                lambda c, b, m: _clasificar_openai_compatible(
-                    "https://api.groq.com/openai/v1/chat/completions", groq_key, groq_modelo, c, b, m
-                ),
-            ))
-
         mistral_key = os.environ.get("MISTRAL_API_KEY")
         if mistral_key:
             mistral_modelo = os.environ.get("MISTRAL_MODEL", MISTRAL_MODEL_DEFAULT)
@@ -342,8 +331,7 @@ class Clasificador:
 
         if not self._proveedores:
             raise RuntimeError(
-                "No hay ninguna clave de proveedor configurada "
-                "(GEMINI_API_KEY / GROQ_API_KEY / MISTRAL_API_KEY)"
+                "No hay ninguna clave de proveedor configurada (GEMINI_API_KEY / MISTRAL_API_KEY)"
             )
 
         self._indice = 0
