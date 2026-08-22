@@ -4,8 +4,8 @@ Instagram del club que anuncian fichajes, renovaciones o bajas.
 Reutiliza la obtención de publicaciones de scraper_instagram.py (sesión de
 Playwright ya autenticada). Para cada publicación candidata (cuyo pie de
 foto contiene palabras como "HERE WE GO", "NUEVA INCORPORACIÓN", "FICHAJE",
-"RENOVADO" o "GRACIAS"), se envía el texto y la imagen a la API gratuita de
-Gemini (Google) para clasificarla y extraer los datos:
+"RENOVADO" o "GRACIAS"), se envía el texto y la imagen a una IA con visión
+para clasificarla y extraer los datos:
 
   - El TEXTO del pie de foto indica el tipo de publicación y el nombre del
     jugador.
@@ -14,6 +14,17 @@ Gemini (Google) para clasificarla y extraer los datos:
   - La foto del jugador es la imagen completa de la publicación (no un
     recorte), subida a Cloudinary para que no dependa de la URL temporal de
     Instagram.
+
+Como la cuota gratuita de cada proveedor de IA es limitada (incluso por
+DÍA, no solo por minuto), se usa una CASCADA de proveedores: Gemini →
+Groq → Mistral, en ese orden. En cuanto un proveedor agota su cuota, el
+resto de la ejecución sigue automáticamente con el siguiente, sin
+intervención humana — así una sola ejecución puede llegar a cubrir todo lo
+pendiente en vez de depender de la cuota de uno solo. Solo se usan los
+proveedores cuya clave esté configurada (basta con GEMINI_API_KEY para que
+funcione; GROQ_API_KEY y MISTRAL_API_KEY son opcionales, para ampliar la
+cascada). Si TODOS los proveedores configurados se quedan sin cuota en la
+misma ejecución, se para limpio y se retoma en la siguiente.
 
 Reglas de negocio (indicadas por el club):
   - Si no se puede determinar el dorsal, el jugador NO se guarda (ni se crea
@@ -24,29 +35,38 @@ Reglas de negocio (indicadas por el club):
     elimina al jugador si existe.
 
 El emparejamiento con jugadores ya existentes se hace por nombre
-normalizado (sin acentos, en minúsculas), igual que ya hace la API (los
-endpoints de jugador están indexados por nombre).
+normalizado (sin acentos, en minúsculas, y aceptando apodos si comparten
+alguna palabra con un jugador que ya tenga ese mismo dorsal), igual que ya
+hace la API (los endpoints de jugador están indexados por nombre).
 
-La cuota gratuita de Gemini es limitada (incluso por DÍA, no solo por
-minuto), así que sí hace falta recordar qué publicaciones ya se
-clasificaron: se guarda en jugadores_procesados.json (junto a este script,
-en el propio repositorio) para no volver a gastar cuota reclasificando lo
-mismo en cada ejecución y así, con el tiempo, llegar a procesar todo el
-histórico aunque cada ejecución solo alcance a unas pocas. El workflow de
-GitHub Actions hace commit de ese fichero tras cada ejecución. Una
-publicación NO se marca como procesada si el fallo es recuperable (fallo de
-red, límite de cuota, o un dorsal ya usado por OTRO jugador que requiere
-revisión manual): esas se reintentan en la siguiente ejecución.
+Hace falta recordar qué publicaciones ya se clasificaron: se guarda en
+data/instagram_jugadores_procesados.json (fuera de backend/, para no
+disparar un redespliegue del backend) para no volver a gastar cuota
+reclasificando lo mismo en cada ejecución. El workflow de GitHub Actions
+hace commit de ese fichero tras cada ejecución. Una publicación NO se marca
+como procesada si el fallo es recuperable (fallo de red, límite de cuota, o
+un dorsal ya usado por OTRO jugador que requiere revisión manual): esas se
+reintentan en la siguiente ejecución.
 
 Variables de entorno requeridas:
   IG_TARGET_USERNAME    usuario de Instagram del club (sin @)
   IG_STORAGE_STATE_FILE ruta al fichero de sesión (ver
                          instagram_generar_sesion.py)
   GEMINI_API_KEY        clave gratuita de la API de Gemini (Google AI
-                         Studio: https://ai.google.dev), usada para leer
-                         las imágenes de fichaje/renovación
+                         Studio: https://ai.google.dev). Primer proveedor
+                         de la cascada.
 
 Variables opcionales:
+  GROQ_API_KEY              clave gratuita de Groq (https://console.groq.com).
+                             Segundo proveedor de la cascada, si está
+                             configurada.
+  GROQ_MODEL                modelo de Groq a usar. Por defecto
+                             meta-llama/llama-4-scout-17b-16e-instruct.
+  MISTRAL_API_KEY           clave gratuita de Mistral (https://console.mistral.ai).
+                             Tercer proveedor de la cascada, si está
+                             configurada.
+  MISTRAL_MODEL              modelo de Mistral a usar. Por defecto
+                             pixtral-large-latest.
   IG_JUGADORES_FECHA_DESDE  publicaciones anteriores a esta fecha
                             (YYYY-MM-DD) se ignoran. Por defecto 2025-12-30.
   ID_EQUIPO_SENIOR          id_equipo al que pertenecen los jugadores
@@ -56,6 +76,7 @@ Variables opcionales:
                             data/instagram_jugadores_procesados.json.
 """
 
+import base64
 import json
 import os
 import sys
@@ -76,15 +97,17 @@ from scraper_instagram import (  # noqa: E402
     subir_a_cloudinary,
 )
 
-MODEL = "gemini-3.5-flash"
+GEMINI_MODEL = "gemini-3.5-flash"
+GROQ_MODEL_DEFAULT = "meta-llama/llama-4-scout-17b-16e-instruct"
+MISTRAL_MODEL_DEFAULT = "pixtral-large-latest"
 FECHA_DESDE_DEFAULT = "2025-12-30"
 ID_EQUIPO_SENIOR_DEFAULT = 1
 POSICION_DEFAULT = "Sin especificar"
 
-# Filtro previo por palabras clave: evita gastar llamadas a Gemini en
+# Filtro previo por palabras clave: evita gastar llamadas a la IA en
 # publicaciones que no son de fichajes/renovaciones/bajas (partidos,
 # patrocinadores, etc.). La clasificación fina (fichaje/renovación/baja/
-# otro) la hace después Gemini con el texto completo.
+# otro) la hace después la IA con el texto completo.
 PALABRAS_ALTA = [
     "here we go",
     "nueva incorporacion",
@@ -93,13 +116,18 @@ PALABRAS_ALTA = [
     "renovacion",
 ]
 
-# La cuota gratuita de Gemini es de solo 5 peticiones/minuto: hay que
-# espaciar las llamadas y reintentar con espera cuando se agota. En una
-# primera prueba real, filtrar solo por "gracias" en cualquier parte del
-# texto disparó falsos positivos constantes (agradecimientos a
+# En una primera prueba real, filtrar solo por "gracias" en cualquier
+# parte del texto disparó falsos positivos constantes (agradecimientos a
 # patrocinadores, aficionados...), así que la baja solo se detecta si la
 # publicación EMPIEZA por "gracias".
-RATE_LIMIT_SLEEP_SECONDS = 13
+
+# Cada proveedor gratuito tiene su propio límite por minuto: se espera
+# entre llamadas para no agotarlo de entrada. Gemini es el más estricto
+# (5 peticiones/minuto observadas); para el resto, un margen prudente
+# mientras no se demuestre lo contrario con uso real.
+PAUSA_POR_PROVEEDOR = {"Gemini": 13, "Groq": 3, "Mistral": 3}
+PAUSA_POR_DEFECTO = 5
+
 REINTENTOS_LIMITE_CUOTA = 3
 ESPERA_TRAS_LIMITE_SEGUNDOS = 35
 
@@ -110,9 +138,14 @@ ESPERA_TRAS_LIMITE_SEGUNDOS = 35
 ESTADO_FILE = os.environ.get("IG_JUGADORES_ESTADO_FILE", "data/instagram_jugadores_procesados.json")
 
 
-class CuotaDiariaAgotada(Exception):
-    """La cuota gratuita DIARIA de Gemini se ha agotado: reintentar con
-    espera no sirve de nada hasta el día siguiente, hay que parar ya."""
+class ProveedorAgotado(Exception):
+    """La cuota gratuita del proveedor de IA actual (por minuto o por día)
+    se ha agotado: hay que pasar al siguiente proveedor de la cascada."""
+
+
+class TodosLosProveedoresAgotados(Exception):
+    """Se han agotado las cuotas de TODOS los proveedores configurados:
+    no queda nada que hacer hasta que alguna cuota se libere."""
 
 
 def _cargar_procesados():
@@ -156,12 +189,8 @@ class ClasificacionPost(BaseModel):
     posicion: Optional[str] = None
 
 
-def clasificar_post(client, caption, imagen_bytes, content_type):
-    media_type = content_type.split(";")[0].strip() if content_type else "image/jpeg"
-    if not media_type.startswith("image/"):
-        media_type = "image/jpeg"
-
-    instrucciones = (
+def _construir_instrucciones(caption):
+    return (
         "Esta es una publicación de Instagram del club de fútbol amateur "
         "Campillo del Río CF. El pie de foto (texto) suele indicar de qué "
         "jugador se trata y si es un fichaje, una renovación o una "
@@ -171,7 +200,11 @@ def clasificar_post(client, caption, imagen_bytes, content_type):
         "siempre solo aparece en la imagen, no en el texto: míralo con "
         "atención en el gráfico.\n\n"
         f"Texto de la publicación:\n{caption or '(sin texto)'}\n\n"
-        "Clasifica la publicación:\n"
+        "Clasifica la publicación y responde ÚNICAMENTE con un objeto JSON "
+        "con esta forma exacta, sin texto ni bloques de código alrededor:\n"
+        '{"tipo": "fichaje"|"renovacion"|"baja"|"otro", '
+        '"nombre_jugador": string|null, "dorsal": integer|null, '
+        '"posicion": string|null}\n\n'
         "- tipo: \"fichaje\" (nuevo jugador), \"renovacion\" (jugador que ya "
         "estaba y renueva), \"baja\" (despedida de un jugador) u \"otro\" "
         "(no trata sobre un jugador concreto, ej. resultado de partido, "
@@ -185,10 +218,15 @@ def clasificar_post(client, caption, imagen_bytes, content_type):
         "\"Delantero\"), o null si no aparece."
     )
 
+
+def _clasificar_gemini(api_key, caption, imagen_bytes, media_type):
+    client = genai.Client(api_key=api_key)
+    instrucciones = _construir_instrucciones(caption)
+
     for intento in range(1, REINTENTOS_LIMITE_CUOTA + 1):
         try:
             response = client.models.generate_content(
-                model=MODEL,
+                model=GEMINI_MODEL,
                 contents=[
                     instrucciones,
                     types.Part.from_bytes(data=imagen_bytes, mime_type=media_type),
@@ -204,16 +242,128 @@ def clasificar_post(client, caption, imagen_bytes, content_type):
             if "PerDay" in mensaje:
                 # Cuota DIARIA agotada: reintentar con espera no tiene
                 # sentido (no se libera hasta el día siguiente).
-                raise CuotaDiariaAgotada(mensaje) from e
+                raise ProveedorAgotado(mensaje) from e
             limite_alcanzado = "RESOURCE_EXHAUSTED" in mensaje or "429" in mensaje
-            if not limite_alcanzado or intento == REINTENTOS_LIMITE_CUOTA:
+            if not limite_alcanzado:
                 raise
+            if intento == REINTENTOS_LIMITE_CUOTA:
+                raise ProveedorAgotado(mensaje) from e
             print(
                 f"[INFO] Límite de peticiones de Gemini alcanzado (intento {intento}/"
                 f"{REINTENTOS_LIMITE_CUOTA}), esperando {ESPERA_TRAS_LIMITE_SEGUNDOS}s...",
                 flush=True,
             )
             time.sleep(ESPERA_TRAS_LIMITE_SEGUNDOS)
+
+
+def _segundos_de_reintento(resp):
+    valor = resp.headers.get("Retry-After") or resp.headers.get("retry-after")
+    try:
+        return float(valor)
+    except (TypeError, ValueError):
+        return None
+
+
+def _clasificar_openai_compatible(url, api_key, modelo, caption, imagen_bytes, media_type):
+    """Groq y Mistral exponen una API de chat compatible con el formato de
+    OpenAI (mensajes con bloques de texto + image_url en base64). Se usa
+    request directo en vez de instalar el SDK propio de cada uno, para no
+    depender de una sintaxis de cliente que no se puede verificar aquí."""
+    imagen_b64 = base64.standard_b64encode(imagen_bytes).decode("utf-8")
+    instrucciones = _construir_instrucciones(caption)
+    payload = {
+        "model": modelo,
+        "temperature": 0,
+        "response_format": {"type": "json_object"},
+        "messages": [{
+            "role": "user",
+            "content": [
+                {"type": "text", "text": instrucciones},
+                {"type": "image_url", "image_url": {"url": f"data:{media_type};base64,{imagen_b64}"}},
+            ],
+        }],
+    }
+
+    for intento in range(1, REINTENTOS_LIMITE_CUOTA + 1):
+        resp = requests.post(
+            url,
+            headers={"Authorization": f"Bearer {api_key}", "Content-Type": "application/json"},
+            json=payload,
+            timeout=30,
+        )
+        if resp.status_code == 429:
+            if intento == REINTENTOS_LIMITE_CUOTA:
+                raise ProveedorAgotado(resp.text)
+            espera = _segundos_de_reintento(resp) or ESPERA_TRAS_LIMITE_SEGUNDOS
+            print(
+                f"[INFO] 429 recibido (intento {intento}/{REINTENTOS_LIMITE_CUOTA}), "
+                f"esperando {espera}s...",
+                flush=True,
+            )
+            time.sleep(espera)
+            continue
+        resp.raise_for_status()
+        contenido = resp.json()["choices"][0]["message"]["content"]
+        return ClasificacionPost(**json.loads(contenido))
+
+
+class Clasificador:
+    """Cascada de proveedores de IA con visión: se prueba con el primero
+    configurado y, en cuanto agota su cuota, se pasa automáticamente al
+    siguiente para el resto de la ejecución (no se vuelve a intentar el
+    proveedor agotado hasta la siguiente ejecución)."""
+
+    def __init__(self):
+        self._proveedores = []
+
+        gemini_key = os.environ.get("GEMINI_API_KEY")
+        if gemini_key:
+            self._proveedores.append(("Gemini", lambda c, b, m: _clasificar_gemini(gemini_key, c, b, m)))
+
+        groq_key = os.environ.get("GROQ_API_KEY")
+        if groq_key:
+            groq_modelo = os.environ.get("GROQ_MODEL", GROQ_MODEL_DEFAULT)
+            self._proveedores.append((
+                "Groq",
+                lambda c, b, m: _clasificar_openai_compatible(
+                    "https://api.groq.com/openai/v1/chat/completions", groq_key, groq_modelo, c, b, m
+                ),
+            ))
+
+        mistral_key = os.environ.get("MISTRAL_API_KEY")
+        if mistral_key:
+            mistral_modelo = os.environ.get("MISTRAL_MODEL", MISTRAL_MODEL_DEFAULT)
+            self._proveedores.append((
+                "Mistral",
+                lambda c, b, m: _clasificar_openai_compatible(
+                    "https://api.mistral.ai/v1/chat/completions", mistral_key, mistral_modelo, c, b, m
+                ),
+            ))
+
+        if not self._proveedores:
+            raise RuntimeError(
+                "No hay ninguna clave de proveedor configurada "
+                "(GEMINI_API_KEY / GROQ_API_KEY / MISTRAL_API_KEY)"
+            )
+
+        self._indice = 0
+        print(
+            f"[INFO] Cascada de proveedores configurada: {[n for n, _ in self._proveedores]}",
+            flush=True,
+        )
+
+    def proveedor_actual(self):
+        return self._proveedores[self._indice][0]
+
+    def clasificar(self, caption, imagen_bytes, media_type):
+        while self._indice < len(self._proveedores):
+            nombre, funcion = self._proveedores[self._indice]
+            try:
+                return funcion(caption, imagen_bytes, media_type)
+            except ProveedorAgotado:
+                print(f"[INFO] Cuota de {nombre} agotada: pasando al siguiente proveedor...", flush=True)
+                self._indice += 1
+        raise TodosLosProveedoresAgotados()
 
 
 def obtener_jugadores_existentes():
@@ -299,6 +449,13 @@ def actualizar_jugador(nombre_actual, posicion, dorsal, foto, biografia=None):
     return False
 
 
+def _media_type(content_type):
+    media_type = content_type.split(";")[0].strip() if content_type else "image/jpeg"
+    if not media_type.startswith("image/"):
+        media_type = "image/jpeg"
+    return media_type
+
+
 def eliminar_jugador(nombre_actual):
     resp = requests.delete(f"{API_BASE}/jugadores/{nombre_actual}", timeout=30)
     if resp.status_code == 200:
@@ -336,13 +493,14 @@ def main():
     if not pendientes:
         return
 
-    client = genai.Client(api_key=os.environ["GEMINI_API_KEY"])
+    clasificador = Clasificador()
 
     for indice, post in enumerate(pendientes):
         if indice > 0:
-            # La cuota gratuita de Gemini también tiene un límite por
-            # minuto: espaciamos las llamadas para no agotarla de entrada.
-            time.sleep(RATE_LIMIT_SLEEP_SECONDS)
+            # Cada proveedor gratuito tiene su propio límite por minuto:
+            # espaciamos las llamadas según cuál esté activo ahora mismo.
+            pausa = PAUSA_POR_PROVEEDOR.get(clasificador.proveedor_actual(), PAUSA_POR_DEFECTO)
+            time.sleep(pausa)
 
         shortcode = post.get("shortcode")
         caption = post.get("caption", "")
@@ -357,14 +515,14 @@ def main():
             continue
 
         try:
-            clasificacion = clasificar_post(
-                client, caption, img_resp.content, img_resp.headers.get("Content-Type")
+            clasificacion = clasificador.clasificar(
+                caption, img_resp.content, _media_type(img_resp.headers.get("Content-Type"))
             )
-        except CuotaDiariaAgotada:
+        except TodosLosProveedoresAgotados:
             print(
-                "[FIN] Cuota diaria gratuita de Gemini agotada: se retoma en la siguiente "
-                f"ejecución programada. Procesadas {indice}/{len(pendientes)} publicaciones "
-                "pendientes en esta ejecución.",
+                "[FIN] Todos los proveedores de IA configurados han agotado su cuota: se "
+                f"retoma en la siguiente ejecución programada. Procesadas {indice}/{len(pendientes)} "
+                "publicaciones pendientes en esta ejecución.",
                 flush=True,
             )
             break
