@@ -1,28 +1,41 @@
-"""Diagnóstico temporal: lista los modelos disponibles en Groq y Mistral
-con la clave configurada, para encontrar el ID real de un modelo con
-visión (en vez de adivinarlo)."""
+"""Diagnóstico temporal: prueba varios modelos candidatos de Mistral con
+una imagen, para ver cuál acepta contenido de tipo image_url."""
 
 import os
 
 import requests
 
-
-def listar(nombre, url, api_key):
-    if not api_key:
-        print(f"[SKIP] {nombre}: no hay clave configurada", flush=True)
-        return
-    resp = requests.get(url, headers={"Authorization": f"Bearer {api_key}"}, timeout=30)
-    print(f"[INFO] {nombre} -> status {resp.status_code}", flush=True)
-    if resp.status_code != 200:
-        print(f"[INFO] cuerpo: {resp.text[:500]}", flush=True)
-        return
-    datos = resp.json().get("data", [])
-    ids = sorted(d.get("id", "") for d in datos)
-    print(f"[INFO] {len(ids)} modelos disponibles:", flush=True)
-    for id_modelo in ids:
-        print(f"   {id_modelo}", flush=True)
+PIXEL_ROJO_PNG_B64 = (
+    "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY42YAAAAASUVORK5CYII="
+)
 
 
-listar("Groq", "https://api.groq.com/openai/v1/models", os.environ.get("GROQ_API_KEY"))
-print()
-listar("Mistral", "https://api.mistral.ai/v1/models", os.environ.get("MISTRAL_API_KEY"))
+def probar(modelo, api_key):
+    payload = {
+        "model": modelo,
+        "temperature": 0,
+        "messages": [{
+            "role": "user",
+            "content": [
+                {"type": "text", "text": "¿De qué color es esta imagen? Responde solo con el color."},
+                {"type": "image_url", "image_url": {"url": f"data:image/png;base64,{PIXEL_ROJO_PNG_B64}"}},
+            ],
+        }],
+    }
+    resp = requests.post(
+        "https://api.mistral.ai/v1/chat/completions",
+        headers={"Authorization": f"Bearer {api_key}"},
+        json=payload,
+        timeout=30,
+    )
+    print(f"[INFO] {modelo} -> status {resp.status_code}", flush=True)
+    print(f"[INFO] cuerpo: {resp.text[:600]}", flush=True)
+    print(flush=True)
+
+
+api_key = os.environ.get("MISTRAL_API_KEY")
+if not api_key:
+    print("[SKIP] no hay MISTRAL_API_KEY configurada", flush=True)
+else:
+    for modelo in ("mistral-small-latest", "mistral-medium-latest", "mistral-large-latest"):
+        probar(modelo, api_key)
