@@ -1,10 +1,8 @@
-"""Acción puntual: primero inspecciona la estructura real de tablas de la
-ficha de la final de Copa de la temporada pasada (para confirmar si el
-selector de producción `table.table.table-bordered.table-striped.table-hover`
-la encuentra), y después ejecuta la extracción real de producción
-(procesar_jornada, de scraper.py) contra esa misma ficha, para comprobar de
-extremo a extremo que la extracción del acta y el guardado en la BD
-funcionan. Se borra tras usarlo."""
+"""Acción puntual: inspecciona fila a fila la tabla de partidos de la ficha
+de la final de Copa de la temporada pasada (para entender por qué
+procesar_jornada revienta con IndexError al extraer equipos_info), y luego
+ejecuta la extracción real de producción (procesar_jornada, de scraper.py)
+contra esa misma ficha. Se borra tras usarlo."""
 import asyncio
 import sys
 
@@ -38,20 +36,20 @@ async def main():
         content = await page.content()
         soup = BeautifulSoup(content, "html.parser")
 
-        tablas = soup.find_all("table")
-        print(f"[INFO] Tablas encontradas en la página: {len(tablas)}", flush=True)
-        for i, t in enumerate(tablas):
-            print(f"  - Tabla {i}: class={t.get('class')} id={t.get('id')} filas={len(t.select('tr'))}", flush=True)
-
-        selector_produccion = soup.select_one("table.table.table-bordered.table-striped.table-hover")
-        print(
-            f"[INFO] ¿El selector de producción encuentra una tabla? "
-            f"{'SÍ' if selector_produccion else 'NO'}",
-            flush=True,
-        )
+        tabla_partidos = soup.select_one("table.table-bordered.table-striped")
+        for i, row in enumerate(tabla_partidos.select("tbody tr")):
+            columnas = row.select("td")
+            print(f"[FILA {i}] num_columnas={len(columnas)}", flush=True)
+            for j, col in enumerate(columnas):
+                print(f"    col[{j}] stripped_strings={list(col.stripped_strings)!r}", flush=True)
+            if not columnas:
+                print(f"    (fila sin <td>) html={row!s}"[:600], flush=True)
 
         print("[INFO] Ejecutando procesar_jornada (producción) contra la misma URL...", flush=True)
-        await procesar_jornada(page, URL_FINAL)
+        try:
+            await procesar_jornada(page, URL_FINAL)
+        except Exception as e:
+            print(f"[ERROR] procesar_jornada falló: {e!r}", flush=True)
 
         await browser.close()
 
