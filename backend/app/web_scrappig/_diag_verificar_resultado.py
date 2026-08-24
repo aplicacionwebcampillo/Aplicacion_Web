@@ -1,14 +1,17 @@
-"""Acción puntual: el usuario dice que el resultado guardado para la final
-(C.D. CANENA ATLETICO 1-5 C.D. CAMPILLO DEL RÍO C.F.) no es correcto.
-Vuelca el HTML crudo de la celda de resultado de la ficha real para
-verificar cuál es el marcador correcto, en vez de fiarnos del orden de
-stripped_strings. Se borra tras usarlo."""
+"""Acción puntual: el resultado guardado para la final (C.D. CANENA ATLETICO
+X-Y C.D. CAMPILLO DEL RÍO C.F.) se extrajo con JavaScript deshabilitado, y el
+marcador de esta ficha se pinta mediante iconos de fuente ofuscados que solo
+se resuelven ejecutando JS (ver el <script>ntype(...)</script> en el HTML).
+Sin JS el texto extraído no es fiable. Esta vez se activa JS, se espera a que
+el marcador se pinte, y se hace una captura de pantalla de esa zona para leer
+el resultado real a simple vista (en vez de fiarnos de un parseo de texto que
+ya ha demostrado ser poco fiable). Se borra tras usarlo."""
 import asyncio
+import base64
 import sys
 
 sys.path.insert(0, "backend/app/web_scrappig")
 
-from bs4 import BeautifulSoup  # noqa: E402
 from playwright.async_api import async_playwright  # noqa: E402
 
 URL_FINAL = (
@@ -25,31 +28,23 @@ async def main():
             args=["--disable-gpu", "--disable-dev-shm-usage", "--no-sandbox"],
             timeout=60000,
         )
-        context = await browser.new_context(java_script_enabled=False)
+        # JS habilitado (por defecto) para que se resuelva el marcador ofuscado.
+        context = await browser.new_context()
         page = await context.new_page()
         page.set_default_timeout(120000)
 
         await page.goto(URL_FINAL, wait_until="load")
-        await page.wait_for_timeout(3000)
-        content = await page.content()
-        soup = BeautifulSoup(content, "html.parser")
+        await page.wait_for_timeout(4000)
 
-        tabla_partidos = soup.select_one("table.table-bordered.table-striped")
-        filas = tabla_partidos.select("tbody tr")
-        # FILA 1 (índice 1) es la fila de datos real: local | resultado | visitante
-        fila_datos = filas[1]
-        columnas = fila_datos.select("td")
-        print(f"[INFO] num columnas fila de datos: {len(columnas)}", flush=True)
-        for i, col in enumerate(columnas):
-            print(f"--- col[{i}] HTML crudo ---", flush=True)
-            print(str(col), flush=True)
-            print(f"--- col[{i}] texto ---", flush=True)
-            print(col.get_text(" | ", strip=True), flush=True)
-
-        # También el texto completo visible de toda la fila 0 (el contenedor),
-        # tal y como lo vería un humano en la página, para contexto.
-        print("[INFO] Texto completo visible de la ficha (todas las filas):", flush=True)
-        print(tabla_partidos.get_text(" | ", strip=True), flush=True)
+        locator = page.locator("table.table-bordered.table-striped").first
+        png_bytes = await locator.screenshot()
+        b64 = base64.b64encode(png_bytes).decode("ascii")
+        print(f"[INFO] Tamaño captura: {len(png_bytes)} bytes", flush=True)
+        print("[INFO] BASE64_START", flush=True)
+        # Trocear en líneas para que no se corte en los logs
+        for i in range(0, len(b64), 200):
+            print(b64[i:i + 200], flush=True)
+        print("[INFO] BASE64_END", flush=True)
 
         await browser.close()
 
