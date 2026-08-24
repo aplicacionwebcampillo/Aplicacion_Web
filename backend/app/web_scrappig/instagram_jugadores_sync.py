@@ -518,6 +518,16 @@ def main():
             print(f"[ERROR] No se pudo clasificar {shortcode}: {e}", flush=True)
             continue
 
+        # La IA a veces devuelve el nombre con espacios de más al principio o
+        # al final (p.ej. tras un salto de línea en la imagen): se recorta
+        # aquí, en el único punto de entrada, para que ningún jugador se
+        # guarde con un nombre "ROSENDO GALERA  " que luego rompa el enlace
+        # a su ficha.
+        if clasificacion.nombre_jugador:
+            clasificacion.nombre_jugador = clasificacion.nombre_jugador.strip()
+        if clasificacion.posicion:
+            clasificacion.posicion = clasificacion.posicion.strip()
+
         print(f"[INFO] {shortcode}: {clasificacion}", flush=True)
 
         if clasificacion.tipo == "otro" or not clasificacion.nombre_jugador:

@@ -145,6 +145,10 @@ export default function Plantilla() {
     : jugador.dorsal === 27
     ? "Segundo Entrenador"
     : jugador.dorsal === 28
+    ? "Preparador F\u00EDsico"
+    : jugador.dorsal === 29
+    ? "Entrenador de Porteros"
+    : jugador.dorsal === 30
     ? "Delegado de Equipo"
     : jugador.dorsal}
         </h3>

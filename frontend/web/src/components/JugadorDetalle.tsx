@@ -21,9 +21,10 @@ interface Jugador {
 }
 
 // Dorsales especiales que no son jugadores de campo (entrenador, segundo
-// entrenador, delegado de equipo): no tiene sentido mostrarles dorsal ni
-// estadísticas de partidos/goles/tarjetas.
-const DORSALES_CUERPO_TECNICO = [0, 26, 27, 28];
+// entrenador, preparador físico, entrenador de porteros, delegado de
+// equipo): no tiene sentido mostrarles dorsal ni estadísticas de
+// partidos/goles/tarjetas.
+const DORSALES_CUERPO_TECNICO = [0, 26, 27, 28, 29, 30];
 
 export default function JugadorDetalle() {
   const { id } = useParams<{ id: string }>();
