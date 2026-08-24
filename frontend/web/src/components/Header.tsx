@@ -46,7 +46,7 @@ export default function Header() {
         <div className="md:order-2 order-2 w-full text-center">
           <a href="/" className="no-underline text-inherit">
             <h1 className="font-bold italic font-bebas text-xl md:text-2xl lg:text-3xl [font-size:2rem]">
-              GRANDES DE CORAZÓN
+              UN SENTIMIENTO ALBICELESTE INALTERABLE
             </h1>
           </a>
         </div>
