@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { FaClipboard } from "react-icons/fa";
 
 interface Partido {
   nombre_competicion: string;
@@ -168,6 +169,21 @@ export default function Partidos() {
           {tipo === "próximo" &&
             partido.hora?.match(/^\d{2}:\d{2}:\d{2}$/) && <p className="text-negro_texto">{partido.hora.slice(0, 5)}</p>}
         </div>
+
+        {/* Ficha del partido (solo si ya acabó y la RFAF la ha publicado) */}
+        {tipo === "último" && partido.acta?.trim() && (
+          <div className="flex justify-center mt-2">
+            <a
+              href={partido.acta}
+              target="_blank"
+              rel="noopener noreferrer"
+              title="Ver ficha del partido"
+              className="text-negro hover:text-azul"
+            >
+              <FaClipboard size={18} />
+            </a>
+          </div>
+        )}
       </div>
     );
   };

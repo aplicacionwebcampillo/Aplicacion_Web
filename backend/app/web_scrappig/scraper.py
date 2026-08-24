@@ -66,6 +66,19 @@ def limpiar_texto(texto):
     return texto
 
 
+def extraer_acta(fila, base_url):
+    """Busca el enlace a la ficha/acta del partido dentro de la fila. Se
+    identifica por el propio endpoint de la RFAF (NFG_CmpPartido con
+    CodActa=), no por clases CSS, que varían según la plantilla de la
+    página (confirmado con una ficha real: div.div_icono_resultados > a
+    con href a NFG_CmpPartido). Devuelve None si el partido aún no tiene
+    acta publicada."""
+    enlace_acta = fila.find("a", href=re.compile(r"NFG_CmpPartido.*CodActa=\d+"))
+    if enlace_acta and enlace_acta.get("href"):
+        return urljoin(base_url, enlace_acta["href"])
+    return None
+
+
 #***********************************************************************************************
 async def scrape_competiciones(codigo_club: str):
     async with async_playwright() as p:       
@@ -309,13 +322,15 @@ async def procesar_jornada(page, url_jornada: str):
 
         
         resultado_info = columnas[2].find_all('b')
-        
+
         if len(resultado_info) < 2:
             resultado_local = 0
             resultado_visitante = 0
         else:
             resultado_local = resultado_info[0].get_text(strip=True)
             resultado_visitante = resultado_info[1].get_text(strip=True)
+
+        acta = extraer_acta(row, BASE_URL) or " "
 
         data = {
             "nombre_competicion": nombre_competicion,
@@ -327,7 +342,7 @@ async def procesar_jornada(page, url_jornada: str):
             "jornada": jornada,
             "resultado_local": resultado_local,
             "resultado_visitante": resultado_visitante,
-            "acta": " ",
+            "acta": acta,
         }
         await guardar_o_actualizar_partido(data)
 
