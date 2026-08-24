@@ -1,42 +1,50 @@
-"""Acción puntual: guarda en la BD la final de Copa de la temporada pasada
-(C.D. CANENA ATLETICO 1-5 C.D. CAMPILLO DEL RÍO C.F., con acta ya publicada
-en la RFAF) usando la función real de producción guardar_o_actualizar_partido
-de scraper.py, para comprobar que el enlace de acta se ve en el sitio en
-producción.
-
-La ficha de un partido único de la RFAF (NFG_CmpJornada de una final) usa una
-plantilla distinta a la de listado de jornada que espera procesar_jornada
-(columnas y h5 distintos), así que en vez de forzar esa función se han
-extraído a mano los datos, ya confirmados en diagnósticos previos contra la
-URL real:
-https://www.rfaf.es/pnfg/NPcd/NFG_CmpJornada?cod_primaria=1000120&CodCompeticion=48316372&CodGrupo=48316374&CodTemporada=21&CodJornada=6
-
+"""Acción puntual: investigar por qué crear el partido de la final de Copa
+falla con "Ya existe un partido con los mismos equipos y competición" pese a
+que el GET del partido exacto devuelve 404. Partido tiene un
+ForeignKeyConstraint hacia competicion(nombre, temporada), así que ese 400
+también salta si NO existe la fila en `competicion` para esa competición y
+temporada (el mensaje de error es genérico para cualquier IntegrityError).
+Consulta directamente la BD (tablas competicion y partido) para confirmarlo.
 Se borra tras usarlo."""
-import asyncio
-import sys
+from app.database import SessionLocal
+from app.models.competicion import Competicion
+from app.models.partido import Partido
 
-sys.path.insert(0, "backend/app/web_scrappig")
+NOMBRE = "Copa Andalucía 1ª Andaluza Sénior (Jaén)"
+TEMPORADA = "Temporada 2025-2026"
 
-from scraper import guardar_o_actualizar_partido, normalizar_fecha, normalizar_hora  # noqa: E402
+session = SessionLocal()
+try:
+    print(f"[INFO] Filas en `competicion` con nombre={NOMBRE!r}:", flush=True)
+    comps = session.query(Competicion).filter(Competicion.nombre == NOMBRE).all()
+    for c in comps:
+        print(f"    nombre={c.nombre!r} temporada={c.temporada!r}", flush=True)
+    if not comps:
+        print("    (ninguna)", flush=True)
 
-data = {
-    "nombre_competicion": "Copa Andalucía 1ª Andaluza Sénior (Jaén)",
-    "temporada_competicion": "Temporada 2025-2026",
-    "local": "C.D. CANENA ATLETICO",
-    "visitante": "C.D. CAMPILLO DEL RÍO C.F.",
-    "dia": normalizar_fecha("14-06-2026"),
-    "hora": normalizar_hora("20:00"),
-    "jornada": "Final",
-    "resultado_local": 1,
-    "resultado_visitante": 5,
-    "acta": "https://rfaf.es/pnfg/NPcd/NFG_CmpPartido?cod_primaria=1000120&CodActa=2634141&cod_acta=2634141",
-}
+    print(f"[INFO] ¿Existe competicion(nombre={NOMBRE!r}, temporada={TEMPORADA!r})?", flush=True)
+    existe = session.query(Competicion).filter_by(nombre=NOMBRE, temporada=TEMPORADA).first()
+    print(f"    {'SÍ' if existe else 'NO'}", flush=True)
 
-
-async def main():
-    print(f"[INFO] Guardando: {data}", flush=True)
-    await guardar_o_actualizar_partido(data)
-
-
-if __name__ == "__main__":
-    asyncio.run(main())
+    print(f"[INFO] Filas en `partido` con local o visitante relacionados con Canena/Campillo:", flush=True)
+    partidos = (
+        session.query(Partido)
+        .filter(
+            (Partido.local.ilike("%campillo%"))
+            | (Partido.visitante.ilike("%campillo%"))
+            | (Partido.local.ilike("%canena%"))
+            | (Partido.visitante.ilike("%canena%"))
+        )
+        .all()
+    )
+    for p in partidos:
+        print(
+            f"    [{p.nombre_competicion!r} / {p.temporada_competicion!r}] "
+            f"{p.local!r} vs {p.visitante!r} | dia={p.dia} hora={p.hora} jornada={p.jornada!r} "
+            f"acta={p.acta!r}",
+            flush=True,
+        )
+    if not partidos:
+        print("    (ninguna)", flush=True)
+finally:
+    session.close()
