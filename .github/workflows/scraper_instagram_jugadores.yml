@@ -33,6 +33,17 @@ jobs:
       - name: Restaurar sesión de Instagram guardada
         run: |
           echo "${{ secrets.IG_STORAGE_STATE_B64 }}" | base64 -d > "$RUNNER_TEMP/ig_storage_state.json"
+          echo "Bytes decodificados: $(wc -c < "$RUNNER_TEMP/ig_storage_state.json")"
+          python3 -c "
+          import json, sys
+          try:
+              with open('$RUNNER_TEMP/ig_storage_state.json', encoding='utf-8') as f:
+                  data = json.load(f)
+              print(f\"[OK] JSON de sesión válido ({len(data.get('cookies', []))} cookies)\")
+          except json.JSONDecodeError as e:
+              print(f'::error::El fichero de sesión decodificado no es un JSON válido ({e}). El secret IG_STORAGE_STATE_B64 llegó incompleto/corrupto: regenera la sesión y vuelve a subirlo.')
+              sys.exit(1)
+          "
 
       - name: Ejecutar sincronizador de plantilla
         env:
