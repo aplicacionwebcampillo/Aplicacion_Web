@@ -1,56 +1,20 @@
 """Diagnóstico puntual: inspecciona la ficha de jornada real que dio el
 club (temporada pasada, con partidos ya jugados) para localizar el
-enlace/icono de la ficha de cada partido (acta). Prueba primero con
-requests (rápido); si la tabla sale vacía, reintenta con Playwright por si
-el contenido se carga con JavaScript. Se borra después de usarlo."""
-import sys
-
-import requests
+enlace/icono de la ficha de cada partido (acta). Esta vez vuelca TODAS las
+tablas de la página (clase CSS + primeras filas), sin asumir un selector
+concreto, porque el selector que usa procesar_jornada() no encontró nada
+en esta página. Se borra después de usarlo."""
 from bs4 import BeautifulSoup
+from playwright.sync_api import sync_playwright
 
 URL = (
     "https://www.rfaf.es/pnfg/NPcd/NFG_CmpJornada"
     "?cod_primaria=1000120&CodCompeticion=48316372&CodGrupo=48316374"
     "&CodTemporada=21&CodJornada=6"
 )
-HEADERS = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"}
-
-
-def volcar_tabla(html, origen):
-    soup = BeautifulSoup(html, "html.parser")
-    tabla = soup.select_one("table.table.table-bordered.table-striped.table-hover")
-    if not tabla:
-        print(f"[AVISO] ({origen}) No se encontró table.table-bordered.table-striped.table-hover", flush=True)
-        # Vuelca cualquier tabla que haya, por si cambió la clase.
-        todas = soup.select("table")
-        print(f"[INFO] ({origen}) {len(todas)} tablas totales en la página", flush=True)
-        return False
-
-    filas = tabla.select("tbody tr")
-    print(f"[INFO] ({origen}) {len(filas)} filas en la tabla de partidos", flush=True)
-    if not filas:
-        return False
-
-    for fila in filas:
-        columnas = fila.select("td")
-        print(f"[INFO] ({origen}) Fila con {len(columnas)} columnas. HTML completo de la fila:", flush=True)
-        print(fila.prettify()[:3000], flush=True)
-    return True
 
 
 def main():
-    resp = requests.get(URL, headers=HEADERS, timeout=30)
-    print(f"[INFO] GET {URL} -> {resp.status_code}", flush=True)
-    if volcar_tabla(resp.text, "requests"):
-        return
-
-    print("[INFO] Reintentando con Playwright (por si el contenido es dinámico)...", flush=True)
-    try:
-        from playwright.sync_api import sync_playwright
-    except ImportError:
-        print("[ERROR] Playwright no está instalado en este entorno de diagnóstico.", flush=True)
-        sys.exit(1)
-
     with sync_playwright() as p:
         browser = p.firefox.launch(headless=True)
         page = browser.new_page()
@@ -58,7 +22,27 @@ def main():
         html = page.content()
         browser.close()
 
-    volcar_tabla(html, "playwright")
+    soup = BeautifulSoup(html, "html.parser")
+    tablas = soup.select("table")
+    print(f"[INFO] {len(tablas)} tablas encontradas", flush=True)
+
+    for i, tabla in enumerate(tablas):
+        clases = tabla.get("class")
+        filas = tabla.select("tr")
+        print(f"=== Tabla {i}: class={clases!r}, {len(filas)} filas (tr) ===", flush=True)
+        # Vuelca hasta 2 filas de cada tabla para ver la estructura real.
+        for fila in filas[:2]:
+            print(fila.prettify()[:2500], flush=True)
+
+    # Además, busca cualquier <a> en TODA la página cuyo href contenga
+    # patrones típicos de ficha/acta de partido, por si no está dentro de
+    # una tabla estándar.
+    print("=== Enlaces <a> en toda la página con pistas de 'acta'/'ficha'/'partido' ===", flush=True)
+    for a in soup.select("a[href]"):
+        href = a["href"]
+        texto = a.get_text(strip=True)
+        if any(p in href.lower() for p in ("acta", "ficha", "partido", "cmppartido", "vispartido")):
+            print(f"href={href!r} texto={texto!r} html={str(a)[:300]}", flush=True)
 
 
 if __name__ == "__main__":
