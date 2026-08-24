@@ -286,7 +286,10 @@ async def procesar_jornada(page, url_jornada: str):
     now = datetime.now()
     temporada = inferir_temporada(now.month, now.year)
     
-    tabla_partidos = soup.select_one("table.table.table-bordered.table-striped.table-hover")
+    # Algunas fichas (p.ej. finales de copa) usan "table-light" en vez de
+    # "table-hover" para la misma tabla de partidos, así que no exigimos esa
+    # clase concreta.
+    tabla_partidos = soup.select_one("table.table-bordered.table-striped")
     if not tabla_partidos:
         print("[AVISO] No se encontró tabla de partidos en la jornada.")
         return
