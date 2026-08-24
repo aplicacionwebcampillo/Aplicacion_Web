@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { FaClipboard } from "react-icons/fa";
 
 function useWindowWidth() {
   const [width, setWidth] = useState<number | null>(null);
@@ -213,6 +214,21 @@ export default function TodosPartidos() {
                   <p className="text-negro_texto">{partido.hora.slice(0, 5)}</p>
                 )}
               </div>
+
+              {/* Ficha del partido (solo si ya acabó y la RFAF la ha publicado) */}
+              {mostrarResultado && partido.acta?.trim() && (
+                <div className="flex justify-center mt-2">
+                  <a
+                    href={partido.acta}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    title="Ver ficha del partido"
+                    className="text-negro hover:text-azul"
+                  >
+                    <FaClipboard size={18} />
+                  </a>
+                </div>
+              )}
             </div>
           );
         })}
