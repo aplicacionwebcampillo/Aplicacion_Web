@@ -4,29 +4,51 @@ on:
   workflow_dispatch:
 
   schedule:
-    # Lunes a las 09:00 UTC. lapreferente no se puede sincronizar en modo
-    # automático (protegido por Cloudflare, ver docstring de
-    # lapreferente_estadisticas_sync.py), así que este workflow no intenta
-    # ejecutarlo -- solo envía el aviso semanal para hacerlo a mano.
-    - cron: '0 9 * * 1'
+    # Todos los días a las 08:00 UTC: comprueba si el club jugó AYER
+    # (consultando la tabla resultados que mantiene scraper_jornada.py) y
+    # solo envía el aviso ese día. lapreferente no se puede sincronizar en
+    # modo automático (protegido por Cloudflare, ver docstring de
+    # lapreferente_estadisticas_sync.py), así que este workflow nunca
+    # intenta ejecutarlo -- solo avisa de cuándo hacerlo a mano.
+    - cron: '0 8 * * *'
 
 jobs:
   recordatorio:
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout repositorio
+        uses: actions/checkout@v4
+
+      - name: Configurar Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+
+      - name: Instalar dependencias
+        run: pip install sqlalchemy psycopg2-binary
+
+      - name: Comprobar si hubo partido ayer
+        id: check
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+        run: |
+          export PYTHONPATH=$PYTHONPATH:./backend
+          python backend/app/web_scrappig/comprobar_ultimo_partido.py
+
       - name: Enviar recordatorio por email
+        if: steps.check.outputs.enviar == 'true'
         uses: dawidd6/action-send-mail@v3
         with:
           server_address: smtp.gmail.com
           server_port: 465
           username: ${{ secrets.EMAIL_SMTP_USER }}
           password: ${{ secrets.EMAIL_SMTP_PASSWORD }}
-          subject: "🔔 Campillo CF: toca actualizar lapreferente"
+          subject: "🔔 Campillo CF: toca actualizar lapreferente (hubo partido ayer)"
           to: aplicacionwebcampillo@gmail.com
           from: Sincronizador Campillo CF
           body: |
-            Recordatorio semanal: ejecuta en tu ordenador para actualizar posición, estado de
-            fichaje/renovación y estadísticas de la temporada (partidos, titularidades, goles,
-            tarjetas) de toda la plantilla:
+            El equipo jugó ayer, así que ya debería haber datos nuevos en lapreferente.com.
+            Ejecuta en tu ordenador para actualizar posición, estado de fichaje/renovación y
+            estadísticas de la temporada (partidos, titularidades, goles, tarjetas):
 
               bash backend/app/web_scrappig/actualizar_lapreferente.sh
