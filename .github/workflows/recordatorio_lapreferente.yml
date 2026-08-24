@@ -2,6 +2,12 @@ name: Recordatorio actualizar lapreferente
 
 on:
   workflow_dispatch:
+    inputs:
+      prueba_email:
+        description: 'Forzar el envío del aviso sin comprobar si hubo partido (para probar la configuración SMTP)'
+        required: false
+        default: false
+        type: boolean
 
   schedule:
     # Todos los días a las 08:00 UTC: comprueba si el club jugó AYER
@@ -36,7 +42,7 @@ jobs:
           python backend/app/web_scrappig/comprobar_ultimo_partido.py
 
       - name: Enviar recordatorio por email
-        if: steps.check.outputs.enviar == 'true'
+        if: ${{ steps.check.outputs.enviar == 'true' || inputs.prueba_email }}
         uses: dawidd6/action-send-mail@v3
         with:
           server_address: smtp.gmail.com
