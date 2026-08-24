@@ -18,8 +18,12 @@ jobs:
 
       - name: Instalar dependencias
         run: |
-          pip install playwright beautifulsoup4 requests
+          pip install -r backend/requirements.txt
           playwright install firefox
 
       - name: Ejecutar prueba
-        run: python backend/app/web_scrappig/_diag_probar_acta_final.py
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+        run: |
+          export PYTHONPATH=$PYTHONPATH:./backend
+          python backend/app/web_scrappig/_diag_probar_acta_final.py
