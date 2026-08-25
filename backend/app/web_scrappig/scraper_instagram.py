@@ -341,6 +341,16 @@ def obtener_posts_del_perfil(ig_target, session_file):
             "(posible bloqueo, sesión caducada, o cambio de formato)",
             flush=True,
         )
+        # No devolvemos una lista vacía: un perfil real con publicaciones
+        # nunca debería dar 0 resultados, así que esto es prácticamente
+        # siempre síntoma de sesión caducada/bloqueo. Si se devolviera [],
+        # los scripts que llaman a esta función (instagram_jugadores_sync.py,
+        # el importador de noticias) lo tratan como "nada nuevo que hacer" y
+        # terminan con éxito sin haber sincronizado nada, sin avisar a nadie.
+        raise RuntimeError(
+            "No se encontraron publicaciones en el perfil de Instagram "
+            "(sesión probablemente caducada: ejecuta actualizar_secret_instagram.sh)"
+        )
 
     return encontrados
 
