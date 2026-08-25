@@ -1,5 +1,9 @@
 """Sincroniza la plantilla (Jugador) a partir de las publicaciones de
-Instagram del club que anuncian fichajes, renovaciones o bajas.
+Instagram del club que anuncian fichajes, renovaciones o bajas -- tanto de
+jugadores como de cuerpo técnico (entrenador, segundo entrenador, preparador
+físico, entrenador de porteros, delegado de equipo; ver SIGLAS_CUERPO_TECNICO
+más abajo). Se guardan en la misma tabla Jugador, con un dorsal reservado
+(26-30) por cargo para que el frontend los distinga de los jugadores.
 
 Reutiliza la obtención de publicaciones de scraper_instagram.py (sesión de
 Playwright ya autenticada). Para cada publicación candidata (cuyo pie de
@@ -7,13 +11,13 @@ foto contiene palabras como "HERE WE GO", "NUEVA INCORPORACIÓN", "FICHAJE",
 "RENOVADO" o "GRACIAS"), se envía el texto y la imagen a una IA con visión
 para clasificarla y extraer los datos:
 
-  - El TEXTO del pie de foto indica el tipo de publicación y el nombre del
-    jugador.
-  - El DORSAL solo aparece en la IMAGEN (el gráfico del fichaje/renovación),
-    así que se extrae con visión.
-  - La foto del jugador es la imagen completa de la publicación (no un
-    recorte), subida a Cloudinary para que no dependa de la URL temporal de
-    Instagram.
+  - El TEXTO del pie de foto indica el tipo de publicación y el nombre de
+    la persona.
+  - El DORSAL (jugadores) o la SIGLA del cargo (cuerpo técnico) solo
+    aparece en la IMAGEN (el gráfico del fichaje/renovación), en el mismo
+    hueco del gráfico, así que se extrae con visión.
+  - La foto se sube a Cloudinary (la imagen completa de la publicación, no
+    un recorte) para que no dependa de la URL temporal de Instagram.
 
 Como la cuota gratuita de cada proveedor de IA es limitada (incluso por
 DÍA, no solo por minuto), se usa una CASCADA de proveedores: Gemini →
@@ -179,10 +183,25 @@ def es_candidata(caption):
     return any(palabra in caption_norm for palabra in PALABRAS_ALTA) or _es_posible_baja(caption)
 
 
+# Las publicaciones de cuerpo técnico usan el mismo hueco de la imagen que
+# el dorsal, pero con una sigla del cargo en vez de un número. El dorsal
+# "reservado" de cada sigla es el mismo que ya usa la ficha de cada uno en
+# la BD (ver DORSALES_CUERPO_TECNICO en JugadorDetalle.tsx), para que el
+# frontend siga ocultándoles el dorsal/estadísticas de jugador.
+SIGLAS_CUERPO_TECNICO = {
+    "E": (26, "Entrenador"),
+    "2E": (27, "Segundo Entrenador"),
+    "PF": (28, "Preparador Físico"),
+    "EP": (29, "Entrenador de Porteros"),
+    "DE": (30, "Delegado de Equipo"),
+}
+
+
 class ClasificacionPost(BaseModel):
     tipo: Literal["fichaje", "renovacion", "baja", "otro"]
     nombre_jugador: Optional[str] = None
     dorsal: Optional[int] = None
+    sigla: Optional[Literal["E", "2E", "PF", "EP", "DE"]] = None
     posicion: Optional[str] = None
 
 
@@ -190,29 +209,41 @@ def _construir_instrucciones(caption):
     return (
         "Esta es una publicación de Instagram del club de fútbol amateur "
         "Campillo del Río CF. El pie de foto (texto) suele indicar de qué "
-        "jugador se trata y si es un fichaje, una renovación o una "
-        "despedida (baja), con palabras como \"HERE WE GO\", \"NUEVA "
-        "INCORPORACIÓN\", \"FICHAJE\", \"RENOVADO\" (fichaje/renovación) o "
-        "\"Gracias <nombre>\" (baja). El DORSAL (número de camiseta) casi "
-        "siempre solo aparece en la imagen, no en el texto: míralo con "
-        "atención en el gráfico.\n\n"
+        "jugador o miembro del cuerpo técnico se trata y si es un fichaje, "
+        "una renovación o una despedida (baja), con palabras como \"HERE "
+        "WE GO\", \"NUEVA INCORPORACIÓN\", \"FICHAJE\", \"RENOVADO\" "
+        "(fichaje/renovación) o \"Gracias <nombre>\" (baja). En el mismo "
+        "hueco del gráfico donde normalmente va el DORSAL (número de "
+        "camiseta) de un jugador, las publicaciones de cuerpo técnico "
+        "muestran en su lugar una SIGLA de su cargo: \"E\" (Entrenador), "
+        "\"2E\" (Segundo Entrenador), \"PF\" (Preparador Físico), \"EP\" "
+        "(Entrenador de Porteros) o \"DE\" (Delegado de Equipo). Mira ese "
+        "hueco con atención: si hay un número, es el dorsal de un jugador; "
+        "si hay una de esas siglas, es un miembro del cuerpo técnico (no "
+        "un jugador, no lleva dorsal).\n\n"
         f"Texto de la publicación:\n{caption or '(sin texto)'}\n\n"
         "Clasifica la publicación y responde ÚNICAMENTE con un objeto JSON "
         "con esta forma exacta, sin texto ni bloques de código alrededor:\n"
         '{"tipo": "fichaje"|"renovacion"|"baja"|"otro", '
         '"nombre_jugador": string|null, "dorsal": integer|null, '
-        '"posicion": string|null}\n\n'
-        "- tipo: \"fichaje\" (nuevo jugador), \"renovacion\" (jugador que ya "
-        "estaba y renueva), \"baja\" (despedida de un jugador) u \"otro\" "
-        "(no trata sobre un jugador concreto, ej. resultado de partido, "
+        '"sigla": "E"|"2E"|"PF"|"EP"|"DE"|null, "posicion": string|null}\n\n'
+        "- tipo: \"fichaje\" (nueva incorporación), \"renovacion\" (persona "
+        "que ya estaba y renueva), \"baja\" (despedida) u \"otro\" (no "
+        "trata sobre una persona concreta, ej. resultado de partido, "
         "publicidad...).\n"
-        "- nombre_jugador: el nombre del jugador tal y como aparece en el "
-        "texto o la imagen (null si tipo es \"otro\").\n"
-        "- dorsal: el número de dorsal que se ve en la imagen (null si no "
-        "se ve ningún número o tipo es \"baja\"/\"otro\").\n"
+        "- nombre_jugador: el nombre de la persona (jugador o miembro del "
+        "cuerpo técnico) tal y como aparece en el texto o la imagen (null "
+        "si tipo es \"otro\").\n"
+        "- dorsal: el número de dorsal que se ve en la imagen (null si en "
+        "su lugar hay una sigla de cuerpo técnico, si no se ve ningún "
+        "número, o si tipo es \"baja\"/\"otro\").\n"
+        "- sigla: la sigla del cuerpo técnico que se ve en la imagen en "
+        "vez de un número de dorsal (null si en su lugar hay un dorsal "
+        "numérico, si no se ve ninguna sigla, o si tipo es "
+        "\"baja\"/\"otro\").\n"
         "- posicion: la demarcación del jugador si se menciona o se ve en "
         "la imagen (ej. \"Portero\", \"Defensa\", \"Centrocampista\", "
-        "\"Delantero\"), o null si no aparece."
+        "\"Delantero\"), o null si no aparece o es cuerpo técnico."
     )
 
 
@@ -527,6 +558,11 @@ def main():
             clasificacion.nombre_jugador = clasificacion.nombre_jugador.strip()
         if clasificacion.posicion:
             clasificacion.posicion = clasificacion.posicion.strip()
+
+        if clasificacion.sigla:
+            dorsal_reservado, posicion_por_defecto = SIGLAS_CUERPO_TECNICO[clasificacion.sigla]
+            clasificacion.dorsal = dorsal_reservado
+            clasificacion.posicion = clasificacion.posicion or posicion_por_defecto
 
         print(f"[INFO] {shortcode}: {clasificacion}", flush=True)
 
