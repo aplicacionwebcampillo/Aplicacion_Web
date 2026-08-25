@@ -20,13 +20,17 @@ from instagram_jugadores_sync import (  # noqa: E402
 )
 
 # Nombre exacto en la ficha (para el PUT) + dorsal reservado que ya tiene
-# cada uno en la BD (no se toca: solo se rellenan foto/biografia).
+# cada uno en la BD (no se toca: solo se rellenan foto/biografia) + sigla
+# esperada de su cargo. La sigla es la comprobación clave: Sergio Silva, por
+# ejemplo, tiene una publicación antigua (nov. 2024) de cuando fichó como
+# JUGADOR, antes de ser entrenador -- coincide por nombre pero no lleva la
+# sigla "E", así que se descarta en vez de pisar sus datos de entrenador.
 FICHA_POR_OBJETIVO = {
-    "sergio silva": ("SERGIO SILVA JIMENEZ", 26),
-    "javi salazar": ("Javi Salazar", 27),
-    "diego merlo": ("Diego Merlo", 28),
-    "juanjo mendoza": ("Juanjo Mendoza", 29),
-    "christian cortes": ("CHRISTIAN CORTES HERRANZ", 30),
+    "sergio silva": ("SERGIO SILVA JIMENEZ", 26, "E"),
+    "javi salazar": ("Javi Salazar", 27, "2E"),
+    "diego merlo": ("Diego Merlo", 28, "PF"),
+    "juanjo mendoza": ("Juanjo Mendoza", 29, "EP"),
+    "christian cortes": ("CHRISTIAN CORTES HERRANZ", 30, "DE"),
 }
 
 
@@ -64,9 +68,13 @@ def main():
             print(f"[ERROR] No se pudo descargar la imagen: {e}", flush=True)
             continue
 
-        clasificacion = clasificador.clasificar(
-            caption, img_resp.content, _media_type(img_resp.headers.get("Content-Type"))
-        )
+        try:
+            clasificacion = clasificador.clasificar(
+                caption, img_resp.content, _media_type(img_resp.headers.get("Content-Type"))
+            )
+        except Exception as e:
+            print(f"[ERROR] No se pudo clasificar {shortcode}: {e}", flush=True)
+            continue
         print(f"[INFO] Clasificación: {clasificacion}", flush=True)
 
         if not clasificacion.nombre_jugador:
@@ -85,13 +93,23 @@ def main():
             )
             continue
 
+        nombre_ficha, dorsal_actual, sigla_esperada = FICHA_POR_OBJETIVO[objetivo]
+
+        if clasificacion.sigla != sigla_esperada:
+            print(
+                f"[SKIP] '{clasificacion.nombre_jugador}' coincide por nombre pero la sigla detectada "
+                f"({clasificacion.sigla!r}) no es la esperada para su cargo ({sigla_esperada!r}); "
+                "probablemente una publicación de otra época (ej. como jugador antes de ser cuerpo "
+                "técnico), se descarta.",
+                flush=True,
+            )
+            continue
+
         try:
             foto_url = subir_a_cloudinary(img_resp.content)
         except Exception as e:
             print(f"[ERROR] No se pudo subir la imagen a Cloudinary: {e}", flush=True)
             continue
-
-        nombre_ficha, dorsal_actual = FICHA_POR_OBJETIVO[objetivo]
 
         actualizar_jugador(nombre_ficha, None, dorsal_actual, foto_url, biografia=caption)
 
