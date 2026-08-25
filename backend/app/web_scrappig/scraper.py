@@ -255,6 +255,31 @@ async def guardar_o_actualizar_partido(data):
     async with httpx.AsyncClient() as client:
         response_get = await client.get(f"{url_base}/partidos/{nombre}/{temporada}/{local}/{visitante}")
         if response_get.status_code == 404:
+            # No existe con este local/visitante exacto, pero puede que ya
+            # existiera con otro rival en la MISMA jornada (p.ej. un cruce de
+            # copa listado como "Descansa" a la espera del sorteo, que ahora
+            # ya tiene rival real). Si es así, es el mismo partido con datos
+            # antiguos: se borra antes de crear el nuevo para no dejar un
+            # partido fantasma duplicado.
+            jornada = data.get("jornada")
+            if jornada:
+                resp_lista = await client.get(
+                    f"{url_base}/partidos/",
+                    params={"nombre_competicion": nombre, "temporada_competicion": temporada},
+                )
+                if resp_lista.status_code == 200:
+                    for p in resp_lista.json():
+                        if p.get("jornada") != jornada:
+                            continue
+                        if p.get("local") == local and p.get("visitante") == visitante:
+                            continue
+                        if local in (p.get("local"), p.get("visitante")) or visitante in (p.get("local"), p.get("visitante")):
+                            resp_del = await client.delete(
+                                f"{url_base}/partidos/{nombre}/{temporada}/{p['local']}/{p['visitante']}"
+                            )
+                            if resp_del.status_code == 204:
+                                print(f"Partido obsoleto eliminado (misma jornada, rival distinto): {p['local']} vs {p['visitante']}")
+
             response = await client.post(f"{url_base}/partidos/", json=data)
             if response.status_code == 201:
                 print(f"Partido creado: {local} vs {visitante}")
