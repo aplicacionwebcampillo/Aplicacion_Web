@@ -298,12 +298,19 @@ async def procesar_jornada(page, url_jornada: str):
         columnas = row.select("td")
         if len(columnas) < 3:
             continue
-        
+
         jornada = columnas[0].get_text(strip=True)
-        
+
         #equipos_info = columnas[1].find_all('h5')
         equipos_info = list(columnas[1].stripped_strings)
-        
+
+        # Algunas fichas (p.ej. partido único de una final) generan filas con
+        # una estructura de columnas totalmente distinta a la habitual
+        # (jornada/equipos+fecha/resultado); en vez de fallar o guardar
+        # basura, se descarta la fila si no tiene la forma esperada.
+        if len(equipos_info) < 3:
+            continue
+
         #if len(equipos_info) < 3:
            #equipo_local = equipos_info[0].get_text(strip=True)
            #equipo_visitante = "Descansa"
@@ -311,6 +318,13 @@ async def procesar_jornada(page, url_jornada: str):
         #else:
         equipo_local = equipos_info[0]
         equipo_visitante = equipos_info[1]
+
+        # Los nombres de equipo reales siempre tienen varios caracteres; si
+        # alguno es demasiado corto (p.ej. "1" o "-"), es que esta fila viene
+        # de una plantilla distinta que reparte los datos en otras columnas,
+        # no un partido real.
+        if len(equipo_local) < 3 or len(equipo_visitante) < 3:
+            continue
         fecha_hora_texto = equipos_info[2]
         print(f"Partido Revisar: {equipo_local} vs {equipo_visitante}")
         
