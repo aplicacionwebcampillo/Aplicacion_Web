@@ -286,6 +286,18 @@ async def guardar_o_actualizar_partido(data):
             else:
                 print(f"Error al crear partido: {response.status_code} - {response.text}")
         else:
+            # Algunas competiciones (p.ej. copas/trofeos) no enlazan el acta
+            # desde la ficha de jornada aunque ya este publicada -- se ha
+            # comprobado que ni siquiera aparece con JavaScript activado, asi
+            # que a veces se rellena a mano. Si esta vez no se ha encontrado
+            # enlace pero el partido ya tenia un acta guardada, no se borra.
+            nueva_acta = (data.get("acta") or "").strip()
+            if not nueva_acta:
+                actual = response_get.json()
+                acta_actual = (actual.get("acta") or "").strip()
+                if acta_actual:
+                    data = {**data, "acta": actual["acta"]}
+
             response = await client.put(f"{url_base}/partidos/{nombre}/{temporada}/{local}/{visitante}", json=data)
             if response.status_code == 200:
                 print(f"Partido actualizado: {local} vs {visitante}")
