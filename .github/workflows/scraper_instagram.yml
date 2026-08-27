@@ -39,3 +39,25 @@ jobs:
           NOTICIA_ADMIN_DNI: ${{ secrets.NOTICIA_ADMIN_DNI }}
           PYTHONUNBUFFERED: "1"
         run: python backend/app/web_scrappig/scraper_instagram.py
+
+      - name: Avisar por email si algo falló
+        if: failure()
+        uses: dawidd6/action-send-mail@v3
+        with:
+          server_address: smtp.gmail.com
+          server_port: 465
+          username: ${{ secrets.EMAIL_SMTP_USER }}
+          password: ${{ secrets.EMAIL_SMTP_PASSWORD }}
+          subject: "🔔 C.D. CAMPILLO DEL RÍO C.F. Actualizar Sesión Instagram"
+          to: aplicacionwebcampillo@gmail.com
+          from: Importador de noticias Campillo CF
+          body: |
+            La importación de noticias desde Instagram ha fallado. Lo más probable es que la sesión guardada
+            haya caducado o Instagram la haya bloqueado.
+
+            Para arreglarlo, ejecuta en tu ordenador:
+
+              bash backend/app/web_scrappig/actualizar_secret_instagram.sh
+
+            Log de la ejecución que falló:
+            ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
