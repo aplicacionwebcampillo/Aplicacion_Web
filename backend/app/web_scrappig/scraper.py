@@ -308,7 +308,57 @@ async def guardar_o_actualizar_partido(data):
 BASE_URL = "https://rfaf.es"
 tasks = []
 
-async def procesar_jornada(page, url_jornada: str):
+
+def _norm_ascii(texto):
+    if not texto:
+        return ""
+    sin_acentos = unicodedata.normalize("NFKD", texto).encode("ascii", "ignore").decode("ascii")
+    return " ".join(sin_acentos.lower().split())
+
+
+async def buscar_acta_via_jornada(page, cod_competicion, cod_grupo, cod_temporada, equipo_local, equipo_visitante, nombre_jornada):
+    """Respaldo para cuando la ficha de jornada normal (NFG_VisCompeticiones_Grupo)
+    no trae el enlace del acta inline -- confirmado que pasa en algunas
+    competiciones de copa/trofeo, con o sin JavaScript. NFG_CmpJornada sí lo
+    trae, pero necesita el CodJornada exacto; se busca primero en el
+    desplegable de jornadas de esa misma competicion/grupo/temporada la que
+    coincide con el nombre de la jornada (p.ej. "Cuartos")."""
+    base = (
+        f"{BASE_URL}/pnfg/NPcd/NFG_CmpJornada?cod_primaria=1000120"
+        f"&CodCompeticion={cod_competicion}&CodGrupo={cod_grupo}&CodTemporada={cod_temporada}"
+    )
+    try:
+        await page.goto(base, wait_until="networkidle")
+        soup = BeautifulSoup(await page.content(), "html.parser")
+
+        objetivo_jornada = _norm_ascii(nombre_jornada)
+        cod_jornada = None
+        select_jornada = soup.find("select", {"name": "jornada"})
+        if select_jornada and objetivo_jornada:
+            for opt in select_jornada.find_all("option"):
+                if objetivo_jornada in _norm_ascii(opt.get_text()):
+                    cod_jornada = opt.get("value")
+                    break
+
+        if cod_jornada and cod_jornada != "0":
+            await page.goto(f"{base}&CodJornada={cod_jornada}", wait_until="networkidle")
+            soup = BeautifulSoup(await page.content(), "html.parser")
+
+        objetivo_local = _norm_ascii(equipo_local)
+        objetivo_visitante = _norm_ascii(equipo_visitante)
+        for fila in soup.select("tbody tr"):
+            texto_fila = _norm_ascii(fila.get_text(" "))
+            if objetivo_local in texto_fila and objetivo_visitante in texto_fila:
+                acta = extraer_acta(fila, BASE_URL)
+                if acta:
+                    return acta
+        return None
+    except Exception as e:
+        print(f"[AVISO] No se pudo buscar el acta via NFG_CmpJornada: {e}", flush=True)
+        return None
+
+
+async def procesar_jornada(page, url_jornada: str, cod_competicion=None, cod_temporada=None):
     await page.goto(url_jornada, wait_until="networkidle")
     content = await page.content()
     soup = BeautifulSoup(content, "html.parser")
@@ -384,7 +434,17 @@ async def procesar_jornada(page, url_jornada: str):
             resultado_local = resultado_info[0].get_text(strip=True)
             resultado_visitante = resultado_info[1].get_text(strip=True)
 
-        acta = extraer_acta(row, BASE_URL) or " "
+        acta = extraer_acta(row, BASE_URL)
+        if not acta and cod_competicion and cod_temporada and (
+            "campillo" in equipo_local.lower() or "campillo" in equipo_visitante.lower()
+        ):
+            cod_grupo_match = re.search(r"codgrupo=(\d+)", url_jornada, re.IGNORECASE)
+            if cod_grupo_match:
+                acta = await buscar_acta_via_jornada(
+                    page, cod_competicion, cod_grupo_match.group(1), cod_temporada,
+                    equipo_local, equipo_visitante, jornada,
+                )
+        acta = acta or " "
 
         data = {
             "nombre_competicion": nombre_competicion,
@@ -405,6 +465,9 @@ async def procesar_jornada(page, url_jornada: str):
 async def procesar_competiciones(page):
     content = await page.content()
     soup = BeautifulSoup(content, "html.parser")
+
+    cod_temporada_match = re.search(r"codtemporada=(\d+)", page.url, re.IGNORECASE)
+    cod_temporada = cod_temporada_match.group(1) if cod_temporada_match else None
 
     categorias_visitadas = set()
 
@@ -443,11 +506,21 @@ async def procesar_competiciones(page):
                 cols = row.select("td")
                 if len(cols) < 6:
                     continue
-                
+
+                cod_competicion = None
+                enlace_competicion = cols[0].find("a")
+                if enlace_competicion and enlace_competicion.has_attr("href"):
+                    m = re.search(r"codcompeticion=(\d+)", enlace_competicion["href"], re.IGNORECASE)
+                    if m:
+                        cod_competicion = m.group(1)
+
                 enlace_ficha = cols[5].find("a")
                 if enlace_ficha and enlace_ficha.has_attr("href"):
                     url_completa_ficha = urljoin(page.url, enlace_ficha["href"])
-                    await procesar_jornada(page, url_completa_ficha)
+                    await procesar_jornada(
+                        page, url_completa_ficha,
+                        cod_competicion=cod_competicion, cod_temporada=cod_temporada,
+                    )
 
             categorias_visitadas.add(categoria)
             print(f"Categoría visitada: {categoria}")
