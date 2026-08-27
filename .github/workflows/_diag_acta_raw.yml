@@ -20,4 +20,5 @@ jobs:
       - run: playwright install firefox
       - env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          PYTHONPATH: ./backend
         run: python backend/app/web_scrappig/_diag_acta_raw.py
