@@ -112,10 +112,19 @@ def extraer_jugadores(html):
     return jugadores
 
 
+ID_EQUIPO_SENIOR = 1
+
+
 def obtener_jugadores_existentes():
+    # La plantilla de lapreferente.com es solo la del primer equipo (senior).
+    # Sin este filtro, un jugador de otro equipo (femenino, juvenil...) que
+    # comparta una palabra del nombre con el objetivo (p.ej. un apellido
+    # "Martin" que en otro jugador es tambien nombre de pila) cuenta como
+    # candidato y genera una ambiguedad que bloquea el emparejamiento del
+    # jugador correcto -- paso de verdad con el dorsal 5.
     resp = requests.get(f"{API_BASE}/jugadores/?skip=0&limit=500", timeout=30)
     resp.raise_for_status()
-    return resp.json()
+    return [j for j in resp.json() if j.get("id_equipo") == ID_EQUIPO_SENIOR]
 
 
 def _tokens(texto):
