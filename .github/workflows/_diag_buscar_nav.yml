@@ -1,4 +1,4 @@
-name: _diag acta jornada
+name: _diag buscar nav
 
 on:
   workflow_dispatch:
@@ -15,4 +15,4 @@ jobs:
           python-version: '3.10'
       - run: pip install playwright beautifulsoup4
       - run: playwright install firefox
-      - run: python backend/app/web_scrappig/_diag_acta_jornada.py
+      - run: python backend/app/web_scrappig/_diag_buscar_nav.py
