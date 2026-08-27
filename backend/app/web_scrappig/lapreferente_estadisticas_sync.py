@@ -118,18 +118,43 @@ def obtener_jugadores_existentes():
     return resp.json()
 
 
+def _tokens(texto):
+    return set(_normalizar(texto).split())
+
+
 def buscar_jugador(nombre_corto, nombre_completo, jugadores):
-    objetivos = [o for o in (_normalizar(nombre_completo), _normalizar(nombre_corto)) if o]
+    # Una coincidencia por subcadena sin más (p.ej. "Justin" dentro de
+    # cualquier texto que lo contenga) puede enlazar a un jugador con los
+    # datos de otro completamente distinto -- pasó de verdad y contaminó
+    # varias fichas. Ahora solo se acepta: 1) coincidencia exacta (nombre
+    # igual, ignorando mayúsculas/acentos), o 2) al menos una palabra de 4+
+    # letras compartida entre nombre/nombre_completo (normalmente apellidos,
+    # mucho más fiables que apodos cortos). Si más de un jugador comparte
+    # esa palabra, es ambiguo: se prefiere no actualizar a no arriesgarse a
+    # actualizar al equivocado.
+    exactos = {o for o in (_normalizar(nombre_completo), _normalizar(nombre_corto)) if o}
+    objetivos_tokens = [t for t in (_tokens(nombre_completo), _tokens(nombre_corto)) if t]
+
+    candidato_exacto = None
+    candidatos_por_palabra = []
     for jugador in jugadores:
-        candidatos = [
-            _normalizar(jugador.get("nombre")),
-            _normalizar(jugador.get("nombre_corto")),
-            _normalizar(jugador.get("nombre_completo")),
-        ]
-        for objetivo in objetivos:
-            for candidato in candidatos:
-                if candidato and (candidato == objetivo or candidato in objetivo or objetivo in candidato):
-                    return jugador
+        textos = (jugador.get("nombre"), jugador.get("nombre_corto"), jugador.get("nombre_completo"))
+        if any(_normalizar(t) in exactos for t in textos if t):
+            if candidato_exacto is None:
+                candidato_exacto = jugador
+            continue
+
+        tokens_jugador = _tokens(jugador.get("nombre")) | _tokens(jugador.get("nombre_completo"))
+        if any(
+            any(len(palabra) >= 4 for palabra in (obj_tokens & tokens_jugador))
+            for obj_tokens in objetivos_tokens
+        ):
+            candidatos_por_palabra.append(jugador)
+
+    if candidato_exacto is not None:
+        return candidato_exacto
+    if len(candidatos_por_palabra) == 1:
+        return candidatos_por_palabra[0]
     return None
 
 

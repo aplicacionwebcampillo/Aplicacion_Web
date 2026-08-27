@@ -1,4 +1,4 @@
-name: _diag_revision_general
+name: _diag_limpieza_y_acta
 
 on:
   workflow_dispatch:
@@ -24,4 +24,4 @@ jobs:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
         run: |
           export PYTHONPATH=$PYTHONPATH:./backend
-          python backend/app/web_scrappig/_diag_revision_general.py
+          python backend/app/web_scrappig/_diag_limpieza_y_acta.py
