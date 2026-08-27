@@ -1,4 +1,4 @@
-name: _diag check2
+name: _diag check3
 
 on:
   workflow_dispatch:
@@ -15,4 +15,4 @@ jobs:
       - env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
           PYTHONPATH: ./backend
-        run: python backend/app/web_scrappig/_diag_check2.py
+        run: python backend/app/web_scrappig/_diag_check3.py

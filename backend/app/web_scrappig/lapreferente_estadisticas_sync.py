@@ -126,12 +126,17 @@ def buscar_jugador(nombre_corto, nombre_completo, jugadores):
     # Una coincidencia por subcadena sin más (p.ej. "Justin" dentro de
     # cualquier texto que lo contenga) puede enlazar a un jugador con los
     # datos de otro completamente distinto -- pasó de verdad y contaminó
-    # varias fichas. Ahora solo se acepta: 1) coincidencia exacta (nombre
-    # igual, ignorando mayúsculas/acentos), o 2) al menos una palabra de 4+
-    # letras compartida entre nombre/nombre_completo (normalmente apellidos,
-    # mucho más fiables que apodos cortos). Si más de un jugador comparte
-    # esa palabra, es ambiguo: se prefiere no actualizar a no arriesgarse a
-    # actualizar al equivocado.
+    # varias fichas. Tampoco basta con exigir una sola palabra compartida de
+    # 4+ letras: dos jugadores distintos pueden compartir solo el nombre de
+    # pila (p.ej. dos "Francisco") y esa palabra sola ya "desambigua" mal si
+    # solo uno de los dos está en la plantilla actual. Ahora solo se acepta:
+    # 1) coincidencia exacta (nombre igual, ignorando mayúsculas/acentos), o
+    # 2) que el conjunto de palabras de una de las dos partes (lapreferente
+    # o el jugador) esté contenido por completo en el de la otra -- así un
+    # apodo corto ("Sergio") o un nombre truncado siguen emparejando, pero
+    # dos nombres que solo comparten una palabra suelta ya no. Si sigue
+    # habiendo más de un candidato, es ambiguo: se prefiere no actualizar a
+    # arriesgarse a actualizar al equivocado.
     exactos = {o for o in (_normalizar(nombre_completo), _normalizar(nombre_corto)) if o}
     objetivos_tokens = [t for t in (_tokens(nombre_completo), _tokens(nombre_corto)) if t]
 
@@ -145,11 +150,15 @@ def buscar_jugador(nombre_corto, nombre_completo, jugadores):
             continue
 
         tokens_jugador = _tokens(jugador.get("nombre")) | _tokens(jugador.get("nombre_completo"))
-        if any(
-            any(len(palabra) >= 4 for palabra in (obj_tokens & tokens_jugador))
-            for obj_tokens in objetivos_tokens
-        ):
-            candidatos_por_palabra.append(jugador)
+        if not tokens_jugador:
+            continue
+        for obj_tokens in objetivos_tokens:
+            compartidas = obj_tokens & tokens_jugador
+            if not compartidas or max(len(palabra) for palabra in compartidas) < 4:
+                continue
+            if obj_tokens <= tokens_jugador or tokens_jugador <= obj_tokens:
+                candidatos_por_palabra.append(jugador)
+                break
 
     if candidato_exacto is not None:
         return candidato_exacto
