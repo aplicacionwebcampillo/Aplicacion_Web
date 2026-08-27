@@ -340,23 +340,18 @@ async def buscar_acta_via_jornada(page, cod_competicion, cod_grupo, cod_temporad
                     cod_jornada = opt.get("value")
                     break
 
-        print(f"[DEBUG-ACTA] objetivo_jornada={objetivo_jornada!r} cod_jornada_encontrado={cod_jornada!r}", flush=True)
-
         if cod_jornada and cod_jornada != "0":
             await page.goto(f"{base}&CodJornada={cod_jornada}", wait_until="networkidle")
             soup = BeautifulSoup(await page.content(), "html.parser")
 
         objetivo_local = _norm_ascii(equipo_local)
         objetivo_visitante = _norm_ascii(equipo_visitante)
-        print(f"[DEBUG-ACTA] buscando objetivo_local={objetivo_local!r} objetivo_visitante={objetivo_visitante!r}", flush=True)
         for fila in soup.select("tbody tr"):
             texto_fila = _norm_ascii(fila.get_text(" "))
             if objetivo_local in texto_fila and objetivo_visitante in texto_fila:
-                print(f"[DEBUG-ACTA] fila coincide: {texto_fila!r}", flush=True)
                 acta = extraer_acta(fila, BASE_URL)
                 if acta:
                     return acta
-        print("[DEBUG-ACTA] ninguna fila coincidio", flush=True)
         return None
     except Exception as e:
         print(f"[AVISO] No se pudo buscar el acta via NFG_CmpJornada: {e}", flush=True)
@@ -440,22 +435,15 @@ async def procesar_jornada(page, url_jornada: str, cod_competicion=None, cod_tem
             resultado_visitante = resultado_info[1].get_text(strip=True)
 
         acta = extraer_acta(row, BASE_URL)
-        print(
-            f"[DEBUG-ACTA] acta_primaria={acta!r} cod_competicion={cod_competicion!r} "
-            f"cod_temporada={cod_temporada!r} equipo_local={equipo_local!r} equipo_visitante={equipo_visitante!r}",
-            flush=True,
-        )
         if not acta and cod_competicion and cod_temporada and (
             "campillo" in equipo_local.lower() or "campillo" in equipo_visitante.lower()
         ):
             cod_grupo_match = re.search(r"codgrupo=(\d+)", url_jornada, re.IGNORECASE)
-            print(f"[DEBUG-ACTA] url_jornada={url_jornada!r} cod_grupo_match={cod_grupo_match}", flush=True)
             if cod_grupo_match:
                 acta = await buscar_acta_via_jornada(
                     page, cod_competicion, cod_grupo_match.group(1), cod_temporada,
                     equipo_local, equipo_visitante, jornada,
                 )
-                print(f"[DEBUG-ACTA] resultado buscar_acta_via_jornada={acta!r}", flush=True)
         acta = acta or " "
 
         data = {
