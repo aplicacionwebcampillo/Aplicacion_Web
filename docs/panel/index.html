@@ -1,0 +1,354 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Panel Campillo CF</title>
+<meta name="theme-color" content="#0b3d24">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icon.svg">
+<style>
+  :root {
+    --bg: #f4f6f5;
+    --card: #ffffff;
+    --text: #14201a;
+    --muted: #5c6b64;
+    --accent: #0b7a3d;
+    --accent-dark: #075a2c;
+    --border: #dfe6e2;
+    --queued: #b58a00;
+    --progress: #0b6bb5;
+    --success: #0b7a3d;
+    --failure: #b3261e;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #0f1512;
+      --card: #17201b;
+      --text: #eaf1ec;
+      --muted: #9db2a7;
+      --accent: #2fbf6e;
+      --accent-dark: #23a25c;
+      --border: #26332c;
+      --queued: #d8ab2e;
+      --progress: #4fa6e8;
+      --success: #2fbf6e;
+      --failure: #e5645c;
+    }
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    padding: 16px;
+    padding-bottom: 48px;
+    max-width: 640px;
+    margin-inline: auto;
+  }
+  h1 {
+    font-size: 1.3rem;
+    margin: 8px 0 2px;
+  }
+  .sub {
+    color: var(--muted);
+    font-size: 0.85rem;
+    margin-bottom: 20px;
+  }
+  .card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 16px;
+    margin-bottom: 14px;
+  }
+  .token-row {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  input[type="password"], input[type="text"] {
+    flex: 1;
+    min-width: 0;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    color: var(--text);
+    border-radius: 10px;
+    padding: 10px 12px;
+    font-size: 0.95rem;
+  }
+  button {
+    font-family: inherit;
+    font-size: 0.95rem;
+    border: none;
+    border-radius: 10px;
+    padding: 10px 16px;
+    cursor: pointer;
+  }
+  .btn-primary {
+    background: var(--accent);
+    color: white;
+    font-weight: 600;
+  }
+  .btn-primary:active { background: var(--accent-dark); }
+  .btn-secondary {
+    background: transparent;
+    color: var(--muted);
+    border: 1px solid var(--border);
+  }
+  .token-status {
+    margin-top: 8px;
+    font-size: 0.8rem;
+    color: var(--muted);
+  }
+  .wf {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 14px 4px;
+    border-bottom: 1px solid var(--border);
+  }
+  .wf:last-child { border-bottom: none; }
+  .wf-name { font-weight: 600; font-size: 0.98rem; }
+  .wf-desc { color: var(--muted); font-size: 0.8rem; margin-top: 2px; }
+  .wf-status {
+    font-size: 0.78rem;
+    margin-top: 4px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .dot {
+    width: 8px; height: 8px; border-radius: 50%;
+    background: var(--muted);
+    flex-shrink: 0;
+  }
+  .dot.queued { background: var(--queued); }
+  .dot.in_progress { background: var(--progress); animation: pulse 1.2s infinite; }
+  .dot.success { background: var(--success); }
+  .dot.failure { background: var(--failure); }
+  @keyframes pulse { 50% { opacity: 0.35; } }
+  .run-btn {
+    background: var(--accent);
+    color: white;
+    font-weight: 600;
+    padding: 10px 18px;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+  .run-btn:disabled {
+    opacity: 0.5;
+  }
+  .run-btn.launched {
+    background: var(--muted);
+  }
+  a.run-link {
+    color: var(--accent);
+    text-decoration: none;
+  }
+  .hidden { display: none !important; }
+  .hint {
+    font-size: 0.78rem;
+    color: var(--muted);
+    margin-top: 10px;
+    line-height: 1.4;
+  }
+</style>
+</head>
+<body>
+
+  <h1>⚽ Panel Campillo CF</h1>
+  <div class="sub">Lanzar workflows manualmente desde el móvil</div>
+
+  <div class="card" id="token-card">
+    <div class="token-row">
+      <input type="password" id="token-input" placeholder="Token de acceso de GitHub (ghp_...)" autocomplete="off">
+      <button class="btn-primary" id="save-token">Guardar</button>
+    </div>
+    <div class="token-status" id="token-status">Sin token guardado.</div>
+    <button class="btn-secondary" id="clear-token" style="margin-top:8px;">Borrar token</button>
+    <div class="hint">
+      El token solo se guarda en este navegador (no se envía a ningún sitio salvo a api.github.com). Usa un
+      <strong>token de acceso detallado (fine-grained)</strong> limitado a este repositorio, con permiso
+      "Actions" en Lectura y escritura.
+    </div>
+  </div>
+
+  <div class="card">
+    <div id="workflows"></div>
+  </div>
+
+  <div class="hint" style="text-align:center;">
+    Repo: aplicacionwebcampillo/Aplicacion_Web · Rama: main
+  </div>
+
+<script>
+const OWNER = "aplicacionwebcampillo";
+const REPO = "Aplicacion_Web";
+const REF = "main";
+
+const WORKFLOWS = [
+  { file: "scraping.yml", name: "Actualizar BD (partidos y calendario)", desc: "Scraping RFAF: resultados, calendario y actas." },
+  { file: "scraper_jornada.yml", name: "Actualizar resultados RFAF", desc: "Scraper alternativo (tabla de resultados)." },
+  { file: "scraper_instagram.yml", name: "Importar noticias desde Instagram", desc: "Crea noticias a partir de publicaciones nuevas." },
+  { file: "scraper_instagram_jugadores.yml", name: "Sincronizar plantilla desde Instagram", desc: "Fichajes/renovaciones y dorsales." },
+  { file: "recordatorio_lapreferente.yml", name: "Recordatorio de lapreferente", desc: "Aviso manual (normalmente se envía solo)." },
+];
+
+const tokenInput = document.getElementById("token-input");
+const tokenStatus = document.getElementById("token-status");
+const saveBtn = document.getElementById("save-token");
+const clearBtn = document.getElementById("clear-token");
+const wfContainer = document.getElementById("workflows");
+
+function getToken() {
+  return localStorage.getItem("gh_token") || "";
+}
+
+function refreshTokenStatus() {
+  const t = getToken();
+  tokenStatus.textContent = t ? `Token guardado (termina en ...${t.slice(-4)}).` : "Sin token guardado.";
+}
+
+saveBtn.addEventListener("click", () => {
+  const v = tokenInput.value.trim();
+  if (!v) return;
+  localStorage.setItem("gh_token", v);
+  tokenInput.value = "";
+  refreshTokenStatus();
+});
+
+clearBtn.addEventListener("click", () => {
+  localStorage.removeItem("gh_token");
+  refreshTokenStatus();
+});
+
+function ghHeaders() {
+  return {
+    "Authorization": `Bearer ${getToken()}`,
+    "Accept": "application/vnd.github+json",
+    "X-GitHub-Api-Version": "2022-11-28",
+  };
+}
+
+function statusLabel(status, conclusion) {
+  if (status !== "completed") {
+    return { text: status === "in_progress" ? "En marcha…" : "En cola…", cls: status };
+  }
+  const map = {
+    success: "Éxito",
+    failure: "Ha fallado",
+    cancelled: "Cancelado",
+  };
+  return { text: map[conclusion] || conclusion, cls: conclusion === "success" ? "success" : "failure" };
+}
+
+function buildRow(wf) {
+  const row = document.createElement("div");
+  row.className = "wf";
+  row.innerHTML = `
+    <div>
+      <div class="wf-name">${wf.name}</div>
+      <div class="wf-desc">${wf.desc}</div>
+      <div class="wf-status hidden" id="status-${wf.file}">
+        <span class="dot"></span>
+        <span class="status-text"></span>
+      </div>
+    </div>
+    <button class="run-btn" id="btn-${wf.file}">Lanzar</button>
+  `;
+  return row;
+}
+
+async function dispatchWorkflow(wf) {
+  const btn = document.getElementById(`btn-${wf.file}`);
+  const statusEl = document.getElementById(`status-${wf.file}`);
+  const dot = statusEl.querySelector(".dot");
+  const text = statusEl.querySelector(".status-text");
+
+  if (!getToken()) {
+    alert("Primero guarda un token de GitHub arriba.");
+    return;
+  }
+
+  btn.disabled = true;
+  btn.textContent = "Lanzando…";
+  statusEl.classList.remove("hidden");
+  dot.className = "dot queued";
+  text.textContent = "Lanzando…";
+
+  try {
+    const resp = await fetch(
+      `https://api.github.com/repos/${OWNER}/${REPO}/actions/workflows/${wf.file}/dispatches`,
+      {
+        method: "POST",
+        headers: { ...ghHeaders(), "Content-Type": "application/json" },
+        body: JSON.stringify({ ref: REF }),
+      }
+    );
+    if (resp.status !== 204) {
+      const body = await resp.text();
+      throw new Error(`${resp.status}: ${body}`);
+    }
+    btn.textContent = "Lanzado";
+    btn.classList.add("launched");
+    text.textContent = "En cola…";
+    // Da tiempo a que GitHub registre el nuevo run antes de buscarlo.
+    setTimeout(() => pollRun(wf), 4000);
+  } catch (err) {
+    dot.className = "dot failure";
+    text.textContent = "Error al lanzar: " + err.message;
+    btn.disabled = false;
+    btn.textContent = "Lanzar";
+  }
+}
+
+async function pollRun(wf, attempt = 0) {
+  const statusEl = document.getElementById(`status-${wf.file}`);
+  const dot = statusEl.querySelector(".dot");
+  const text = statusEl.querySelector(".status-text");
+  const btn = document.getElementById(`btn-${wf.file}`);
+
+  try {
+    const resp = await fetch(
+      `https://api.github.com/repos/${OWNER}/${REPO}/actions/workflows/${wf.file}/runs?per_page=1`,
+      { headers: ghHeaders() }
+    );
+    const data = await resp.json();
+    const run = data.workflow_runs && data.workflow_runs[0];
+    if (!run) throw new Error("sin ejecuciones todavía");
+
+    const { text: label, cls } = statusLabel(run.status, run.conclusion);
+    dot.className = "dot " + cls;
+    text.innerHTML = `${label} · <a class="run-link" target="_blank" href="${run.html_url}">ver en GitHub</a>`;
+
+    if (run.status !== "completed" && attempt < 60) {
+      setTimeout(() => pollRun(wf, attempt + 1), 6000);
+    } else {
+      btn.disabled = false;
+      btn.textContent = "Lanzar";
+      btn.classList.remove("launched");
+    }
+  } catch (err) {
+    if (attempt < 5) {
+      setTimeout(() => pollRun(wf, attempt + 1), 4000);
+    } else {
+      text.textContent = "No se pudo comprobar el estado.";
+      btn.disabled = false;
+      btn.textContent = "Lanzar";
+    }
+  }
+}
+
+WORKFLOWS.forEach((wf) => {
+  const row = buildRow(wf);
+  wfContainer.appendChild(row);
+  document.getElementById(`btn-${wf.file}`).addEventListener("click", () => dispatchWorkflow(wf));
+});
+
+refreshTokenStatus();
+</script>
+</body>
+</html>
