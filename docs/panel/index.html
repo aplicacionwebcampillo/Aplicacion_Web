@@ -155,6 +155,57 @@
     margin-top: 10px;
     line-height: 1.4;
   }
+  h2 {
+    font-size: 1rem;
+    margin: 0 0 4px;
+  }
+  .card-desc {
+    color: var(--muted);
+    font-size: 0.82rem;
+    margin-bottom: 12px;
+    line-height: 1.4;
+  }
+  textarea {
+    width: 100%;
+    min-height: 110px;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    color: var(--text);
+    border-radius: 10px;
+    padding: 10px 12px;
+    font-size: 0.85rem;
+    font-family: ui-monospace, "SF Mono", Menlo, monospace;
+    resize: vertical;
+  }
+  .cookie-actions {
+    display: flex;
+    gap: 8px;
+    margin-top: 10px;
+    flex-wrap: wrap;
+  }
+  .cookie-status {
+    margin-top: 12px;
+    font-size: 0.82rem;
+    line-height: 1.5;
+    white-space: pre-wrap;
+  }
+  .cookie-status.ok { color: var(--success); }
+  .cookie-status.err { color: var(--failure); }
+  details.steps {
+    margin-top: 12px;
+    font-size: 0.82rem;
+    color: var(--muted);
+  }
+  details.steps summary {
+    cursor: pointer;
+    color: var(--text);
+    font-weight: 600;
+  }
+  details.steps ol {
+    margin: 8px 0 0;
+    padding-left: 20px;
+    line-height: 1.6;
+  }
 </style>
 </head>
 <body>
@@ -180,10 +231,37 @@
     <div id="workflows"></div>
   </div>
 
+  <div class="card">
+    <h2>🍪 Actualizar sesión de Instagram</h2>
+    <div class="card-desc">
+      Cuando la sesión de Instagram caduque, exporta las cookies desde el móvil y súbelas aquí — sin terminal.
+    </div>
+    <details class="steps">
+      <summary>Cómo exportar las cookies (una vez)</summary>
+      <ol>
+        <li>En el móvil, abre <strong>Firefox</strong> (no vale Chrome) e instala la extensión <strong>Cookie-Editor</strong> desde addons.mozilla.org.</li>
+        <li>Entra en <code>instagram.com</code> e inicia sesión con la cuenta del club.</li>
+        <li>Toca el icono de Cookie-Editor (barra de direcciones o menú) → <strong>Export</strong> → <strong>Export as JSON</strong>. Se copia al portapapeles.</li>
+        <li>Vuelve aquí, pega el contenido abajo y toca "Convertir y subir".</li>
+      </ol>
+    </details>
+    <textarea id="cookies-input" placeholder='Pega aquí el JSON exportado de Cookie-Editor, p.ej. [{"name":"sessionid","value":"...","domain":".instagram.com",...}, ...]'></textarea>
+    <div class="cookie-actions">
+      <button class="btn-primary" id="upload-cookies">Convertir y subir a GitHub</button>
+    </div>
+    <div class="cookie-status hidden" id="cookie-status"></div>
+    <div class="hint">
+      El token necesita también permiso <strong>"Secrets" en Lectura y escritura</strong> (además de "Actions"),
+      para poder actualizar <code>IG_STORAGE_STATE_B64</code>. Las cookies se convierten y cifran en este mismo
+      navegador; solo salen hacia <code>api.github.com</code>.
+    </div>
+  </div>
+
   <div class="hint" style="text-align:center;">
     Repo: aplicacionwebcampillo/Aplicacion_Web · Rama: main
   </div>
 
+<script src="https://cdn.jsdelivr.net/npm/libsodium-wrappers@0.7.15/dist/modules/libsodium-wrappers.min.js"></script>
 <script>
 const OWNER = "aplicacionwebcampillo";
 const REPO = "Aplicacion_Web";
@@ -349,6 +427,146 @@ WORKFLOWS.forEach((wf) => {
 });
 
 refreshTokenStatus();
+
+// ---- Actualizar sesión de Instagram desde cookies exportadas ----
+
+const SECRET_NAME = "IG_STORAGE_STATE_B64";
+
+// Misma logica que instagram_cookies_a_sesion.py, portada a JS.
+const SAMESITE_MAP = {
+  strict: "Strict",
+  lax: "Lax",
+  no_restriction: "None",
+  none: "None",
+  unspecified: "Lax",
+};
+
+function convertirCookie(c) {
+  let dominio = c.domain || "";
+  if (dominio && !dominio.startsWith(".") && dominio.includes("instagram.com")) {
+    dominio = "." + dominio;
+  }
+  const esSesion = !!c.session;
+  const expira = c.expirationDate;
+  const expires = esSesion || expira === undefined || expira === null ? -1 : Math.trunc(expira);
+  const sameSiteOriginal = String(c.sameSite || "unspecified").toLowerCase();
+
+  return {
+    name: c.name,
+    value: c.value,
+    domain: dominio,
+    path: c.path || "/",
+    expires,
+    httpOnly: !!c.httpOnly,
+    secure: c.secure === undefined ? true : !!c.secure,
+    sameSite: SAMESITE_MAP[sameSiteOriginal] || "Lax",
+  };
+}
+
+function construirStorageState(cookiesExtension) {
+  const cookiesInstagram = cookiesExtension.filter((c) => (c.domain || "").includes("instagram.com"));
+  if (cookiesInstagram.length === 0) {
+    throw new Error("No se encontró ninguna cookie de instagram.com en el JSON pegado.");
+  }
+  const nombres = new Set(cookiesInstagram.map((c) => c.name));
+  const avisoSinSesion = !nombres.has("sessionid");
+  const storageState = {
+    cookies: cookiesInstagram.map(convertirCookie),
+    origins: [],
+  };
+  return { storageState, avisoSinSesion, total: cookiesInstagram.length };
+}
+
+function utf8ToBase64(str) {
+  const bytes = new TextEncoder().encode(str);
+  let binary = "";
+  bytes.forEach((b) => { binary += String.fromCharCode(b); });
+  return btoa(binary);
+}
+
+async function obtenerClavePublica() {
+  const resp = await fetch(
+    `https://api.github.com/repos/${OWNER}/${REPO}/actions/secrets/public-key`,
+    { headers: ghHeaders() }
+  );
+  if (!resp.ok) throw new Error(`No se pudo obtener la clave pública del repo (${resp.status}).`);
+  return resp.json(); // { key_id, key }
+}
+
+async function subirSecret(nombre, valorPlano) {
+  await sodium.ready;
+  const { key_id, key } = await obtenerClavePublica();
+  const clavePublica = sodium.from_base64(key, sodium.base64_variants.ORIGINAL);
+  const cifrado = sodium.crypto_box_seal(sodium.from_string(valorPlano), clavePublica);
+  const cifradoB64 = sodium.to_base64(cifrado, sodium.base64_variants.ORIGINAL);
+
+  const resp = await fetch(
+    `https://api.github.com/repos/${OWNER}/${REPO}/actions/secrets/${nombre}`,
+    {
+      method: "PUT",
+      headers: { ...ghHeaders(), "Content-Type": "application/json" },
+      body: JSON.stringify({ encrypted_value: cifradoB64, key_id }),
+    }
+  );
+  if (resp.status !== 201 && resp.status !== 204) {
+    const body = await resp.text();
+    throw new Error(`${resp.status}: ${body}`);
+  }
+}
+
+const cookiesInput = document.getElementById("cookies-input");
+const uploadCookiesBtn = document.getElementById("upload-cookies");
+const cookieStatus = document.getElementById("cookie-status");
+
+function setCookieStatus(msg, cls) {
+  cookieStatus.classList.remove("hidden", "ok", "err");
+  if (cls) cookieStatus.classList.add(cls);
+  cookieStatus.textContent = msg;
+}
+
+uploadCookiesBtn.addEventListener("click", async () => {
+  if (!getToken()) {
+    alert("Primero guarda un token de GitHub arriba (con permiso Actions y Secrets en lectura y escritura).");
+    return;
+  }
+  const raw = cookiesInput.value.trim();
+  if (!raw) {
+    setCookieStatus("Pega antes el JSON exportado de Cookie-Editor.", "err");
+    return;
+  }
+
+  uploadCookiesBtn.disabled = true;
+  uploadCookiesBtn.textContent = "Procesando…";
+
+  try {
+    let cookiesExtension;
+    try {
+      cookiesExtension = JSON.parse(raw);
+    } catch {
+      throw new Error("El texto pegado no es un JSON válido.");
+    }
+    if (!Array.isArray(cookiesExtension)) {
+      throw new Error("Se esperaba un array de cookies (el export de Cookie-Editor en formato JSON).");
+    }
+
+    const { storageState, avisoSinSesion, total } = construirStorageState(cookiesExtension);
+    const secretPlano = utf8ToBase64(JSON.stringify(storageState));
+
+    setCookieStatus(`Subiendo ${total} cookies a GitHub…`, null);
+    await subirSecret(SECRET_NAME, secretPlano);
+
+    const aviso = avisoSinSesion
+      ? "\n⚠️ No se encontró la cookie 'sessionid' — puede que no estuvieras logueado al exportar."
+      : "";
+    setCookieStatus(`✅ Secret ${SECRET_NAME} actualizado con ${total} cookies.${aviso}`, "ok");
+    cookiesInput.value = "";
+  } catch (err) {
+    setCookieStatus("❌ " + err.message, "err");
+  } finally {
+    uploadCookiesBtn.disabled = false;
+    uploadCookiesBtn.textContent = "Convertir y subir a GitHub";
+  }
+});
 </script>
 </body>
 </html>
