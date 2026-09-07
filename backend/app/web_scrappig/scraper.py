@@ -311,10 +311,11 @@ tasks = []
 
 def _texto_visible(tag):
     """Concatena solo el texto realmente visible dentro de tag, ignorando
-    nodos con estilo inline display:none y el contenido de <style> -- RFAF
-    inyecta en el marcador digitos señuelo ocultos (p.ej. un
+    nodos con estilo inline display:none y el contenido de <style>/<script>
+    -- RFAF inyecta en el marcador digitos señuelo ocultos (p.ej. un
     <span style="display:none">4</span> pegado justo detras del digito
-    real) para dificultar el scraping ingenuo del resultado."""
+    real) y pequeños scripts (ver _extraer_tabla_ntype) para dificultar el
+    scraping ingenuo del resultado."""
     partes = []
     for nodo in tag.descendants:
         if not isinstance(nodo, str):
@@ -322,7 +323,7 @@ def _texto_visible(tag):
         padre = nodo.parent
         oculto = False
         while padre is not None and padre is not tag.parent:
-            if padre.name == "style":
+            if padre.name in ("style", "script"):
                 oculto = True
                 break
             estilo = padre.get("style", "") if hasattr(padre, "get") else ""
@@ -335,31 +336,127 @@ def _texto_visible(tag):
     return "".join(partes)
 
 
-def extraer_marcador_widget(celda):
+def _extraer_tabla_ntype(soup):
+    """Busca en toda la página el script empaquetado (formato "packer" de
+    Dean Edwards) que define la función ntype(id,n,i,f) -- usada para
+    "desordenar" un dígito del marcador cambiando la clase de su icono
+    según una tabla de permutación, distinta en cada carga de página. No
+    hace falta desempaquetar el script entero: los números de la tabla no
+    se tocan en el empaquetado (solo se sustituyen tokens de una letra), y
+    el multiplicador de la fórmula es un único token cuyo índice en la
+    lista de palabras clave es directamente su valor en base 36. Devuelve
+    (tabla, multiplicador) o (None, None) si no se encuentra."""
+    for script in soup.find_all("script"):
+        texto = script.string or script.get_text() or ""
+        if "eval(function(p,a,c,k,e,d)" not in texto:
+            continue
+        m = re.search(
+            r'\(\s*"((?:[^"\\]|\\.)*)"\s*,\s*\d+\s*,\s*\d+\s*,\s*"((?:[^"\\]|\\.)*)"\.split\("\|"\)',
+            texto,
+        )
+        if not m:
+            continue
+        packed, keywords_raw = m.group(1), m.group(2)
+        keywords = keywords_raw.split("|")
+
+        m_tabla = re.search(r"\[\s*([\d,\s]+)\]", packed)
+        m_formula = re.search(r"\(\s*i\s*\*\s*(\w)\s*\)\s*\+\s*n", packed)
+        if not (m_tabla and m_formula):
+            continue
+        try:
+            multiplicador = int(keywords[int(m_formula.group(1), 36)])
+        except (ValueError, IndexError):
+            continue
+        tabla = [int(x) for x in m_tabla.group(1).split(",")]
+        return tabla, multiplicador
+    return None, None
+
+
+def _digito_via_ntype(elemento, tabla_ntype):
+    """Técnica 3: un <script>ntype("id",n,i,"fa-X")</script> dentro del
+    elemento indica que hay que sustituir la clase por 'fa-'+tabla[i*mult+n]
+    -- solo se aplica si se ejecuta JavaScript. Se calcula aquí sin
+    ejecutar nada, usando la tabla ya extraída de la página."""
+    if not tabla_ntype or tabla_ntype[0] is None:
+        return None
+    tabla, multiplicador = tabla_ntype
+    script = elemento.find("script")
+    if not script:
+        return None
+    texto = script.string or script.get_text() or ""
+    m = re.search(r'ntype\("[^"]+",\s*(\d+),\s*(\d+),\s*"fa-\d+"\)', texto)
+    if not m:
+        return None
+    n, i = int(m.group(1)), int(m.group(2))
+    idx = i * multiplicador + n
+    if 0 <= idx < len(tabla):
+        return str(tabla[idx])
+    return None
+
+
+def _digito_via_after(elemento):
+    """Técnica 2: un <span id="X"></span> vacío cuyo dígito real se
+    inyecta mediante CSS generated content (#X:after{content:"\\HHHH"}) en
+    vez de como texto -- invisible para un lector de texto normal, pero no
+    oculto con display:none, así que sí es el dígito real (a diferencia de
+    la técnica 3, que si no se ejecuta JavaScript muestra la clase sin
+    intercambiar)."""
+    span_id = elemento.find(attrs={"id": True})
+    if not span_id:
+        return None
+    id_ = span_id["id"]
+    style = elemento.find("style")
+    if not style:
+        return None
+    texto_estilo = style.string or style.get_text() or ""
+    m = re.search(re.escape(f"#{id_}:after") + r"\s*\{([^}]*)\}", texto_estilo)
+    if not m:
+        return None
+    bloque = m.group(1)
+    if re.search(r"display\s*:\s*none", bloque):
+        return None
+    m_content = re.search(r'content\s*:\s*"((?:\\.|[^"\\])*)"', bloque)
+    if not m_content:
+        return None
+    contenido = re.sub(
+        r"\\([0-9a-fA-F]{1,6})\s?", lambda m: chr(int(m.group(1), 16)), m_content.group(1)
+    )
+    digitos = re.sub(r"\D", "", contenido)
+    return digitos or None
+
+
+def _extraer_digito(elemento, tabla_ntype):
+    """Prueba, en orden, las tres técnicas de ofuscación del marcador
+    vistas en rfaf.es para un único dígito (el <i class="fa-solid"> de un
+    lado del resultado): texto visible con un dígito señuelo oculto al
+    lado, contenido CSS ::after en un span vacío, y el script ntype()."""
+    visible = re.sub(r"\D", "", _texto_visible(elemento))
+    if visible:
+        return visible
+    return _digito_via_after(elemento) or _digito_via_ntype(elemento, tabla_ntype)
+
+
+def extraer_marcador_widget(celda, soup_pagina):
     """Extrae el resultado (local, visitante) de la celda central de una
     fila con el formato "widget" de NFG_CmpJornada. Devuelve (None, None)
-    si el partido aun no se ha jugado o no se encuentra marcador.
+    si el partido aun no se ha jugado o no se pudo leer el marcador.
 
-    Verificado contra un partido real (con el resultado visible a simple
-    vista en el propio sitio): esta celda usa un truco sencillo (un dígito
-    señuelo de más, oculto con display:none, pegado al dígito real) que
-    _texto_visible ya filtra correctamente.
-
-    AVISO: el acta oficial (NFG_CmpPartido) usa un truco de ofuscación
-    MUCHO más pesado para el mismo marcador -- un pequeño script que
-    intercambia la clase del icono del dígito mediante una tabla de
-    permutación, y que solo se aplica si se ejecuta JavaScript. Como el
-    scraper navega con JavaScript desactivado (necesario para no colgarse
-    en esta web, ver comentario en scrape_partidos), el HTML crudo del acta
-    muestra el dígito SIN intercambiar, es decir, casi siempre el
-    resultado contrario al real. Por eso el marcador se lee de aquí (la
-    ficha de jornada), nunca del acta."""
+    RFAF ofusca cada dígito del marcador con una de al menos tres técnicas
+    distintas (ver _extraer_digito), aparentemente elegidas al azar en
+    cada carga de página -- se comprobó con un partido real que un mismo
+    marcador puede mezclar dos técnicas distintas, una para cada dígito."""
     spans = celda.select("span.wid2_resultado_cerrada")
     if len(spans) < 2:
         return None, None
 
-    local = re.sub(r"\D", "", _texto_visible(spans[0]))
-    visitante = re.sub(r"\D", "", _texto_visible(spans[1]))
+    i_local = spans[0].find("i", class_="fa-solid")
+    i_visitante = spans[1].find("i", class_="fa-solid")
+    if not i_local or not i_visitante:
+        return None, None
+
+    tabla_ntype = _extraer_tabla_ntype(soup_pagina)
+    local = _extraer_digito(i_local, tabla_ntype)
+    visitante = _extraer_digito(i_visitante, tabla_ntype)
     if not local or not visitante:
         return None, None
     return local, visitante
@@ -570,7 +667,7 @@ async def procesar_jornada_widget(page, url_jornada: str, nombre_competicion: st
         fecha = normalizar_fecha(horarios[0].get_text(strip=True)) if len(horarios) > 0 else None
         hora = normalizar_hora(horarios[1].get_text(strip=True)) if len(horarios) > 1 else None
 
-        resultado_local, resultado_visitante = extraer_marcador_widget(celda_resultado)
+        resultado_local, resultado_visitante = extraer_marcador_widget(celda_resultado, soup)
         acta = extraer_acta(fila, BASE_URL) or " "
 
         data = {
