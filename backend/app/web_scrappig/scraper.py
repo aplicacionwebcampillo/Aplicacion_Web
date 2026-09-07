@@ -309,6 +309,47 @@ BASE_URL = "https://rfaf.es"
 tasks = []
 
 
+def _texto_visible(tag):
+    """Concatena solo el texto realmente visible dentro de tag, ignorando
+    nodos con estilo inline display:none y el contenido de <style> -- RFAF
+    inyecta en el marcador digitos señuelo ocultos (p.ej. un
+    <span style="display:none">4</span> pegado justo detras del digito
+    real) para dificultar el scraping ingenuo del resultado."""
+    partes = []
+    for nodo in tag.descendants:
+        if not isinstance(nodo, str):
+            continue
+        padre = nodo.parent
+        oculto = False
+        while padre is not None and padre is not tag.parent:
+            if padre.name == "style":
+                oculto = True
+                break
+            estilo = padre.get("style", "") if hasattr(padre, "get") else ""
+            if re.search(r"display\s*:\s*none", estilo):
+                oculto = True
+                break
+            padre = padre.parent
+        if not oculto:
+            partes.append(str(nodo))
+    return "".join(partes)
+
+
+def extraer_marcador_widget(celda):
+    """Extrae el resultado (local, visitante) de la celda central de una
+    fila con el formato "widget" de NFG_CmpJornada. Devuelve (None, None)
+    si el partido aun no se ha jugado o no se encuentra marcador."""
+    spans = celda.select("span.wid2_resultado_cerrada")
+    if len(spans) < 2:
+        return None, None
+
+    local = re.sub(r"\D", "", _texto_visible(spans[0]))
+    visitante = re.sub(r"\D", "", _texto_visible(spans[1]))
+    if not local or not visitante:
+        return None, None
+    return local, visitante
+
+
 def _norm_ascii(texto):
     if not texto:
         return ""
@@ -462,6 +503,59 @@ async def procesar_jornada(page, url_jornada: str, cod_competicion=None, cod_tem
 
 
 
+async def procesar_jornada_widget(page, url_jornada: str, nombre_competicion: str):
+    """Respaldo para competiciones (p.ej. 1ª Andaluza Sénior) cuya ficha de
+    equipo ya no trae enlace a la jornada esta temporada: aqui se procesa
+    directamente NFG_CmpJornada, que usa un formato de fila "widget"
+    distinto al de la tabla de jornada clasica (procesar_jornada)."""
+    await page.goto(url_jornada, wait_until="networkidle")
+    content = await page.content()
+    soup = BeautifulSoup(content, "html.parser")
+
+    now = datetime.now()
+    temporada = inferir_temporada(now.month, now.year)
+
+    jornada_match = re.search(r"CodJornada=(\d+)", url_jornada, re.IGNORECASE)
+    jornada = jornada_match.group(1) if jornada_match else ""
+
+    for fila in soup.find_all("tr"):
+        celdas = fila.select("td")
+        if len(celdas) != 3:
+            continue
+
+        equipo_local_tag = celdas[0].select_one("h4 a")
+        equipo_visitante_tag = celdas[2].select_one("h4 a")
+        if not equipo_local_tag or not equipo_visitante_tag:
+            continue
+
+        equipo_local = equipo_local_tag.get_text(strip=True)
+        equipo_visitante = equipo_visitante_tag.get_text(strip=True)
+        if len(equipo_local) < 3 or len(equipo_visitante) < 3:
+            continue
+
+        celda_resultado = celdas[1]
+        horarios = celda_resultado.select("span.horario")
+        fecha = normalizar_fecha(horarios[0].get_text(strip=True)) if len(horarios) > 0 else None
+        hora = normalizar_hora(horarios[1].get_text(strip=True)) if len(horarios) > 1 else None
+
+        resultado_local, resultado_visitante = extraer_marcador_widget(celda_resultado)
+        acta = extraer_acta(fila, BASE_URL) or " "
+
+        data = {
+            "nombre_competicion": nombre_competicion,
+            "temporada_competicion": temporada,
+            "local": equipo_local,
+            "visitante": equipo_visitante,
+            "dia": fecha,
+            "hora": hora,
+            "jornada": jornada,
+            "resultado_local": resultado_local if resultado_local is not None else 0,
+            "resultado_visitante": resultado_visitante if resultado_visitante is not None else 0,
+            "acta": acta,
+        }
+        await guardar_o_actualizar_partido(data)
+
+
 async def procesar_competiciones(page):
     content = await page.content()
     soup = BeautifulSoup(content, "html.parser")
@@ -489,6 +583,9 @@ async def procesar_competiciones(page):
         if categoria in categorias_visitadas:
             continue
 
+        nombre_competicion_fila = cols[2].get_text(strip=True)
+        ficha_procesada = False
+
         enlace = cols[0].find("a")
         if enlace and enlace.has_attr("href"):
             url_completa = urljoin(page.url, enlace["href"])
@@ -500,30 +597,59 @@ async def procesar_competiciones(page):
             tabla_jornadas = soup_categoria.select_one(".table-bordered")
             if not tabla_jornadas:
                 print(f"[AVISO] No se encontró tabla de jornadas para: {categoria}")
-                continue
+            else:
+                for row_jornada in tabla_jornadas.select("tbody tr"):
+                    cols_jornada = row_jornada.select("td")
+                    if len(cols_jornada) < 6:
+                        continue
 
-            for row in tabla_jornadas.select("tbody tr"):
-                cols = row.select("td")
-                if len(cols) < 6:
-                    continue
+                    cod_competicion = None
+                    enlace_competicion = cols_jornada[0].find("a")
+                    if enlace_competicion and enlace_competicion.has_attr("href"):
+                        m = re.search(r"codcompeticion=(\d+)", enlace_competicion["href"], re.IGNORECASE)
+                        if m:
+                            cod_competicion = m.group(1)
 
-                cod_competicion = None
-                enlace_competicion = cols[0].find("a")
-                if enlace_competicion and enlace_competicion.has_attr("href"):
-                    m = re.search(r"codcompeticion=(\d+)", enlace_competicion["href"], re.IGNORECASE)
-                    if m:
-                        cod_competicion = m.group(1)
+                    enlace_ficha = cols_jornada[5].find("a")
+                    if enlace_ficha and enlace_ficha.has_attr("href"):
+                        url_completa_ficha = urljoin(page.url, enlace_ficha["href"])
+                        await procesar_jornada(
+                            page, url_completa_ficha,
+                            cod_competicion=cod_competicion, cod_temporada=cod_temporada,
+                        )
+                        ficha_procesada = True
 
-                enlace_ficha = cols[5].find("a")
-                if enlace_ficha and enlace_ficha.has_attr("href"):
-                    url_completa_ficha = urljoin(page.url, enlace_ficha["href"])
-                    await procesar_jornada(
-                        page, url_completa_ficha,
-                        cod_competicion=cod_competicion, cod_temporada=cod_temporada,
-                    )
+        # Esta temporada, para las ligas (a diferencia de las copas) la
+        # ficha de equipo ya no trae enlace a la jornada -- se comprobo
+        # directamente que la columna "Ficha" viene vacia. Hay que entrar
+        # por la pagina de Grupo (columna 4, la misma que usa
+        # scrape_clasificacion) y seguir el enlace "Ver Última Jornada"
+        # hasta NFG_CmpJornada, que usa un formato de fila distinto
+        # (procesar_jornada_widget).
+        if not ficha_procesada and inferir_formato(nombre_competicion_fila) == "Liga" and len(cols) > 3:
+            enlace_grupo = cols[3].find("a")
+            if enlace_grupo and enlace_grupo.has_attr("href"):
+                url_grupo = urljoin(page.url, enlace_grupo["href"])
+                await page.goto(url_grupo, wait_until="networkidle")
+                soup_grupo = BeautifulSoup(await page.content(), "html.parser")
 
-            categorias_visitadas.add(categoria)
-            print(f"Categoría visitada: {categoria}")
+                enlace_ultima = soup_grupo.find(
+                    "a", href=re.compile(r"NFG_CmpJornada\?.*CodJornada=\d+", re.IGNORECASE)
+                )
+                if enlace_ultima and enlace_ultima.has_attr("href"):
+                    url_ultima = urljoin(page.url, enlace_ultima["href"])
+                    m_jornada = re.search(r"CodJornada=(\d+)", url_ultima, re.IGNORECASE)
+                    ultima_jornada = int(m_jornada.group(1)) if m_jornada else 1
+                    for num_jornada in range(1, ultima_jornada + 1):
+                        url_num = re.sub(
+                            r"CodJornada=\d+", f"CodJornada={num_jornada}", url_ultima, flags=re.IGNORECASE
+                        )
+                        await procesar_jornada_widget(page, url_num, nombre_competicion_fila)
+                else:
+                    print(f"[AVISO] No se encontró enlace a la última jornada para: {categoria}")
+
+        categorias_visitadas.add(categoria)
+        print(f"Categoría visitada: {categoria}")
 
 
 
