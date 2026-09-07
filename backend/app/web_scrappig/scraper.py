@@ -544,6 +544,12 @@ async def procesar_jornada_widget(page, url_jornada: str, nombre_competicion: st
         if len(equipo_local) < 3 or len(equipo_visitante) < 3:
             continue
 
+        # Esta ficha lista TODOS los partidos de la jornada de toda la
+        # competición (todos los equipos, no solo el Campillo) -- aquí solo
+        # interesa guardar el partido del propio club.
+        if "campillo" not in equipo_local.lower() and "campillo" not in equipo_visitante.lower():
+            continue
+
         celda_resultado = celdas[1]
         horarios = celda_resultado.select("span.horario")
         fecha = normalizar_fecha(horarios[0].get_text(strip=True)) if len(horarios) > 0 else None
