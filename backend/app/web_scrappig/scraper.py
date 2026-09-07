@@ -585,19 +585,28 @@ async def procesar_competiciones(page):
 
         nombre_competicion_fila = cols[2].get_text(strip=True)
         ficha_procesada = False
+        print(f"[DEBUGTMP] fila categoria={categoria!r} competicion={nombre_competicion_fila!r} formato={inferir_formato(nombre_competicion_fila)!r}", flush=True)
 
         enlace = cols[0].find("a")
         if enlace and enlace.has_attr("href"):
+            print(f"[DEBUGTMP] href0={enlace['href']!r}", flush=True)
             url_completa = urljoin(page.url, enlace["href"])
             await page.goto(url_completa, wait_until="networkidle")
 
             content_categoria = await page.content()
             soup_categoria = BeautifulSoup(content_categoria, "html.parser")
 
+            print(f"[DEBUGTMP] pagina tras href0: {page.url}", flush=True)
+            print(f"[DEBUGTMP] num .table-bordered en pagina href0: {len(soup_categoria.select('.table-bordered'))}", flush=True)
+
             tabla_jornadas = soup_categoria.select_one(".table-bordered")
             if not tabla_jornadas:
                 print(f"[AVISO] No se encontró tabla de jornadas para: {categoria}")
             else:
+                print(f"[DEBUGTMP] filas en tabla_jornadas: {len(tabla_jornadas.select('tbody tr'))}", flush=True)
+                for r_dbg in tabla_jornadas.select("tbody tr"):
+                    c_dbg = r_dbg.select("td")
+                    print(f"[DEBUGTMP]   fila tabla_jornadas ({len(c_dbg)} cols): {[c.get_text(' ', strip=True) for c in c_dbg]}", flush=True)
                 for row_jornada in tabla_jornadas.select("tbody tr"):
                     cols_jornada = row_jornada.select("td")
                     if len(cols_jornada) < 6:
@@ -626,7 +635,9 @@ async def procesar_competiciones(page):
         # scrape_clasificacion) y seguir el enlace "Ver Última Jornada"
         # hasta NFG_CmpJornada, que usa un formato de fila distinto
         # (procesar_jornada_widget).
+        print(f"[DEBUGTMP] fin bucle old-path: ficha_procesada={ficha_procesada}", flush=True)
         if not ficha_procesada and inferir_formato(nombre_competicion_fila) == "Liga" and len(cols) > 3:
+            print(f"[DEBUGTMP] entrando en fallback Liga para {nombre_competicion_fila!r}", flush=True)
             enlace_grupo = cols[3].find("a")
             if enlace_grupo and enlace_grupo.has_attr("href"):
                 url_grupo = urljoin(page.url, enlace_grupo["href"])
