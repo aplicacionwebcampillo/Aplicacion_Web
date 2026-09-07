@@ -338,7 +338,13 @@ def _texto_visible(tag):
 def extraer_marcador_widget(celda):
     """Extrae el resultado (local, visitante) de la celda central de una
     fila con el formato "widget" de NFG_CmpJornada. Devuelve (None, None)
-    si el partido aun no se ha jugado o no se encuentra marcador."""
+    si el partido aun no se ha jugado o no se encuentra marcador.
+
+    AVISO: se comprobó contra el acta oficial de un partido real que este
+    marcador puede venir CAMBIADO (no solo con un dígito señuelo de más,
+    sino con el resultado real invertido) -- usar solo como último recurso
+    cuando no hay acta todavía; si hay acta, usar siempre
+    extraer_marcador_acta en su lugar."""
     spans = celda.select("span.wid2_resultado_cerrada")
     if len(spans) < 2:
         return None, None
@@ -348,6 +354,26 @@ def extraer_marcador_widget(celda):
     if not local or not visitante:
         return None, None
     return local, visitante
+
+
+async def extraer_marcador_acta(page, url_acta):
+    """El acta oficial del partido no ofusca el resultado (a diferencia de
+    la ficha de jornada, que esconde dígitos señuelo con display:none y
+    puede inducir a leer el marcador al revés) -- si ya hay acta publicada,
+    es la fuente fiable para el resultado real."""
+    try:
+        await page.goto(url_acta, wait_until="networkidle")
+        soup = BeautifulSoup(await page.content(), "html.parser")
+        titulo = soup.select_one("h2.ntype")
+        if not titulo:
+            return None, None
+        m = re.search(r"(\d+)\s*-\s*(\d+)", titulo.get_text(strip=True))
+        if not m:
+            return None, None
+        return m.group(1), m.group(2)
+    except Exception as e:
+        print(f"[AVISO] No se pudo leer el marcador del acta: {e}", flush=True)
+        return None, None
 
 
 def _norm_ascii(texto):
@@ -555,8 +581,16 @@ async def procesar_jornada_widget(page, url_jornada: str, nombre_competicion: st
         fecha = normalizar_fecha(horarios[0].get_text(strip=True)) if len(horarios) > 0 else None
         hora = normalizar_hora(horarios[1].get_text(strip=True)) if len(horarios) > 1 else None
 
-        resultado_local, resultado_visitante = extraer_marcador_widget(celda_resultado)
-        acta = extraer_acta(fila, BASE_URL) or " "
+        acta_url = extraer_acta(fila, BASE_URL)
+        resultado_local = resultado_visitante = None
+        if acta_url:
+            resultado_local, resultado_visitante = await extraer_marcador_acta(page, acta_url)
+        if resultado_local is None:
+            # Sin acta todavia (partido reciente) o no se pudo leer -- se
+            # usa el marcador de la propia ficha de jornada como respaldo,
+            # aunque es menos fiable (ver aviso en extraer_marcador_widget).
+            resultado_local, resultado_visitante = extraer_marcador_widget(celda_resultado)
+        acta = acta_url or " "
 
         data = {
             "nombre_competicion": nombre_competicion,
