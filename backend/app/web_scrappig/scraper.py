@@ -400,28 +400,37 @@ async def buscar_acta_via_jornada(page, cod_competicion, cod_grupo, cod_temporad
 
 
 async def procesar_jornada(page, url_jornada: str, cod_competicion=None, cod_temporada=None):
+    """Devuelve el numero de partidos realmente guardados, para que quien
+    llama pueda distinguir una ficha vacia/rota (enlace presente pero sin
+    tabla de partidos aprovechable) de una ficha que de verdad se proceso."""
     await page.goto(url_jornada, wait_until="networkidle")
     content = await page.content()
     soup = BeautifulSoup(content, "html.parser")
 
     print(f"[INFO] Procesando ficha")
-    
+
     h5 = soup.find('h5')
+    if not h5:
+        print("[AVISO] No se encontró título (h5) en la ficha de jornada.")
+        return 0
     lineas = list(h5.stripped_strings)
+    if not lineas:
+        return 0
 
     nombre_competicion = lineas[0]
-    
+
     now = datetime.now()
     temporada = inferir_temporada(now.month, now.year)
-    
+
     # Algunas fichas (p.ej. finales de copa) usan "table-light" en vez de
     # "table-hover" para la misma tabla de partidos, así que no exigimos esa
     # clase concreta.
     tabla_partidos = soup.select_one("table.table-bordered.table-striped")
     if not tabla_partidos:
         print("[AVISO] No se encontró tabla de partidos en la jornada.")
-        return
+        return 0
 
+    partidos_guardados = 0
     for row in tabla_partidos.select("tbody tr"):
         columnas = row.select("td")
         if len(columnas) < 3:
@@ -500,7 +509,9 @@ async def procesar_jornada(page, url_jornada: str, cod_competicion=None, cod_tem
             "acta": acta,
         }
         await guardar_o_actualizar_partido(data)
+        partidos_guardados += 1
 
+    return partidos_guardados
 
 
 async def procesar_jornada_widget(page, url_jornada: str, nombre_competicion: str):
@@ -622,11 +633,18 @@ async def procesar_competiciones(page):
                     enlace_ficha = cols_jornada[5].find("a")
                     if enlace_ficha and enlace_ficha.has_attr("href"):
                         url_completa_ficha = urljoin(page.url, enlace_ficha["href"])
-                        await procesar_jornada(
+                        guardados = await procesar_jornada(
                             page, url_completa_ficha,
                             cod_competicion=cod_competicion, cod_temporada=cod_temporada,
                         )
-                        ficha_procesada = True
+                        # El enlace de la columna Ficha a veces existe pero
+                        # no lleva a ninguna tabla de partidos real (un icono
+                        # vacio, confirmado en 1a Andaluza Senior esta
+                        # temporada) -- solo cuenta como procesada si de
+                        # verdad guardo algo, si no se deja pasar al
+                        # respaldo por Grupo/Ultima Jornada.
+                        if guardados:
+                            ficha_procesada = True
 
         # Esta temporada, para las ligas (a diferencia de las copas) la
         # ficha de equipo ya no trae enlace a la jornada -- se comprobo
