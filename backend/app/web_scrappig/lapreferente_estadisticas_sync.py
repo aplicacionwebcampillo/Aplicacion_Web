@@ -101,9 +101,12 @@ def extraer_jugadores(html):
         # Para un portero, "Goles" en lapreferente son los que le han
         # marcado (encajados), no los que ha metido -- se guardan en
         # negativo para poder distinguirlos de los goles de un jugador de
-        # campo sin necesitar otra columna.
+        # campo sin necesitar otra columna. Se compara por palabra exacta
+        # ("portero" en los tokens), no por subcadena: si no, "Entrenador
+        # de Porteros" también colaría (contiene "portero" como subcadena
+        # de "porteros").
         goles_valor = _a_entero(goles)
-        if posicion and "portero" in _normalizar(posicion):
+        if posicion and "portero" in _tokens(posicion):
             goles_valor = -abs(goles_valor)
 
         jugadores.append({

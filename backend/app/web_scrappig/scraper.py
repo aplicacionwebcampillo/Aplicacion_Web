@@ -713,7 +713,6 @@ async def procesar_competiciones(page):
             continue
 
         nombre_competicion_fila = cols[2].get_text(strip=True)
-        ficha_procesada = False
 
         enlace = cols[0].find("a")
         if enlace and enlace.has_attr("href"):
@@ -735,9 +734,8 @@ async def procesar_competiciones(page):
                     # La página de equipo lista TODAS las competiciones de
                     # ese equipo en una sola tabla compartida (no solo la de
                     # esta fila exterior) -- hay que quedarse solo con la
-                    # fila cuya competición coincide, si no se reprocesa (y
-                    # se contamina "ficha_procesada") con el enlace de una
-                    # competición distinta.
+                    # fila cuya competición coincide, si no se reprocesa el
+                    # enlace de una competición distinta.
                     if cols_jornada[0].get_text(strip=True) != nombre_competicion_fila:
                         continue
 
@@ -751,27 +749,22 @@ async def procesar_competiciones(page):
                     enlace_ficha = cols_jornada[5].find("a")
                     if enlace_ficha and enlace_ficha.has_attr("href"):
                         url_completa_ficha = urljoin(page.url, enlace_ficha["href"])
-                        guardados = await procesar_jornada(
+                        await procesar_jornada(
                             page, url_completa_ficha,
                             cod_competicion=cod_competicion, cod_temporada=cod_temporada,
                         )
-                        # El enlace de la columna Ficha a veces existe pero
-                        # no lleva a ninguna tabla de partidos real (un icono
-                        # vacio, confirmado en 1a Andaluza Senior esta
-                        # temporada) -- solo cuenta como procesada si de
-                        # verdad guardo algo, si no se deja pasar al
-                        # respaldo por Grupo/Ultima Jornada.
-                        if guardados:
-                            ficha_procesada = True
 
-        # Esta temporada, para las ligas (a diferencia de las copas) la
-        # ficha de equipo ya no trae enlace a la jornada -- se comprobo
-        # directamente que la columna "Ficha" viene vacia. Hay que entrar
-        # por la pagina de Grupo (columna 4, la misma que usa
-        # scrape_clasificacion) y seguir el enlace "Ver Última Jornada"
-        # hasta NFG_CmpJornada, que usa un formato de fila distinto
-        # (procesar_jornada_widget).
-        if not ficha_procesada and inferir_formato(nombre_competicion_fila) == "Liga" and len(cols) > 3:
+        # Para las ligas (a diferencia de las copas), la ficha de equipo a
+        # veces viene vacía y otras enlaza solo a una jornada suelta (se
+        # comprobó: apuntaba nada más que a la última jugada, dejando fuera
+        # la siguiente) -- así que para las ligas este respaldo se ejecuta
+        # SIEMPRE, no solo si el camino de arriba no encontró nada. Entra
+        # por la página de Grupo (columna 4, la misma que usa
+        # scrape_clasificacion) y sigue el enlace "Ver Última Jornada" hasta
+        # NFG_CmpJornada, recorriendo TODAS las jornadas hasta la actual
+        # (formato de fila distinto, procesar_jornada_widget); es idempotente,
+        # así que repetir una jornada ya al día no hace daño.
+        if inferir_formato(nombre_competicion_fila) == "Liga" and len(cols) > 3:
             enlace_grupo = cols[3].find("a")
             if enlace_grupo and enlace_grupo.has_attr("href"):
                 url_grupo = urljoin(page.url, enlace_grupo["href"])
