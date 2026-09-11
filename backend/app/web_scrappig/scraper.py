@@ -809,10 +809,7 @@ async def procesar_competiciones(page):
         # la siguiente) -- así que para las ligas este respaldo se ejecuta
         # SIEMPRE, no solo si el camino de arriba no encontró nada. Entra
         # por la página de Grupo (columna 4, la misma que usa
-        # scrape_clasificacion) y sigue el enlace "Ver Última Jornada" hasta
-        # NFG_CmpJornada, recorriendo TODAS las jornadas hasta la actual
-        # (formato de fila distinto, procesar_jornada_widget); es idempotente,
-        # así que repetir una jornada ya al día no hace daño.
+        # scrape_clasificacion) hasta llegar a NFG_CmpJornada.
         if inferir_formato(nombre_competicion_fila) == "Liga" and len(cols) > 3:
             enlace_grupo = cols[3].find("a")
             if enlace_grupo and enlace_grupo.has_attr("href"):
@@ -820,20 +817,44 @@ async def procesar_competiciones(page):
                 await page.goto(url_grupo, wait_until="networkidle")
                 soup_grupo = BeautifulSoup(await page.content(), "html.parser")
 
-                enlace_ultima = soup_grupo.find(
-                    "a", href=re.compile(r"NFG_CmpJornada\?.*CodJornada=\d+", re.IGNORECASE)
+                # Hay más de un enlace a NFG_CmpJornada en esta página: uno
+                # genérico sin parámetros ("Calendarios y resultados", que
+                # aparece antes en el HTML) y el de "Ver Última Jornada",
+                # que sí lleva CodCompeticion/CodGrupo/CodTemporada -- hay
+                # que exigir esos parámetros para no quedarse con el vacío.
+                enlace_cmp_jornada = soup_grupo.find(
+                    "a", href=re.compile(r"NFG_CmpJornada\?.*CodCompeticion=", re.IGNORECASE)
                 )
-                if enlace_ultima and enlace_ultima.has_attr("href"):
-                    url_ultima = urljoin(page.url, enlace_ultima["href"])
-                    m_jornada = re.search(r"CodJornada=(\d+)", url_ultima, re.IGNORECASE)
-                    ultima_jornada = int(m_jornada.group(1)) if m_jornada else 1
-                    for num_jornada in range(1, ultima_jornada + 1):
-                        url_num = re.sub(
-                            r"CodJornada=\d+", f"CodJornada={num_jornada}", url_ultima, flags=re.IGNORECASE
-                        )
-                        await procesar_jornada_widget(page, url_num, nombre_competicion_fila)
+                if enlace_cmp_jornada and enlace_cmp_jornada.has_attr("href"):
+                    # Se entra sin CodJornada para leer el desplegable de
+                    # jornadas -- lista TODA la temporada (jugada o no), a
+                    # diferencia de "Ver Última Jornada", que solo apunta a
+                    # la última ya JUGADA y deja fuera la siguiente
+                    # (comprobado: con la jornada 1 jugada y la 2 por jugar,
+                    # apuntaba solo a la 1). Recorrer hasta el valor más
+                    # alto del desplegable sí cubre toda la temporada.
+                    url_sin_jornada = re.sub(
+                        r"[?&]CodJornada=\d+", "", urljoin(page.url, enlace_cmp_jornada["href"]), flags=re.IGNORECASE
+                    )
+                    await page.goto(url_sin_jornada, wait_until="networkidle")
+                    soup_calendario = BeautifulSoup(await page.content(), "html.parser")
+
+                    select_jornada = soup_calendario.find("select", {"name": "jornada"})
+                    valores_jornada = [
+                        int(opt["value"]) for opt in (select_jornada.find_all("option") if select_jornada else [])
+                        if opt.get("value", "").isdigit()
+                    ]
+                    ultima_jornada = max(valores_jornada) if valores_jornada else None
+
+                    if ultima_jornada:
+                        separador = "&" if "?" in url_sin_jornada else "?"
+                        for num_jornada in range(1, ultima_jornada + 1):
+                            url_num = f"{url_sin_jornada}{separador}CodJornada={num_jornada}"
+                            await procesar_jornada_widget(page, url_num, nombre_competicion_fila)
+                    else:
+                        print(f"[AVISO] No se encontró el desplegable de jornadas para: {categoria}")
                 else:
-                    print(f"[AVISO] No se encontró enlace a la última jornada para: {categoria}")
+                    print(f"[AVISO] No se encontró enlace a NFG_CmpJornada para: {categoria}")
 
         categorias_visitadas.add(categoria)
         print(f"Categoría visitada: {categoria}")
