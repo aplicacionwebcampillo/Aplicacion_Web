@@ -19,12 +19,14 @@ async def main():
         await page.goto(ACTA_URL, wait_until="networkidle")
         soup = BeautifulSoup(await page.content(), "html.parser")
 
-        print(f"[DIAG] titulo pagina: {await page.title()}", flush=True)
-        h5 = soup.find("h5")
-        print(f"[DIAG] h5: {h5.get_text(' ', strip=True) if h5 else None}", flush=True)
-
         texto_completo = soup.get_text(" ", strip=True)
-        print(f"[DIAG] primeros 2000 chars de texto (get_text, incluye ocultos): {texto_completo[:2000]!r}", flush=True)
+        idx = texto_completo.find("NAVAS")
+        print(f"[DIAG] indice 'NAVAS' en texto: {idx}", flush=True)
+        print(f"[DIAG] contexto alrededor de NAVAS: {texto_completo[max(0, idx-200):idx+800]!r}", flush=True)
+
+        # También buscar cualquier tabla/celda con clase relacionada al marcador
+        for tag in soup.select("[class*=resultado], [class*=marcador], .fa-solid"):
+            print(f"[DIAG] elemento relevante: <{tag.name} class={tag.get('class')}> texto={tag.get_text(' ', strip=True)!r}", flush=True)
 
         await browser.close()
 
