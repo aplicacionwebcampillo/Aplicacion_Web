@@ -20,8 +20,8 @@ async def main():
         page = await context.new_page()
         page.set_default_timeout(120000)
 
-        await page.goto(BASE, wait_until="networkidle")
-        await page.wait_for_timeout(2000)
+        await page.goto(BASE, wait_until="load", timeout=30000)
+        await page.wait_for_timeout(3000)
 
         resultado = await page.evaluate(
             """
