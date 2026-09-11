@@ -501,8 +501,14 @@ async def buscar_datos_via_jornada(page, cod_competicion, cod_grupo, cod_tempora
         cod_jornada = None
         select_jornada = soup.find("select", {"name": "jornada"})
         if select_jornada and objetivo_jornada:
+            # Coincidencia de palabra completa, no subcadena: "final" es
+            # subcadena literal de "semifinales" (sin separador entre
+            # "semi" y "final"), así que una comprobación con "in" hacía
+            # que buscar "Final" encontrara antes "Semifinales" en la
+            # lista -- confirmado con un partido real.
+            patron_jornada = re.compile(rf"\b{re.escape(objetivo_jornada)}\b")
             for opt in select_jornada.find_all("option"):
-                if objetivo_jornada in _norm_ascii(opt.get_text()):
+                if patron_jornada.search(_norm_ascii(opt.get_text())):
                     cod_jornada = opt.get("value")
                     break
 
