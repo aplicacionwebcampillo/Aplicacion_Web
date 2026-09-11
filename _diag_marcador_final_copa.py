@@ -1,32 +1,52 @@
 import asyncio
 
-from bs4 import BeautifulSoup
 from playwright.async_api import async_playwright
 
-ACTA_URL = (
-    "https://rfaf.es/pnfg/NPcd/NFG_CmpPartido?cod_primaria=1000120"
-    "&CodActa=2646254&cod_acta=2646254"
+BASE = (
+    "https://rfaf.es/pnfg/NPcd/NFG_CmpJornada?cod_primaria=1000120"
+    "&CodCompeticion=48829832&CodGrupo=48829872&CodTemporada=22&CodJornada=4"
 )
 
 
 async def main():
     async with async_playwright() as p:
         browser = await p.firefox.launch(headless=True, args=["--disable-gpu", "--disable-dev-shm-usage", "--no-sandbox"])
-        context = await browser.new_context(java_script_enabled=False)
+        # Con JavaScript HABILITADO esta vez: dejamos que el propio navegador
+        # ejecute ntype() de verdad, en vez de reimplementar la logica de
+        # ofuscacion a mano (que ha dado 3 lecturas distintas segun la
+        # fuente: "2-1" decodificando la tabla, "6-2"/"3-0" leyendo texto
+        # crudo). Así vemos el DOM tal cual lo veria un usuario real.
+        context = await browser.new_context(java_script_enabled=True)
         page = await context.new_page()
         page.set_default_timeout(120000)
 
-        await page.goto(ACTA_URL, wait_until="networkidle")
-        soup = BeautifulSoup(await page.content(), "html.parser")
+        await page.goto(BASE, wait_until="networkidle")
+        await page.wait_for_timeout(2000)
 
-        texto_completo = soup.get_text(" ", strip=True)
-        idx = texto_completo.find("NAVAS")
-        print(f"[DIAG] indice 'NAVAS' en texto: {idx}", flush=True)
-        print(f"[DIAG] contexto alrededor de NAVAS: {texto_completo[max(0, idx-200):idx+800]!r}", flush=True)
+        resultado = await page.evaluate(
+            """
+            () => {
+                const spans = Array.from(document.querySelectorAll('span.wid2_resultado_cerrada'));
+                return spans.map(span => {
+                    const i = span.querySelector('i.fa-solid i[id]');
+                    return i ? { id: i.id, className: i.className } : null;
+                });
+            }
+            """
+        )
+        print(f"[DIAG] clases tras ejecutar JS real: {resultado}", flush=True)
 
-        # También buscar cualquier tabla/celda con clase relacionada al marcador
-        for tag in soup.select("[class*=resultado], [class*=marcador], .fa-solid"):
-            print(f"[DIAG] elemento relevante: <{tag.name} class={tag.get('class')}> texto={tag.get_text(' ', strip=True)!r}", flush=True)
+        texto_filas = await page.evaluate(
+            """
+            () => {
+                const filas = Array.from(document.querySelectorAll('tbody tr'));
+                return filas
+                    .filter(f => f.innerText.includes('NAVAS') && f.innerText.includes('CAMPILLO'))
+                    .map(f => f.innerText.replace(/\\s+/g, ' ').trim());
+            }
+            """
+        )
+        print(f"[DIAG] innerText (post-JS) de filas con Navas/Campillo: {texto_filas}", flush=True)
 
         await browser.close()
 
