@@ -98,6 +98,14 @@ def extraer_jugadores(html):
         # un dato real.
         _edad, pj, pt, _minutos, goles, ta, tr = (c.get_text(" ", strip=True) for c in celdas[-7:])
 
+        # Para un portero, "Goles" en lapreferente son los que le han
+        # marcado (encajados), no los que ha metido -- se guardan en
+        # negativo para poder distinguirlos de los goles de un jugador de
+        # campo sin necesitar otra columna.
+        goles_valor = _a_entero(goles)
+        if posicion and "portero" in _normalizar(posicion):
+            goles_valor = -abs(goles_valor)
+
         jugadores.append({
             "nombre_corto": nombre_corto,
             "nombre_completo": nombre_completo,
@@ -105,7 +113,7 @@ def extraer_jugadores(html):
             "estado_fichaje": estado,
             "partidos_jugados": _a_entero(pj),
             "partidos_titular": _a_entero(pt),
-            "goles": _a_entero(goles),
+            "goles": goles_valor,
             "tarjetas_amarillas": _a_entero(ta),
             "tarjetas_rojas": _a_entero(tr),
         })
