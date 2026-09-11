@@ -469,13 +469,26 @@ def _norm_ascii(texto):
     return " ".join(sin_acentos.lower().split())
 
 
-async def buscar_acta_via_jornada(page, cod_competicion, cod_grupo, cod_temporada, equipo_local, equipo_visitante, nombre_jornada):
-    """Respaldo para cuando la ficha de jornada normal (NFG_VisCompeticiones_Grupo)
-    no trae el enlace del acta inline -- confirmado que pasa en algunas
-    competiciones de copa/trofeo, con o sin JavaScript. NFG_CmpJornada sí lo
-    trae, pero necesita el CodJornada exacto; se busca primero en el
-    desplegable de jornadas de esa misma competicion/grupo/temporada la que
-    coincide con el nombre de la jornada (p.ej. "Cuartos")."""
+async def buscar_datos_via_jornada(page, cod_competicion, cod_grupo, cod_temporada, equipo_local, equipo_visitante, nombre_jornada):
+    """Contraste fiable para un partido concreto contra NFG_CmpJornada:
+    devuelve (acta, resultado_local, resultado_visitante), con None en lo
+    que no se encuentre.
+
+    Sirve para dos cosas:
+    1) Respaldo para cuando la ficha de jornada "clásica"
+       (NFG_VisCompeticiones_Grupo) no trae el enlace del acta inline --
+       confirmado que pasa en algunas competiciones de copa/trofeo, con o
+       sin JavaScript.
+    2) Fuente fiable del marcador: esa misma ficha clásica guarda el
+       resultado en <b> tal cual, vulnerable al mismo truco de ofuscación
+       del marcador que la ficha de jornada de las ligas -- confirmado con
+       un partido real (una final de copa) que llegó a leerse "2-1" cuando
+       el resultado real era "6-2". NFG_CmpJornada usa el formato "widget"
+       que extraer_marcador_widget ya sabe decodificar correctamente.
+
+    Necesita el CodJornada exacto; se busca primero en el desplegable de
+    jornadas de esa misma competición/grupo/temporada la que coincide con
+    el nombre de la jornada (p.ej. "Cuartos")."""
     base = (
         f"{BASE_URL}/pnfg/NPcd/NFG_CmpJornada?cod_primaria=1000120"
         f"&CodCompeticion={cod_competicion}&CodGrupo={cod_grupo}&CodTemporada={cod_temporada}"
@@ -499,16 +512,33 @@ async def buscar_acta_via_jornada(page, cod_competicion, cod_grupo, cod_temporad
 
         objetivo_local = _norm_ascii(equipo_local)
         objetivo_visitante = _norm_ascii(equipo_visitante)
+
+        # La misma fila puede aparecer duplicada a distinta profundidad (un
+        # <tr> envoltorio con una <table> anidada dentro, y esa tabla con la
+        # fila real de 3 columnas) -- el acta se acepta de cualquiera de las
+        # dos (la búsqueda de <a> funciona igual en ambas), pero el
+        # marcador solo se lee de la fila real de 3 columnas.
+        acta = None
+        fila_marcador = None
         for fila in soup.select("tbody tr"):
             texto_fila = _norm_ascii(fila.get_text(" "))
-            if objetivo_local in texto_fila and objetivo_visitante in texto_fila:
+            if objetivo_local not in texto_fila or objetivo_visitante not in texto_fila:
+                continue
+            if not acta:
                 acta = extraer_acta(fila, BASE_URL)
-                if acta:
-                    return acta
-        return None
+            celdas = fila.select("td")
+            if fila_marcador is None and len(celdas) == 3:
+                fila_marcador = fila
+
+        resultado_local = resultado_visitante = None
+        if fila_marcador is not None:
+            celda_resultado = fila_marcador.select("td")[1]
+            resultado_local, resultado_visitante = extraer_marcador_widget(celda_resultado, soup)
+
+        return acta, resultado_local, resultado_visitante
     except Exception as e:
-        print(f"[AVISO] No se pudo buscar el acta via NFG_CmpJornada: {e}", flush=True)
-        return None
+        print(f"[AVISO] No se pudo buscar los datos via NFG_CmpJornada: {e}", flush=True)
+        return None, None, None
 
 
 async def procesar_jornada(page, url_jornada: str, cod_competicion=None, cod_temporada=None):
@@ -597,15 +627,28 @@ async def procesar_jornada(page, url_jornada: str, cod_competicion=None, cod_tem
             resultado_visitante = resultado_info[1].get_text(strip=True)
 
         acta = extraer_acta(row, BASE_URL)
-        if not acta and cod_competicion and cod_temporada and (
+
+        # Esta ficha "clásica" guarda el resultado en <b> tal cual,
+        # vulnerable al mismo truco de ofuscación del marcador que la ficha
+        # de jornada de las ligas -- confirmado con un partido real (una
+        # final de copa) que se leyó "2-1" cuando el resultado real era
+        # "6-2". Para el partido del Campillo se contrasta siempre contra
+        # NFG_CmpJornada (que también sirve de respaldo para el acta si esta
+        # ficha no la enlaza), y se usa lo que encuentre ahí en vez de lo de
+        # aquí cuando lo encuentra.
+        if cod_competicion and cod_temporada and (
             "campillo" in equipo_local.lower() or "campillo" in equipo_visitante.lower()
         ):
             cod_grupo_match = re.search(r"codgrupo=(\d+)", url_jornada, re.IGNORECASE)
             if cod_grupo_match:
-                acta = await buscar_acta_via_jornada(
+                acta_fiable, res_local_fiable, res_visitante_fiable = await buscar_datos_via_jornada(
                     page, cod_competicion, cod_grupo_match.group(1), cod_temporada,
                     equipo_local, equipo_visitante, jornada,
                 )
+                if acta_fiable:
+                    acta = acta_fiable
+                if res_local_fiable is not None:
+                    resultado_local, resultado_visitante = res_local_fiable, res_visitante_fiable
         acta = acta or " "
 
         data = {
