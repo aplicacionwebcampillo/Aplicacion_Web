@@ -3,7 +3,7 @@ from app.database import SessionLocal
 from app.models.competicion import Competicion
 from app.models.clasificacion import Clasificacion
 from bs4 import BeautifulSoup
-from datetime import datetime
+from datetime import datetime, timedelta
 import requests
 from urllib.parse import urljoin
 import re
@@ -840,11 +840,36 @@ async def procesar_competiciones(page):
                     soup_calendario = BeautifulSoup(await page.content(), "html.parser")
 
                     select_jornada = soup_calendario.find("select", {"name": "jornada"})
-                    valores_jornada = [
-                        int(opt["value"]) for opt in (select_jornada.find_all("option") if select_jornada else [])
-                        if opt.get("value", "").isdigit()
-                    ]
-                    ultima_jornada = max(valores_jornada) if valores_jornada else None
+                    opciones_jornada = select_jornada.find_all("option") if select_jornada else []
+
+                    # Recorrer siempre las ~34 jornadas de la temporada agota
+                    # algún límite de peticiones de la RFAF y degrada la
+                    # petición siguiente (se comprobó con la ficha de la Copa,
+                    # procesada justo después de este bucle: llegaba sin
+                    # <h5>). Cada opción trae su fecha en el texto
+                    # ("N - DD-MM-YYYY"), así que se acota el bucle a las
+                    # jornadas ya jugadas más un horizonte cercano, en vez de
+                    # recorrer siempre hasta la última de la temporada. Si
+                    # una fecha no se puede interpretar se incluye igualmente
+                    # (más seguro no descartar jornadas por error de parseo).
+                    HORIZONTE_DIAS = 14
+                    limite_fecha = datetime.now() + timedelta(days=HORIZONTE_DIAS)
+                    patron_fecha = re.compile(r"(\d{2}-\d{2}-\d{4})")
+                    ultima_jornada = None
+                    for opt in opciones_jornada:
+                        valor = opt.get("value", "")
+                        if not valor.isdigit():
+                            continue
+                        dentro_horizonte = True
+                        coincidencia = patron_fecha.search(opt.get_text())
+                        if coincidencia:
+                            try:
+                                dentro_horizonte = datetime.strptime(coincidencia.group(1), "%d-%m-%Y") <= limite_fecha
+                            except ValueError:
+                                dentro_horizonte = True
+                        if dentro_horizonte:
+                            num_opt = int(valor)
+                            ultima_jornada = num_opt if ultima_jornada is None else max(ultima_jornada, num_opt)
 
                     if ultima_jornada:
                         separador = "&" if "?" in url_sin_jornada else "?"
