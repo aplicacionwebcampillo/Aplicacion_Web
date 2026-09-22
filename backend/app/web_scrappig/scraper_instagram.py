@@ -262,8 +262,28 @@ def obtener_posts_del_perfil(ig_target, session_file):
     capturas_debug = []  # (url, longitud, nº objetos JSON, fragmento)
 
     with sync_playwright() as p:
-        browser = p.firefox.launch(headless=True)
-        context = browser.new_context(storage_state=session_file)
+        # La sesión se creó con instagram_generar_sesion.py en un Firefox
+        # visible (headless=False) desde un ordenador normal. Reproducirla
+        # luego en modo headless puro es una de las señales más claras que
+        # los sistemas antifraude usan para marcar una sesión como robada
+        # (huella de renderizado distinta, ausencia de GPU/canvas real...).
+        # Lanzamos igual headless=False aquí: en CI no hay pantalla, así que
+        # el workflow arranca un framebuffer virtual (Xvfb) antes de este
+        # script para que "headless=False" tenga una pantalla real donde
+        # dibujar, sin necesidad de contratar nada ni tener un equipo propio
+        # encendido. No evita el cambio de IP (eso no se puede resolver solo
+        # con código), pero elimina esta otra señal de detección.
+        browser = p.firefox.launch(headless=False)
+        # Locale y huso horario acordes al club (España) en vez del valor
+        # por defecto del runner (normalmente en inglés/UTC): un navegador
+        # "real" usado por el club navegaría siempre en es-ES/Europe/Madrid,
+        # así que fijarlo hace la sesión más consistente entre ejecuciones.
+        context = browser.new_context(
+            storage_state=session_file,
+            locale="es-ES",
+            timezone_id="Europe/Madrid",
+            viewport={"width": 1366, "height": 768},
+        )
         page = context.new_page()
 
         def al_recibir_respuesta(response):

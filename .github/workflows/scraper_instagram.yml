@@ -26,7 +26,10 @@ jobs:
       - name: Instalar dependencias
         run: |
           pip install playwright requests
-          playwright install firefox
+          playwright install --with-deps firefox
+
+      - name: Instalar Xvfb (pantalla virtual)
+        run: sudo apt-get update && sudo apt-get install -y xvfb
 
       - name: Restaurar sesión de Instagram guardada
         run: |
@@ -38,7 +41,11 @@ jobs:
           IG_STORAGE_STATE_FILE: ${{ runner.temp }}/ig_storage_state.json
           NOTICIA_ADMIN_DNI: ${{ secrets.NOTICIA_ADMIN_DNI }}
           PYTHONUNBUFFERED: "1"
-        run: python backend/app/web_scrappig/scraper_instagram.py
+        # El script lanza Firefox con headless=False (ver scraper_instagram.py)
+        # para que la sesión se vea igual que la creada a mano en un
+        # ordenador normal. xvfb-run le da una pantalla virtual donde
+        # dibujar, ya que el runner de GitHub Actions no tiene una real.
+        run: xvfb-run --auto-servernum python backend/app/web_scrappig/scraper_instagram.py
 
       - name: Avisar por email si algo falló
         if: failure()
