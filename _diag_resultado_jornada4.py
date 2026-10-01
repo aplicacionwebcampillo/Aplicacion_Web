@@ -93,17 +93,18 @@ async def main():
             """
             () => {
                 const filas = Array.from(document.querySelectorAll('tbody tr'));
-                const fila = filas.find(f => f.innerText.toUpperCase().includes('ILITURGI') && f.innerText.toUpperCase().includes('CAMPILLO'));
+                const fila = filas.find(f => f.innerText.toUpperCase().includes('ILITURGI') && f.innerText.toUpperCase().includes('CAMPILLO') && f.querySelectorAll('td').length === 3);
                 if (!fila) return null;
                 const spans = Array.from(fila.querySelectorAll('span.wid2_resultado_cerrada'));
-                return spans.map(span => {
-                    const i = span.querySelector('i.fa-solid i[id]');
-                    return i ? { id: i.id, className: i.className } : null;
-                });
+                return {
+                    n_spans: spans.length,
+                    htmls: spans.map(s => s.outerHTML),
+                    celda_html: fila.querySelectorAll('td')[1] ? fila.querySelectorAll('td')[1].outerHTML : null,
+                };
             }
             """
         )
-        print(f"[DIAG] clases tras ejecutar JS real: {resultado_js}", flush=True)
+        print(f"[DIAG] resultado tras ejecutar JS real: {resultado_js}", flush=True)
 
         await browser.close()
 
