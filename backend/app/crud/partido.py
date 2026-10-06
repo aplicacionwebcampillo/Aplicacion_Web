@@ -27,11 +27,15 @@ def create_partido(db: Session, partido: PartidoCreate) -> Partido:
         db.commit()
         db.refresh(db_partido)
         return db_partido
-    except IntegrityError:
+    except IntegrityError as e:
         db.rollback()
+        # No es siempre un duplicado: cualquier IntegrityError cae aquí,
+        # incluida una violación NOT NULL (p.ej. hora=None porque la RFAF
+        # aún no ha publicado la hora de un partido futuro) -- se incluye
+        # el motivo real para no confundir "duplicado" con otro problema.
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Ya existe un partido con los mismos equipos y competición"
+            detail=f"No se pudo crear el partido (¿duplicado o dato obligatorio ausente?): {e.orig}"
         )
 
 

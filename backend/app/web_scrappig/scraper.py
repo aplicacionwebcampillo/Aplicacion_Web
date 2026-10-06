@@ -714,7 +714,18 @@ async def procesar_jornada_widget(page, url_jornada: str, nombre_competicion: st
         celda_resultado = celdas[1]
         horarios = celda_resultado.select("span.horario")
         fecha = normalizar_fecha(horarios[0].get_text(strip=True)) if len(horarios) > 0 else None
-        hora = normalizar_hora(horarios[1].get_text(strip=True)) if len(horarios) > 1 else None
+        if fecha is None:
+            print(f"[AVISO] Fila sin fecha en la ficha widget de {nombre_competicion}, se omite", flush=True)
+            continue
+        # A veces el partido ya tiene fecha pero todavía no se ha publicado
+        # la hora de inicio (confirmado con un partido real aún no jugado):
+        # la celda solo trae un span.horario (la fecha), no dos. "hora" es
+        # NOT NULL en la base de datos, y guardar None ahí hace que
+        # create_partido lance un IntegrityError que se reporta (de forma
+        # genérica, por error) como "partido duplicado" en vez del problema
+        # real -- se usa el mismo "00:00" de reserva que ya usa la ficha
+        # clásica (procesar_jornada) para este mismo caso.
+        hora = normalizar_hora(horarios[1].get_text(strip=True)) if len(horarios) > 1 else normalizar_hora("00:00")
 
         resultado_local, resultado_visitante = extraer_marcador_widget(celda_resultado, soup)
         acta = extraer_acta(fila, BASE_URL) or " "
