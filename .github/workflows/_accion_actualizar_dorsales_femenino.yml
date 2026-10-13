@@ -1,0 +1,23 @@
+name: _accion actualizar dorsales femenino (temporal)
+
+on:
+  workflow_dispatch:
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout repositorio
+        uses: actions/checkout@v4
+
+      - name: Configurar Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.10"
+
+      - name: Instalar dependencias
+        run: pip install requests
+
+      - name: Ejecutar accion
+        run: python _accion_actualizar_dorsales_femenino.py
