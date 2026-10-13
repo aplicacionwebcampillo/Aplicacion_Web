@@ -1,10 +1,10 @@
-name: _diag_investigar_conflicto
+name: _accion_limpiar_conflicto_maria_gomez
 
 on:
   workflow_dispatch:
 
 jobs:
-  diag:
+  run:
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
@@ -13,4 +13,4 @@ jobs:
         with:
           python-version: '3.10'
       - run: pip install requests
-      - run: python _diag_investigar_conflicto.py
+      - run: python _accion_limpiar_conflicto_maria_gomez.py
