@@ -39,6 +39,31 @@ const CATEGORIAS_EQUIPO = [
   //{ id: 3, nombre: "Juvenil" }
 ];
 
+// Dorsales reservados para el cuerpo técnico (no son jugadores de campo):
+// cada equipo tiene su propio rango para que nunca choque con el dorsal
+// real de una jugadora/jugador de esa misma plantilla.
+const CARGOS_CUERPO_TECNICO: Record<number, Record<number, string>> = {
+  1: {
+    26: "Entrenador",
+    27: "Segundo Entrenador",
+    28: "Preparador Físico",
+    29: "Entrenador de Porteros",
+    30: "Delegado de Equipo",
+  },
+  2: {
+    56: "Entrenador",
+    57: "Segundo Entrenador",
+    58: "Preparador Físico",
+    59: "Entrenador de Porteros",
+    60: "Delegado de Equipo",
+  },
+};
+
+function etiquetaDorsal(jugador: Jugador): string {
+  if (jugador.dorsal === 0) return " ";
+  return CARGOS_CUERPO_TECNICO[jugador.id_equipo]?.[jugador.dorsal] ?? String(jugador.dorsal);
+}
+
 const FILAS_POR_PAGINA = 3;
 const COLUMNAS = 3;
 const JUGADORES_POR_PAGINA = FILAS_POR_PAGINA * COLUMNAS;
@@ -138,19 +163,7 @@ export default function Plantilla() {
       </div>
       <div className="p-4 text-center w-full">
         <h3 className="text-lg font-semibold mb-1 text-negro">
-         {jugador.dorsal === 0
-    ? "\u00A0" // espacio en blanco
-    : jugador.dorsal === 26
-    ? "Entrenador"
-    : jugador.dorsal === 27
-    ? "Segundo Entrenador"
-    : jugador.dorsal === 28
-    ? "Preparador F\u00EDsico"
-    : jugador.dorsal === 29
-    ? "Entrenador de Porteros"
-    : jugador.dorsal === 30
-    ? "Delegado de Equipo"
-    : jugador.dorsal}
+         {etiquetaDorsal(jugador)}
         </h3>
         <h3 className="text-lg font-semibold mb-1 text-negro">{jugador.nombre}</h3>
       </div>

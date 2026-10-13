@@ -23,8 +23,28 @@ interface Jugador {
 // Dorsales especiales que no son jugadores de campo (entrenador, segundo
 // entrenador, preparador físico, entrenador de porteros, delegado de
 // equipo): no tiene sentido mostrarles dorsal ni estadísticas de
-// partidos/goles/tarjetas.
-const DORSALES_CUERPO_TECNICO = [0, 26, 27, 28, 29, 30];
+// partidos/goles/tarjetas. Cada equipo tiene su propio rango reservado
+// para que nunca choque con el dorsal real de alguien de esa plantilla.
+const CARGOS_CUERPO_TECNICO: Record<number, Record<number, string>> = {
+  1: {
+    26: "Entrenador",
+    27: "Segundo Entrenador",
+    28: "Preparador Físico",
+    29: "Entrenador de Porteros",
+    30: "Delegado de Equipo",
+  },
+  2: {
+    56: "Entrenador",
+    57: "Segundo Entrenador",
+    58: "Preparador Físico",
+    59: "Entrenador de Porteros",
+    60: "Delegado de Equipo",
+  },
+};
+
+function esCuerpoTecnico(jugador: Jugador): boolean {
+  return jugador.dorsal === 0 || CARGOS_CUERPO_TECNICO[jugador.id_equipo]?.[jugador.dorsal] !== undefined;
+}
 
 export default function JugadorDetalle() {
   const { id } = useParams<{ id: string }>();
@@ -92,7 +112,7 @@ export default function JugadorDetalle() {
     </p>
 
     {/* Dorsal */}
-    {!DORSALES_CUERPO_TECNICO.includes(jugador.dorsal) && (
+    {!esCuerpoTecnico(jugador) && (
   <p>
     <strong>Dorsal:</strong>{" "}
     <span className="text-negro_texto">{jugador.dorsal}</span>
@@ -111,7 +131,7 @@ export default function JugadorDetalle() {
     )}
 
     {/* Estadísticas de la temporada (no aplica al cuerpo técnico) */}
-    {!DORSALES_CUERPO_TECNICO.includes(jugador.dorsal) && (
+    {!esCuerpoTecnico(jugador) && (
       <div className="overflow-x-auto max-w-full">
         <table className="w-full text-center border-collapse">
           <thead>
