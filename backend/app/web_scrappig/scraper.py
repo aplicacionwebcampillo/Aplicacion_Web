@@ -2,6 +2,7 @@ from playwright.async_api import async_playwright
 from app.database import SessionLocal
 from app.models.competicion import Competicion
 from app.models.clasificacion import Clasificacion
+from app.models.resultado import Resultado
 from bs4 import BeautifulSoup
 from datetime import datetime, timedelta
 import requests
@@ -675,6 +676,85 @@ async def procesar_jornada(page, url_jornada: str, cod_competicion=None, cod_tem
     return partidos_guardados
 
 
+# Misma correspondencia competición -> categoría que usa el frontend
+# (Clasificacion.tsx) para la sección "Resultados - Última Jornada" bajo la
+# clasificación.
+CATEGORIA_POR_COMPETICION = {
+    "1ª Andaluza Sénior (Jaén)": "Senior",
+    "Liga Femenina Sénior Fútbol 7 (Jaén)": "Femenino_7",
+    "2ª Andaluza Femenina Sénior (Jaén)": "Femenino_11",
+}
+
+
+def guardar_resultados_jornada_completa(soup, categoria: str, jornada_label: str):
+    """Guarda en la tabla "resultados" TODOS los partidos de una jornada ya
+    jugada (no solo los del Campillo): esta tabla alimenta "Resultados -
+    Última Jornada" bajo la Clasificación, que muestra la ronda entera, a
+    diferencia de Partido (que por diseño solo guarda los partidos del
+    propio club, para el calendario/resultado del equipo). Se actualiza con
+    fetched_at=ahora para que /resultados (que coge el fetched_at más
+    reciente por categoría) siempre refleje la jornada que se acaba de
+    leer aquí, calculada dinámicamente cada vez -- sin ningún codgrupo/
+    codcompeticion fijo que alguien tenga que recordar actualizar."""
+    session = SessionLocal()
+    ahora = datetime.now()
+    try:
+        for fila in soup.find_all("tr"):
+            celdas = fila.select("td")
+            if len(celdas) != 3:
+                continue
+
+            equipo_local_tag = celdas[0].select_one("h4 a")
+            equipo_visitante_tag = celdas[2].select_one("h4 a")
+            if not equipo_local_tag or not equipo_visitante_tag:
+                continue
+
+            equipo_local = equipo_local_tag.get_text(strip=True)
+            equipo_visitante = equipo_visitante_tag.get_text(strip=True)
+            if len(equipo_local) < 3 or len(equipo_visitante) < 3:
+                continue
+
+            celda_resultado = celdas[1]
+            resultado_local, resultado_visitante = extraer_marcador_widget(celda_resultado, soup)
+            goles_local = str(resultado_local) if resultado_local is not None else " "
+            goles_visitante = str(resultado_visitante) if resultado_visitante is not None else " "
+
+            # fecha/hora los usa comprobar_ultimo_partido.py (el aviso de
+            # "¿hubo partido ayer?") para encontrar el partido por fecha
+            # exacta -- mismo formato ("YYYY-MM-DD") que ya producía
+            # scraper_jornada.py.
+            horarios = celda_resultado.select("span.horario")
+            fecha = normalizar_fecha(horarios[0].get_text(strip=True)) if len(horarios) > 0 else None
+            hora = normalizar_hora(horarios[1].get_text(strip=True)) if len(horarios) > 1 else None
+
+            existente = (
+                session.query(Resultado)
+                .filter_by(local=equipo_local, visitante=equipo_visitante, jornada=jornada_label, categoria=categoria)
+                .first()
+            )
+            if existente:
+                existente.goles_local = goles_local
+                existente.goles_visitante = goles_visitante
+                existente.fecha = fecha
+                existente.hora = hora
+                existente.fetched_at = ahora
+            else:
+                session.add(Resultado(
+                    jornada=jornada_label,
+                    local=equipo_local,
+                    visitante=equipo_visitante,
+                    goles_local=goles_local,
+                    goles_visitante=goles_visitante,
+                    fecha=fecha,
+                    hora=hora,
+                    categoria=categoria,
+                    fetched_at=ahora,
+                ))
+        session.commit()
+    finally:
+        session.close()
+
+
 async def procesar_jornada_widget(page, url_jornada: str, nombre_competicion: str):
     """Respaldo para competiciones (p.ej. 1ª Andaluza Sénior) cuya ficha de
     equipo ya no trae enlace a la jornada esta temporada: aqui se procesa
@@ -864,29 +944,53 @@ async def procesar_competiciones(page):
                     # una fecha no se puede interpretar se incluye igualmente
                     # (más seguro no descartar jornadas por error de parseo).
                     HORIZONTE_DIAS = 14
-                    limite_fecha = datetime.now() + timedelta(days=HORIZONTE_DIAS)
+                    hoy = datetime.now()
+                    limite_fecha = hoy + timedelta(days=HORIZONTE_DIAS)
                     patron_fecha = re.compile(r"(\d{2}-\d{2}-\d{4})")
                     ultima_jornada = None
+                    # Independiente del horizonte anterior: la última jornada ya
+                    # JUGADA (fecha <= hoy), para guardar su resultado completo
+                    # (todos los equipos) en la tabla "resultados" -- ver
+                    # guardar_resultados_jornada_completa.
+                    ultima_jornada_jugada = None
                     for opt in opciones_jornada:
                         valor = opt.get("value", "")
                         if not valor.isdigit():
                             continue
-                        dentro_horizonte = True
+                        num_opt = int(valor)
                         coincidencia = patron_fecha.search(opt.get_text())
+                        fecha_opt = None
                         if coincidencia:
                             try:
-                                dentro_horizonte = datetime.strptime(coincidencia.group(1), "%d-%m-%Y") <= limite_fecha
+                                fecha_opt = datetime.strptime(coincidencia.group(1), "%d-%m-%Y")
                             except ValueError:
-                                dentro_horizonte = True
+                                fecha_opt = None
+
+                        dentro_horizonte = fecha_opt is None or fecha_opt <= limite_fecha
                         if dentro_horizonte:
-                            num_opt = int(valor)
                             ultima_jornada = num_opt if ultima_jornada is None else max(ultima_jornada, num_opt)
+
+                        if fecha_opt is not None and fecha_opt <= hoy:
+                            ultima_jornada_jugada = num_opt if ultima_jornada_jugada is None else max(ultima_jornada_jugada, num_opt)
+
+                    categoria_resultados = CATEGORIA_POR_COMPETICION.get(nombre_competicion_fila)
 
                     if ultima_jornada:
                         separador = "&" if "?" in url_sin_jornada else "?"
                         for num_jornada in range(1, ultima_jornada + 1):
                             url_num = f"{url_sin_jornada}{separador}CodJornada={num_jornada}"
                             await procesar_jornada_widget(page, url_num, nombre_competicion_fila)
+                            if categoria_resultados and num_jornada == ultima_jornada_jugada:
+                                # "Resultados - Última Jornada" (bajo la
+                                # Clasificación) muestra la ronda entera, no
+                                # solo el partido del Campillo -- se reutiliza
+                                # la página ya cargada por
+                                # procesar_jornada_widget en vez de pedirla
+                                # otra vez.
+                                soup_jornada_completa = BeautifulSoup(await page.content(), "html.parser")
+                                guardar_resultados_jornada_completa(
+                                    soup_jornada_completa, categoria_resultados, f"Jornada {num_jornada}"
+                                )
                     else:
                         print(f"[AVISO] No se encontró el desplegable de jornadas para: {categoria}")
                 else:

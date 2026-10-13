@@ -84,7 +84,7 @@ export default function Clasificacion() {
         {([
           { key: "Senior", label: "Senior" },
           { key: "Femenino_7", label: "Femenino Fútbol 7" },
-          { key: "Femenino_11", label: "Femenino Fútbol 11" },
+          // { key: "Femenino_11", label: "Femenino Fútbol 11" }, // De momento no hay equipo femenino de fútbol 11
         ] as const).map(({ key, label }) => (
           <button
             key={key}

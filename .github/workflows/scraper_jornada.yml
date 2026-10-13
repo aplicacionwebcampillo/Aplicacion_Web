@@ -1,13 +1,19 @@
 name: Actualizar resultados RFAF
 
 on:
-  schedule:
-  # Lunes a viernes a las 00:00
-  - cron: '0 0 * * 1-5'
+  # Programación desactivada: scraper_jornada.py usa el codgrupo/
+  # codcompeticion de la RFAF escritos a mano para cada categoría, que
+  # cambian cada temporada (confirmado: los de las ligas femeninas se
+  # quedaron apuntando a la temporada pasada). Ahora es scraper.py el que
+  # guarda la jornada completa en la tabla "resultados"
+  # (guardar_resultados_jornada_completa), calculando esos códigos cada
+  # vez en lugar de tenerlos fijos -- dejar este cron activo a la vez
+  # volvería a pisar esos datos correctos con los antiguos. Se deja
+  # workflow_dispatch por si hace falta lanzarlo a mano alguna vez.
+  # schedule:
+  # - cron: '0 0 * * 1-5'
+  # - cron: '0 */2 * * 6,0'
 
-  # Sábados y domingos cada 2 horas (00:00, 02:00, 04:00, ...)
-  - cron: '0 */2 * * 6,0'
-  
   workflow_dispatch:        # También puedes lanzarlo manualmente
 
 jobs:

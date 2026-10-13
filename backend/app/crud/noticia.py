@@ -25,7 +25,20 @@ def get_noticia_by_id(db: Session, id_noticia: int):
     return db.query(Noticia).filter(Noticia.id_noticia == id_noticia).first()
 
 def get_noticias(db: Session, skip: int = 0, limit: int = 100):
-    return db.query(Noticia).offset(skip).limit(limit).all()
+    # Sin order_by, el orden de filas de Postgres no está garantizado y en la
+    # práctica tiende a salir por orden de inserción (más antigua primero).
+    # El frontend pide siempre skip=0&limit=100 para mostrar "las últimas
+    # noticias": en cuanto hay más de 100 en total, eso devolvía las 100 MÁS
+    # ANTIGUAS y la más reciente se quedaba fuera (confirmado: con 101
+    # noticias ya no aparecía la del día). Se ordena por id descendente para
+    # que esa página siempre incluya las más nuevas.
+    return (
+        db.query(Noticia)
+        .order_by(Noticia.id_noticia.desc())
+        .offset(skip)
+        .limit(limit)
+        .all()
+    )
 
 def update_noticia(db: Session, titular: str, noticia_update: NoticiaUpdate):
     noticia = db.query(Noticia).filter(Noticia.titular == titular).first()
