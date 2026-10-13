@@ -2,40 +2,25 @@ import requests
 
 BASE = "https://aplicacion-web-m5oa.onrender.com"
 
-resp = requests.get(f"{BASE}/noticias/?skip=0&limit=200")
+resp_total = requests.get(f"{BASE}/noticias/?skip=0&limit=1000")
+total = resp_total.json()
+print(f"Total noticias en BD: {len(total)}")
+
+resp = requests.get(f"{BASE}/noticias/?skip=0&limit=100")
 print(resp.status_code)
 data = resp.json()
-print(f"Total noticias: {len(data)}")
+print(f"Noticias devueltas con el mismo fetch que usa el frontend (limit=100): {len(data)}")
 
-import re
+ids = sorted((int(n["id_noticia"]) for n in data), reverse=True)
+print(f"ID mas alto incluido: {ids[0] if ids else None}")
 
+ids_totales = sorted(int(n["id_noticia"]) for n in total)
+print(f"ID mas alto que existe en BD: {ids_totales[-1] if ids_totales else None}")
 
-def clave(n):
-    m = re.search(r"\((\d{2})/(\d{2})/(\d{4})\)\s*$", n.get("titular", ""))
-    if m:
-        dd, mm, yyyy = m.groups()
-        from datetime import datetime
-        return datetime(int(yyyy), int(mm), int(dd))
-    return None
+if ids and ids_totales and ids[0] == ids_totales[-1]:
+    print("[OK] La noticia mas reciente SI esta incluida en el fetch de 100.")
+else:
+    print("[FALLO] La noticia mas reciente NO esta en el fetch de 100.")
 
-noticias_con_fecha = [(clave(n), n) for n in data]
-noticias_con_fecha_validas = [(f, n) for f, n in noticias_con_fecha if f]
-noticias_con_fecha_validas.sort(key=lambda x: x[0], reverse=True)
-
-print("\n=== Top 5 por fecha extraida del titular ===")
-for f, n in noticias_con_fecha_validas[:5]:
-    print(f, "|", n.get("id_noticia"), "|", n.get("titular"))
-
-print(f"\nNoticias SIN fecha en el titular: {len(noticias_con_fecha) - len(noticias_con_fecha_validas)}")
-sin_fecha = [n for f, n in noticias_con_fecha if not f]
-for n in sin_fecha[:10]:
-    print(n.get("id_noticia"), "|", n.get("titular"))
-
-print("\n=== Top 5 por id_noticia (orden de insercion) ===")
-try:
-    ordenadas_id = sorted(data, key=lambda n: int(n.get("id_noticia", 0)), reverse=True)
-except Exception as e:
-    print("error ordenando por id:", e)
-    ordenadas_id = []
-for n in ordenadas_id[:5]:
-    print(n.get("id_noticia"), "|", n.get("titular"))
+for n in sorted(data, key=lambda n: int(n["id_noticia"]), reverse=True)[:3]:
+    print(n["id_noticia"], "|", n["titular"])
