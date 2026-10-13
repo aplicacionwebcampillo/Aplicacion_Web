@@ -42,18 +42,23 @@ def main():
     nuevos_dorsales = {d for _, d in ACTUALIZACIONES} | {j["dorsal"] for j in NUEVAS}
     nombres_actualizar = {n for n, _ in ACTUALIZACIONES}
 
+    # El dorsal es unico POR EQUIPO, no global (confirmado: un dorsal ya
+    # usado en el equipo senior se pudo reutilizar sin problema en el
+    # femenino). Solo importan las colisiones DENTRO del equipo femenino.
     colisiones = [
         j for j in jugadores
-        if j.get("dorsal") in nuevos_dorsales and j.get("nombre") not in nombres_actualizar
+        if j.get("id_equipo") == ID_EQUIPO_FEMENINO
+        and j.get("dorsal") in nuevos_dorsales
+        and j.get("nombre") not in nombres_actualizar
     ]
     if colisiones:
-        print("[AVISO] Colisiones de dorsal detectadas con jugadores que NO se van a tocar:", flush=True)
+        print("[AVISO] Colisiones de dorsal detectadas dentro del equipo femenino:", flush=True)
         for j in colisiones:
-            print(f"  - {j.get('nombre')} (id_equipo={j.get('id_equipo')}, dorsal={j.get('dorsal')})", flush=True)
+            print(f"  - {j.get('nombre')} (dorsal={j.get('dorsal')})", flush=True)
         print("[ABORTAR] No se realiza ninguna actualizacion por seguridad.", flush=True)
         return
     else:
-        print("[OK] No hay colisiones de dorsal con otros jugadores.", flush=True)
+        print("[OK] No hay colisiones de dorsal dentro del equipo femenino.", flush=True)
 
     print("\n[INFO] Actualizando dorsales de 9 jugadoras existentes...", flush=True)
     for nombre, dorsal in ACTUALIZACIONES:
