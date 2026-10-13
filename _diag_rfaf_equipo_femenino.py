@@ -14,37 +14,19 @@ async def main():
         page.set_default_timeout(120000)
 
         await page.goto(URL, wait_until="networkidle")
-        print(f"[DIAG] Titulo pagina: {await page.title()}", flush=True)
-
         content = await page.content()
         soup = BeautifulSoup(content, "html.parser")
 
-        print("[DIAG] --- Todas las tablas .table-bordered ---", flush=True)
-        for i, tabla in enumerate(soup.select(".table-bordered")):
-            filas = tabla.select("tbody tr")
-            print(f"[DIAG] tabla #{i}: {len(filas)} filas", flush=True)
-            for fila in filas[:3]:
-                cols = fila.select("td")
-                print(f"[DIAG]   fila ({len(cols)} cols): {[c.get_text(' ', strip=True)[:60] for c in cols]}", flush=True)
+        tablas = soup.select(".table-bordered")
+        tabla_jugadoras = tablas[0]
 
-        print("[DIAG] --- Buscando palabras clave: plantilla, jugador, licencia ---", flush=True)
-        texto_pagina = soup.get_text(" ", strip=True)
-        for palabra in ["plantilla", "jugador", "licencia", "ficha de jugador", "staff"]:
-            print(f"[DIAG] '{palabra}' aparece: {palabra.lower() in texto_pagina.lower()}", flush=True)
+        print("[DIAG] HTML completo de la tabla de jugadoras:", flush=True)
+        print(str(tabla_jugadoras)[:6000], flush=True)
 
-        print("[DIAG] --- Enlaces relevantes (jugador, persona, ficha) ---", flush=True)
-        vistos = set()
-        for a in soup.find_all("a", href=True):
-            href = a["href"]
-            texto = a.get_text(strip=True)
-            if any(p in href.lower() for p in ["jugador", "persona", "ficha"]) or "Persona_Mostrar" in str(a):
-                clave = (texto, href)
-                if clave not in vistos:
-                    vistos.add(clave)
-                    print(f"[DIAG] enlace: texto={texto!r} href={href!r}", flush=True)
-
-        print("[DIAG] primeros 3000 chars de texto limpio de la pagina:", flush=True)
-        print(texto_pagina[:3000], flush=True)
+        # Tambien volcar el contexto alrededor de la tabla (titulo/cabecera)
+        print("\n[DIAG] --- Elemento anterior a la tabla (posible titulo) ---", flush=True)
+        anterior = tabla_jugadoras.find_previous(["h3", "h4", "h5", "strong", "b"])
+        print(str(anterior)[:500] if anterior else None, flush=True)
 
         await browser.close()
 
