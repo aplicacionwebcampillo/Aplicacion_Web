@@ -92,9 +92,15 @@ def generar_titular(caption, shortcode, taken_at, titulares_existentes):
     # La fecha va siempre en el titular (no solo para desambiguar): el
     # modelo de Noticia no tiene columna de fecha, así que el frontend
     # ordena la lista de noticias extrayendo esta fecha del titular.
+    #
+    # El límite real es 100, no los 200 que admite la columna: el trigger
+    # validar_noticia() de la BD rechaza cualquier titular más largo (pasó
+    # de verdad con captions largas, que llegaban a crear_noticia pero la
+    # BD las rechazaba con un 400, perdiéndose esa noticia para siempre).
+    LIMITE_TITULAR = 100
     fecha_txt = _formatear_fecha(taken_at)
     sufijo_fecha = f" ({fecha_txt})" if fecha_txt else ""
-    titular = (base[: 200 - len(sufijo_fecha)] + sufijo_fecha)[:200]
+    titular = (base[: LIMITE_TITULAR - len(sufijo_fecha)] + sufijo_fecha)[:LIMITE_TITULAR]
 
     if titular not in titulares_existentes:
         return titular
@@ -102,7 +108,7 @@ def generar_titular(caption, shortcode, taken_at, titulares_existentes):
     # Coincide incluso con la fecha (misma publicación el mismo día, poco
     # probable) -> el shortcode como último recurso para garantizar unicidad.
     sufijo = f" ({shortcode})"
-    return base[: 200 - len(sufijo)] + sufijo
+    return base[: LIMITE_TITULAR - len(sufijo)] + sufijo
 
 
 def construir_contenido(caption, shortcode):
