@@ -1,0 +1,34 @@
+name: _diag marcador widget j10 j11 (temporal)
+
+on:
+  workflow_dispatch:
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout repositorio
+        uses: actions/checkout@v4
+
+      - name: Configurar Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+          cache: 'pip'
+
+      - name: Instalar dependencias
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r backend/requirements.txt
+
+      - name: Instalar Playwright (Firefox)
+        run: playwright install firefox
+
+      - name: Ejecutar diagnostico
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+        run: |
+          export PYTHONPATH=$PYTHONPATH:./backend
+          python -X utf8 _diag_marcador_widget_j10_j11.py
