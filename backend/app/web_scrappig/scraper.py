@@ -299,6 +299,19 @@ async def guardar_o_actualizar_partido(data):
                 if acta_actual:
                     data = {**data, "acta": actual["acta"]}
 
+            # Si esta pasada no ha podido decodificar el marcador (ver
+            # comentario en procesar_jornada_widget) se envia None -- no
+            # se sobreescribe un resultado ya guardado con un vacio, igual
+            # que ya se hace arriba con el acta.
+            if data.get("resultado_local") is None or data.get("resultado_visitante") is None:
+                actual = response_get.json()
+                if actual.get("resultado_local") is not None and actual.get("resultado_visitante") is not None:
+                    data = {
+                        **data,
+                        "resultado_local": actual["resultado_local"],
+                        "resultado_visitante": actual["resultado_visitante"],
+                    }
+
             response = await client.put(f"{url_base}/partidos/{nombre}/{temporada}/{local}/{visitante}", json=data)
             if response.status_code == 200:
                 print(f"Partido actualizado: {local} vs {visitante}")
@@ -397,10 +410,12 @@ def _digito_via_ntype(elemento, tabla_ntype):
 
 def _digito_via_after(elemento):
     """Técnica 2: un <span id="X"></span> vacío cuyo dígito real se
-    inyecta mediante CSS generated content (#X:after{content:"\\HHHH"}) en
-    vez de como texto -- invisible para un lector de texto normal, pero no
-    oculto con display:none, así que sí es el dígito real (a diferencia de
-    la técnica 3, que si no se ejecuta JavaScript muestra la clase sin
+    inyecta mediante CSS generated content (#X:after{content:"\\HHHH"}, o
+    #X:before{...} -- se ha visto usar las dos indistintamente, incluso
+    para los dos lados de un mismo marcador) en vez de como texto --
+    invisible para un lector de texto normal, pero no oculto con
+    display:none, así que sí es el dígito real (a diferencia de la
+    técnica 3, que si no se ejecuta JavaScript muestra la clase sin
     intercambiar)."""
     span_id = elemento.find(attrs={"id": True})
     if not span_id:
@@ -410,7 +425,7 @@ def _digito_via_after(elemento):
     if not style:
         return None
     texto_estilo = style.string or style.get_text() or ""
-    m = re.search(re.escape(f"#{id_}:after") + r"\s*\{([^}]*)\}", texto_estilo)
+    m = re.search(re.escape(f"#{id_}") + r"\s*:\s*(?:before|after)\s*\{([^}]*)\}", texto_estilo)
     if not m:
         return None
     bloque = m.group(1)
@@ -810,6 +825,15 @@ async def procesar_jornada_widget(page, url_jornada: str, nombre_competicion: st
         resultado_local, resultado_visitante = extraer_marcador_widget(celda_resultado, soup)
         acta = extraer_acta(fila, BASE_URL) or " "
 
+        # Si no se pudo decodificar el marcador (partido aun sin jugar, o
+        # fallo puntual de una de las tecnicas de ofuscacion) se guarda
+        # None, nunca 0: un 0-0 falso parece un resultado real y se queda
+        # grabado como tal en cada pasada del scraper hasta que la
+        # decodificacion vuelva a acertar -- confirmado que pasaba de
+        # verdad con dos partidos reales ya jugados y con marcador
+        # distinto de 0-0. guardar_o_actualizar_partido conserva el
+        # resultado ya guardado cuando llega None, igual que ya hace con
+        # el acta.
         data = {
             "nombre_competicion": nombre_competicion,
             "temporada_competicion": temporada,
@@ -818,8 +842,8 @@ async def procesar_jornada_widget(page, url_jornada: str, nombre_competicion: st
             "dia": fecha,
             "hora": hora,
             "jornada": jornada,
-            "resultado_local": resultado_local if resultado_local is not None else 0,
-            "resultado_visitante": resultado_visitante if resultado_visitante is not None else 0,
+            "resultado_local": resultado_local,
+            "resultado_visitante": resultado_visitante,
             "acta": acta,
         }
         await guardar_o_actualizar_partido(data)
